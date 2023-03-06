@@ -3,8 +3,10 @@ logo: "/images/TermFront-piclinic_sm.jpg"
 email: bobw@piclinic.org
 description: > # this means to ignore newlines until "baseurl:"
   Affordable patient-record automation for limited-resource clinics.<br>
-baseurl: "" # the subpath of your site
-url: "https://piclinic.org" # the base hostname & protocol for where the content is h
+  *** This site is for testing updates to the documentation. ***<br>
+  *** For the current documentation, see <a href="https://piclinic.org">https://piclinic.org</a>. ***
+baseurl: "/piClinic" # the subpath of your site
+url: "https://rbwatson.github.io" # the base hostname & protocol for where the content is hosted
 twitter_username: bobwatsonphd
 google_analytics: UA-58134115-3
 github_username:  rbwatson
