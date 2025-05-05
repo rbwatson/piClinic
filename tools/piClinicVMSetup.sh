@@ -1,7 +1,7 @@
 #/bin/bash
 #
 #	Instructions for running piClinic software on cat /etc/os-release in a
-#   VirtualBox Version 6.1.32 r149290
+#   Oracle VirtualBox Version 7.1.8 r168469 (Qt6.5.3)
 #
 #   This process can take from 60-90 minutes to complete.
 #
@@ -16,7 +16,8 @@
 #           Network adapter: Bridged
 #           Shared folders: (as required)
 #
-#       Download the .iso for Ubuntu 20.04.3 LTS and attach as an optical disk image
+#       Download the .iso for Ubuntu 24.04.2 LTS and attach when starting
+#           the VM for the first time
 #
 #       Start VM and install OS.
 #
@@ -49,11 +50,11 @@ sudo apt install git
 sudo apt install net-tools
 sudo apt-get -y install exfat-fuse exfat-utils
 sudo apt-get -y install apache2 apache2-doc libapache2-mod-php
-sudo apt-get -y install libapache2-mod-php7.4
-sudo apt-get -y install php7.4-common
-sudo apt-get -y install php7.4-fpm
-sudo apt-get -y install php7.4-mysql
-sudo apt-get -y install php7.4
+sudo apt-get -y install libapache2-mod-php8.3
+sudo apt-get -y install php8.3-common
+sudo apt-get -y install php8.3-fpm
+sudo apt-get -y install php8.3-mysql
+sudo apt-get -y install php8.3
 #
 #	create a php info page
 #   (note, these commands might need to be run from the su account by
@@ -72,9 +73,12 @@ sudo apt install mysql-server
 #   This must be done as a super user using (sudo su) access
 #  	from: https://www.digitalocean.com/community/tutorials/how-to-reset-your-mysql-or-mariadb-root-password
 #
+#####
+#####   TESTED TO HERE...
+#####
+#####
 sudo systemctl stop mysql
-sudo mysqld_safe --skip-grant-tables --skip-networking &
-mysql -u root
+sudo mysqld_safe --skip-grant-tables --skip-networking & mysql -u root
 # in mysql
 #	change new_password to your new root password.
 #	  	FLUSH PRIVILEGES;
