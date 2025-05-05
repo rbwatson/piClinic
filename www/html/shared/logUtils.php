@@ -377,7 +377,7 @@ function logSessionWorkflow ($sessionInfo, $filename, $step, $workflowID, $dblin
 
     $currentTime = microtime(true);
     $currentTimeString = sprintf("%06d",($currentTime - floor($currentTime)) * 1000000);
-    $timestamp= new DateTime( date('Y-m-d H:i:s.'.$currentTimeString, $currentTime) );
+    $timestamp= new DateTime( date('Y-m-d H:i:s.'.$currentTimeString, (int)$currentTime) );
 
     $wfLogEntry['wfMicrotime'] = $currentTime;
     $wfLogEntry['wfMicrotimeString'] = $timestamp->format("Y-m-d H:i:s.u");

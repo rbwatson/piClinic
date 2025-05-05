@@ -131,7 +131,7 @@ if (!defined('DB_UTILS')) {
 			isset($dbColList) ? $dbColList .= ', ' : $dbColList = '';
 			isset($dbValList) ? $dbValList .= ', ' : $dbValList = '';
 			$dbColList .= '`'.$dbCol.'`';
-			if (empty($dbVal) && (strlen($dbVal)==0)) {
+			if (empty($dbVal)) {
 				$dbValList .= 'NULL';
 			} else {
 				$escapedString = '';
@@ -162,7 +162,7 @@ if (!defined('DB_UTILS')) {
 			if ($dbCol == '__source') { continue; } // skip this, if present
 			// don't try to update a key field
 			if (!in_array($dbCol, $keyFields)) {
-				if (empty($dbVal) && (strlen($dbVal)==0)) {
+				if (empty($dbVal)) {
 					$dbValString = 'NULL';
 				} else {
 					if ($quoteValues) {
@@ -216,7 +216,7 @@ if (!defined('DB_UTILS')) {
 			if ($dbCol == '__source') { continue; } // skip this, if present
 			// don't try to update the primary key
 			if ($dbCol != $primaryKeyField) {
-				if (empty($dbVal) && (strlen($dbVal)==0)) {
+				if (empty($dbVal)) {
 					$dbValString = 'NULL';
 				} else {
                     // don't quote numbers or function names
