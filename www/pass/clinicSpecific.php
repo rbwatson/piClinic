@@ -107,3 +107,12 @@ define('API_DEBUG_MODE', false, false);
  *      false: do not log profiling information. Does not affect workflow event logging
  */
 define('API_PROFILE', false, false);
+
+/*
+ *
+ *  define directory for log files
+ *      Linux: "/var/log/piclinic/"
+ *      Windows: depends on installation
+ *
+ */
+define('PICLINIC_LOGS', "C:\\wamp64\\logs\\piclinic\\", false);

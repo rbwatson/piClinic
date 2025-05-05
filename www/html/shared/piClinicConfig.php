@@ -49,13 +49,23 @@ if (!defined('REST_CONSTANTS')) {
 	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	// include password(s)
 	require_once dirname(__FILE__).'/../../pass/dbPass.php';
+
+    // These constants are used in the clinicSpecific.php configuration file
+    define("PT_VALIDATE_NONE", 0, false);
+    define("PT_VALIDATE_NAME_SERIAL", 1, false);
+    define("PT_VALIDATE_CITY_SERIAL", 2, false);
+    define("PT_VALIDATE_NEW",64,false);
+    define("PT_VALIDATE_UPDATE",128,false);
+
+    // include local configuration settings
+    require_once dirname(__FILE__).'/../../pass/clinicSpecific.php';
 	// Contains paths to files and folders shared by the
 	//  php scripts on the server.
 
 	// configuration definitions
-	define('API_LOG_FILEPATH', '/var/log/piclinic/', false); // the path to the log folder
-	define('API_IMAGE_FILEPATH', '/var/local/piclinic/images/', false); // the system folder where image resources are stored
-	define('API_DELETED_FILEPATH', '/var/local/piclinic/deleted/', false); // the system folder where image resources are stored
+	define('API_LOG_FILEPATH', PICLINIC_LOGS, false); // the path to the log folder
+	define('API_IMAGE_FILEPATH', PICLINIC_LOGS.'images/', false); // the system folder where image resources are stored
+	define('API_DELETED_FILEPATH', PICLINIC_LOGS.'deleted/', false); // the system folder where image resources are stored
 	define('API_MAX_FILESIZE', 2*1024*1024, false); // this must be less than or equal to the upload_max_filesize value in the PHP.INI
     define('DB_QUERY_LIMIT_COUNT', 100, false); // this MUST match the value in DB_QUERY_LIMIT
 	define('DB_QUERY_LIMIT', ' LIMIT 100', false);	// added to queries to limit response size
@@ -90,13 +100,6 @@ if (!defined('REST_CONSTANTS')) {
                 return false;
         }
     }
-
-
-    define("PT_VALIDATE_NONE", 0, false);
-    define("PT_VALIDATE_NAME_SERIAL", 1, false);
-    define("PT_VALIDATE_CITY_SERIAL", 2, false);
-    define("PT_VALIDATE_NEW",64,false);
-    define("PT_VALIDATE_UPDATE",128,false);
 
 	// database interfaces
 	define('DB_SERVER','localhost', false);
@@ -136,8 +139,5 @@ if (!defined('REST_CONSTANTS')) {
     define('DB_VIEW_VISIT_CHECK','visitCheck', false);
     define('DB_VIEW_VISIT_GET_WITH_AGEGROUP','visitGetWithAgeGroup',false);
     define('DB_VIEW_THISCLINIC', 'thisClinicGet', false);
-
-    // include password(s)
-    require_once dirname(__FILE__).'/../../pass/clinicSpecific.php';
 }
 //EOF
