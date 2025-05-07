@@ -73,19 +73,15 @@ sudo apt install mysql-server
 #   This must be done as a super user using (sudo su) access
 #  	from: https://www.digitalocean.com/community/tutorials/how-to-reset-your-mysql-or-mariadb-root-password
 #
-#####
-#####   TESTED TO HERE...
-#####
-#####
 sudo systemctl stop mysql
 sudo mysqld_safe --skip-grant-tables --skip-networking & mysql -u root
 # in mysql
 #	change new_password to your new root password.
-#	  	FLUSH PRIVILEGES;
-#     CREATE USER 'admin'@'localhost' IDENTIFIED BY 'new_password';
-#     GRANT ALL PRIVILEGES ON *.* TO 'admin'@'localhost';
+#       FLUSH PRIVILEGES;
+#       CREATE USER 'admin'@'localhost' IDENTIFIED BY 'new_password';
+#       GRANT ALL PRIVILEGES ON *.* TO 'admin'@'localhost';
 #   If admin@localhost exists, just change its new_password
-#     SET PASSWORD FOR 'admin'@'localhost' = PASSWORD('new_password');
+#       SET PASSWORD FOR 'admin'@'localhost' = PASSWORD('new_password');
 # 	exit
 #
 sudo systemctl restart mysql

@@ -67,10 +67,36 @@ This process can take from 60-90 minutes to complete.
         2. Consider disabling or adding a password to the `root` account.
         3. Exit `phpmyadmin`.
 
-6. Initialize databases and tables
+6. In a GitBash window, download the piClinic repo to the Windows computer workspace.
 
-cd ~
-git clone https://github.com/docsbydesign/piClinic piClinic
+    ```bash
+    cd ~
+    git clone https://github.com/docsbydesign/piClinic piClinic
+    ```
+
+7. In a GitBash window, initialize databases and tables.
+
+    1. Edit this file to change the database password it defines.
+
+        ``` bash
+        nano ~/piClinic/sql/create_dbuser_ubuntu.sql
+        ```
+
+    2. After editing the password in create_dbuser.sql,
+        run this command to create the db user account
+
+        ``` bash
+        mysql -uroot  < ~/create_dbuser_ubuntu.sql
+        ```
+
+8. Install app database and database user account
+
+    ```bash
+    cd ~/piClinic/sql
+    mysql -uadmin -pYOURPASSWORD < piclinc.sql
+    mysql -uadmin -pYOURPASSWORD < icd10.sql
+
+#
 #
 # create app folders
 sudo mkdir /var/local
@@ -86,23 +112,10 @@ sudo chown -R www-data:www-data /var/log/piclinic
 sudo chmod -R 750 /var/log/piclinic
 #
 #
-echo 'Test your web server now by opening http://localhost in a browser.'
-echo 'Update the password in the ~/create_dbuser.sql file before installing the databases'
-echo 'After editing the password file, follow the commands that follow and enter them manually as directed.'
-#
-exit
-#
-# copy this file and edit the password before running it
-cp ~/piClinic/sql/create_dbuser_ubuntu.sql ~/.
-#
-# after editing the password in create_dbuser.sql,
-#    run this command to create the db user account
-sudo mysql -uroot  < ~/create_dbuser_ubuntu.sql
-##
 # install app database and database user account
 cd ~/piClinic/sql
 mysql -uadmin -pYOURPASSWORD < piclinc.sql
-mysql -uadmin -pYOURPASSWORD < icd10.sql
+mysql -uadmin -pYOURPASSWORD < icd10.s -
 #
 # copy the app files to create the web site
 sudo cp -R ~/piClinic/www/* /var/www/.
