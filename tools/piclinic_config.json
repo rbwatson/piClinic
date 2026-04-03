@@ -1,0 +1,79 @@
+{
+  "description": "piClinic environment verification checks",
+  "checks": [
+    {
+      "name": "Apache web server",
+      "type": "http",
+      "target": "http://localhost",
+      "expect": ["Apache2 Ubuntu Default Page", "It works"],
+      "solution": "Run: sudo systemctl start apache2\nIf it fails to start: sudo journalctl -xe | grep apache"
+    },
+    {
+      "name": "PHP info page",
+      "type": "http",
+      "target": "http://localhost/phpinfo.php",
+      "expect": ["PHP Version", "phpinfo()"],
+      "solution": "Confirm phpinfo.php exists in /var/www/html/. If missing, re-run the phpinfo.php creation step in piClinicVMSetup.sh.\nNote: remove phpinfo.php before deploying to production.\nIf the file exists but returns 404: sudo a2enmod php8.3 && sudo systemctl restart apache2"
+    },
+    {
+      "name": "PHP version",
+      "type": "command",
+      "target": "php -v",
+      "expect": ["PHP 8."],
+      "solution": "PHP 8.2 or later is required. Install via:\n  sudo apt-get install -y libapache2-mod-php php-common php-mysql\nOr use the ondrej/php PPA to install a specific version."
+    },
+    {
+      "name": "MySQL connectivity",
+      "type": "command",
+      "target": "mysql -u admin -p${MYSQL_PASSWORD} -e \"SELECT 1;\"",
+      "promptFor": [
+        {"var": "MYSQL_PASSWORD", "prompt": "MySQL admin password", "secret": true}
+      ],
+      "expect": ["1"],
+      "solution": "If MySQL is not running: sudo systemctl start mysql\nIf authentication fails, check the password you set in STEP 6 of piClinicVMSetup.sh.\nIf the admin user does not exist, re-run the DB user creation step."
+    },
+    {
+      "name": "Composer",
+      "type": "command",
+      "target": "composer --version",
+      "expect": ["Composer version"],
+      "solution": "Install Composer per STEP 7 of piClinicVMSetup.sh:\n  php -r \"copy('https://getcomposer.org/installer', 'composer-setup.php');\"\n  sudo php composer-setup.php --install-dir=/usr/local/bin --filename=composer"
+    },
+    {
+      "name": "Node.js version",
+      "type": "command",
+      "target": "node -e \"process.exit(parseInt(process.versions.node) >= 18 ? 0 : 1)\" && node -v",
+      "expect": ["v"],
+      "solution": "Node.js 18 or later is required. Install via NodeSource per STEP 8 of piClinicVMSetup.sh:\n  curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -\n  sudo apt-get install -y nodejs"
+    },
+    {
+      "name": "npm",
+      "type": "command",
+      "target": "npm -v",
+      "expect": ["."],
+      "solution": "npm is normally installed with Node. Run: sudo apt install npm\nOr reinstall Node via NodeSource per STEP 8 of piClinicVMSetup.sh."
+    },
+    {
+      "name": "PHPUnit",
+      "type": "command",
+      "target": "phpunit --version",
+      "expect": ["PHPUnit"],
+      "solution": "Install PHPUnit 12.x globally (PHP 8.3 compatible):\n  sudo wget -O /usr/local/bin/phpunit https://phar.phpunit.de/phpunit-12.phar\n  sudo chmod +x /usr/local/bin/phpunit\nOr install per-project: composer require --dev phpunit/phpunit:^12"
+    },
+    {
+      "name": "Git branch",
+      "type": "command",
+      "workdir": "~/piClinic",
+      "target": "git branch --show-current",
+      "expect": ["react-refactor"],
+      "solution": "If the branch is missing: git fetch origin && git checkout react-refactor\nIf the repo is not present, re-clone per STEP 10 of piClinicVMSetup.sh:\n  git clone -b react-refactor https://github.com/rbwatson/piClinic piClinic"
+    },
+    {
+      "name": "piClinic app directories",
+      "type": "command",
+      "target": "test -d /var/local/piclinic && test -d /var/log/piclinic && echo OK",
+      "expect": ["OK"],
+      "solution": "Create the application directories per STEP 13 of piClinicVMSetup.sh:\n  sudo mkdir -p /var/local/piclinic/image /var/local/piclinic/deleted /var/local/piclinic/downloads\n  sudo mkdir -p /var/log/piclinic\n  sudo chown -R www-data:www-data /var/local/piclinic /var/log/piclinic\n  sudo chmod -R 750 /var/local/piclinic /var/log/piclinic"
+    }
+  ]
+}

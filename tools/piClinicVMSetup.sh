@@ -229,8 +229,8 @@ git clone -b react-refactor https://github.com/rbwatson/piClinic piClinic
 cd piClinic
 #
 # Verify you are on the correct branch
-git branch
-#   Should show: * react-refactor
+git branch --show-current
+#   Should show: react-refactor
 #
 # =============================================================================
 # STEP 11: Install PHP (backend) dependencies via Composer
@@ -329,13 +329,19 @@ sudo shutdown -r 0
 # Checkpoint: verify the environment after restart
 # =============================================================================
 #
-#   Apache:     http://localhost                  (default Apache page)
-#   PHP:        http://localhost/phpinfo.php      (PHP info page)
-#   MySQL:      mysql -u admin -p                 (should connect)
-#   Composer:   composer --version
-#   Node:       node -v && npm -v
-#   PHPUnit:    phpunit --version
-#   Git branch: cd ~/piClinic && git branch       (should show react-refactor)
+# Run the environment check script to verify all components are installed
+# and configured correctly:
+#
+cd ~/piClinic/tools
+python3 checkEnvironment.py
+#
+# The script checks Apache, PHP version, MySQL connectivity, Composer, Node.js,
+# npm, PHPUnit, the active git branch, and the piClinic application directories.
+# It will prompt for the MySQL admin password.
+#
+# All checks should pass before starting development work. If any checks fail,
+# follow the solution guidance printed by the script, or refer to the
+# corresponding step in this file.
 #
 # =============================================================================
 # Development workflow quick reference
