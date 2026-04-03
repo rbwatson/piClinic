@@ -7,7 +7,6 @@ This file provides guidance for working on the piClinic v2.0 refactor project.
 piClinic is a clinic information system designed for resource-constrained environments. The v2.0 refactor transforms a PHP monolith with server-side rendering into a modern React SPA with an enhanced PHP backend.
 
 **Current State:**
-- Branch: `react-refactor`
 - Version: v1.x (production), v2.0 (in development)
 - Status: Active refactoring per phased implementation plan
 
@@ -15,6 +14,51 @@ piClinic is a clinic information system designed for resource-constrained enviro
 - Master plan: `v2_refactor/REFACTORING_GUIDE.md`
 - Implementation details: `v2_refactor/IMPLEMENTATION_PRIORITIES.md`
 - Testing strategy: `v2_refactor/thoughts/TESTING_STRATEGY.md`
+
+## Branch Strategy
+
+The repository uses three long-lived branches:
+
+| Branch | Purpose |
+|--------|---------|
+| `main` | v1.x production code. Not modified while v1 systems are running. |
+| `main_v2` | Stable v2.0 code. Receives merges from phase branches at phase-end Go/No-Go decisions only. |
+| `react-refactor` | Active v2.0 development. Current working branch. |
+
+### Phase Branches
+
+Development work is organized into phase branches that correspond to the phases defined in `v2_refactor/IMPLEMENTATION_PRIORITIES.md`:
+
+```
+phase-0-foundation   (complete)
+phase-1-backend
+phase-2-backend-pi
+phase-3-frontend-core
+phase-4-frontend-features
+phase-5-cross-platform
+phase-6-migration
+phase-7-production
+```
+
+Each phase branch:
+- Forks from the previous phase branch
+- Contains all work for that phase
+- Merges into `main_v2` only at the phase-end Go/No-Go decision point
+- Is retained after merging as a historical rollback point
+
+### Merge Policy
+
+- **Phase branch → `main_v2`**: Only at phase-end Go/No-Go. All tests must pass and phase success criteria must be met.
+- **`main_v2` → `main`**: Only for the final v2.0 production release (Phase 7 completion).
+- **`main` is never modified** during v2 development.
+
+### Current Branch
+
+Check which phase branch you are on before starting any work:
+
+```bash
+git branch --show-current
+```
 
 ## Critical Constraints
 
@@ -350,6 +394,13 @@ Check current phase in `v2_refactor/IMPLEMENTATION_PRIORITIES.md` before startin
 
 ## Quick Commands Reference
 
+### Environment Verification
+```bash
+# Verify the development environment
+cd ~/piClinic/tools
+python3 checkEnvironment.py
+```
+
 ### Backend Development
 ```bash
 # Start development server
@@ -449,13 +500,14 @@ Before any production deployment:
 
 ## Before Starting Any Task
 
-1. **Read the phase documentation** - Understand current phase requirements
-2. **Check existing code** - Look for similar patterns to follow
-3. **Consider Pi constraints** - Will this work on low-resource hardware?
-4. **Plan for testing** - How will you test this?
-5. **Think about types** - Ensure type safety between frontend/backend
-6. **If the task is ambiguous**, ask one clarifying question before writing any code.
-7. **Review security** - Any injection vulnerabilities?
+1. **Check your branch** - Run `git branch --show-current` and confirm you are on the correct phase branch
+2. **Read the phase documentation** - Understand current phase requirements
+3. **Check existing code** - Look for similar patterns to follow
+4. **Consider Pi constraints** - Will this work on low-resource hardware?
+5. **Plan for testing** - How will you test this?
+6. **Think about types** - Ensure type safety between frontend/backend
+7. **If the task is ambiguous**, ask one clarifying question before writing any code.
+8. **Review security** - Any injection vulnerabilities?
 
 ## When Asking Questions
 
@@ -496,6 +548,6 @@ Prefer to:
 
 ---
 
-**Document Version:** 1.0
+**Document Version:** 1.1
 **Created:** 2026-03-22
-**Last Updated:** 2026-03-22
+**Last Updated:** 2026-04-03
