@@ -1,0 +1,65 @@
+{
+  "description": "piClinic environment verification checks",
+  "checks": [
+    {
+      "name": "Apache web server",
+      "type": "http",
+      "target": "http://localhost",
+      "expect": ["Apache2 Ubuntu Default Page", "It works"],
+      "solution": "Run: sudo systemctl start apache2\nIf it fails to start: sudo journalctl -xe | grep apache"
+    },
+    {
+      "name": "PHP info page",
+      "type": "http",
+      "target": "http://localhost/phpinfo.php",
+      "expect": ["PHP Version", "phpinfo()"],
+      "solution": "Confirm phpinfo.php exists in /var/www/html/. If missing, check the piClinic www/html deployment.\nIf the file exists but returns 404, check Apache config: sudo a2enmod php8 && sudo systemctl restart apache2"
+    },
+    {
+      "name": "MySQL connectivity",
+      "type": "command",
+      "target": "mysql -u admin -p${MYSQL_PASSWORD} -e \"SELECT 1;\"",
+      "promptFor": [
+        {"var": "MYSQL_PASSWORD", "prompt": "MySQL admin password", "secret": true}
+      ],
+      "expect": ["1"],
+      "solution": "If MySQL is not running: sudo systemctl start mysql\nIf authentication fails, check credentials in ~/piClinic/www/html/local/config.php\nIf the admin user does not exist, run the DB setup section of piClinicVMSetup.sh"
+    },
+    {
+      "name": "Composer",
+      "type": "command",
+      "target": "composer --version",
+      "expect": ["Composer version"],
+      "solution": "Install Composer:\n  php -r \"copy('https://getcomposer.org/installer', 'composer-setup.php');\"\n  php composer-setup.php\n  sudo mv composer.phar /usr/local/bin/composer"
+    },
+    {
+      "name": "Node.js",
+      "type": "command",
+      "target": "node -v",
+      "expect": ["v"],
+      "solution": "Install Node via apt: sudo apt install nodejs\nOr via nvm: nvm install --lts"
+    },
+    {
+      "name": "npm",
+      "type": "command",
+      "target": "npm -v",
+      "expect": ["."],
+      "solution": "npm is normally installed with Node. Run: sudo apt install npm\nOr reinstall Node via nvm."
+    },
+    {
+      "name": "PHPUnit",
+      "type": "command",
+      "target": "phpunit --version",
+      "expect": ["PHPUnit"],
+      "solution": "Run from the piClinic backend directory: composer install\nOr install globally: sudo composer global require phpunit/phpunit"
+    },
+    {
+      "name": "Git branch",
+      "type": "command",
+      "workdir": "~/piClinic",
+      "target": "git branch",
+      "expect": ["react-refactor"],
+      "solution": "If the branch is missing: git fetch origin && git checkout react-refactor\nIf the repo is not present, re-clone from GitHub per the setup script."
+    }
+  ]
+}
