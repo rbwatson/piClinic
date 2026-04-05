@@ -4,8 +4,12 @@ declare(strict_types=1);
 require_once __DIR__ . '/vendor/autoload.php';
 
 use Dotenv\Dotenv;
+use PiClinic\Controllers\AuthController;
 use PiClinic\Middleware\CorsMiddleware;
 use PiClinic\Middleware\LoggerMiddleware;
+use PiClinic\Repositories\SessionRepository;
+use PiClinic\Repositories\StaffRepository;
+use PiClinic\Services\AuthService;
 
 // ---------------------------------------------------------------------------
 // Environment
@@ -70,15 +74,22 @@ $path = '/' . trim($path, '/');
 // Use '*' as method to match all HTTP methods.
 //
 // Routes are registered here as sub-phases are implemented:
-//   Phase 1B: /auth/login  /auth/logout  /auth/session
+//   Phase 1B: /auth/login  /auth/logout  /auth/session  /auth/refresh  ✓
 //   Phase 1C: /patients    /patients/{id}
 //   Phase 1D: /visits      /visits/{id}
 //   Phase 1E: /staff       /clinic       /icd
 // ---------------------------------------------------------------------------
+
+// Phase 1B: Auth
+$auth = new AuthController(
+    new AuthService(new SessionRepository(), new StaffRepository())
+);
+
 $routes = [
-    // Example (uncomment and adapt when implementing Phase 1B):
-    // ['POST', '/auth/login',   [new AuthController(), 'login']],
-    // ['GET',  '/auth/session', [new AuthController(), 'session']],
+    ['POST', '/auth/login',   [$auth, 'login']],
+    ['GET',  '/auth/session', [$auth, 'session']],
+    ['POST', '/auth/logout',  [$auth, 'logout']],
+    ['POST', '/auth/refresh', [$auth, 'refresh']],
 ];
 
 // Dispatch
