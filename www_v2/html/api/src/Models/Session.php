@@ -3,12 +3,26 @@ declare(strict_types=1);
 
 namespace PiClinic\Models;
 
+use OpenApi\Attributes as OA;
+
 /**
  * Immutable value object representing the session data returned to clients.
  *
  * Only the fields safe to expose are included here; the full session row
  * (sessionIP, sessionUA, etc.) is handled internally by the repository.
  */
+#[OA\Schema(
+    schema: 'Session',
+    required: ['token', 'username', 'accessGranted', 'sessionLanguage', 'expiresOnDate'],
+    properties: [
+        new OA\Property(property: 'token',                 type: 'string',  example: 'abc123def456'),
+        new OA\Property(property: 'username',              type: 'string',  example: 'jsmith'),
+        new OA\Property(property: 'accessGranted',         type: 'string',  enum: ['SystemAdmin', 'ClinicAdmin', 'ClinicStaff', 'ClinicReadOnly'], example: 'ClinicStaff'),
+        new OA\Property(property: 'sessionLanguage',       type: 'string',  enum: ['en', 'es', 'ui'], example: 'en'),
+        new OA\Property(property: 'sessionClinicPublicID', type: 'string',  nullable: true, example: 'PUB001'),
+        new OA\Property(property: 'expiresOnDate',         type: 'string',  format: 'date-time', example: '2026-04-06 12:00:00'),
+    ]
+)]
 readonly class Session
 {
     public function __construct(

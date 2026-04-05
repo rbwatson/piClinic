@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace PiClinic\Controllers;
 
+use OpenApi\Attributes as OA;
 use PiClinic\Middleware\AuthMiddleware;
 use PiClinic\Services\AuthService;
 
@@ -10,12 +11,33 @@ class AuthController extends BaseController
 {
     public function __construct(private readonly AuthService $authService) {}
 
-    /**
-     * POST /api/v2/auth/login
-     *
-     * Body (JSON): { "username": "...", "password": "..." }
-     * Response 201: session data
-     */
+    #[OA\Post(
+        path: '/auth/login',
+        summary: 'Create a new session (login)',
+        tags: ['Auth'],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['username', 'password'],
+                properties: [
+                    new OA\Property(property: 'username', type: 'string', example: 'jsmith'),
+                    new OA\Property(property: 'password', type: 'string', format: 'password'),
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(response: 201, description: 'Session created',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'status', type: 'string', example: 'success'),
+                        new OA\Property(property: 'data',   ref: '#/components/schemas/Session'),
+                    ]
+                )
+            ),
+            new OA\Response(response: 400, description: 'Missing credentials',    content: new OA\JsonContent(ref: '#/components/schemas/Error')),
+            new OA\Response(response: 401, description: 'Invalid credentials',    content: new OA\JsonContent(ref: '#/components/schemas/Error')),
+        ]
+    )]
     public function login(): never
     {
         /** @var array<string,mixed> $body */
@@ -30,15 +52,26 @@ class AuthController extends BaseController
         $this->success($session->toArray(), 201);
     }
 
-    /**
-     * GET /api/v2/auth/session
-     *
-     * Header: X-Session-Token: <token>
-     * Response 200: session data
-     */
+    #[OA\Get(
+        path: '/auth/session',
+        summary: 'Validate the current session',
+        security: [['sessionToken' => []]],
+        tags: ['Auth'],
+        responses: [
+            new OA\Response(response: 200, description: 'Session is valid',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'status', type: 'string', example: 'success'),
+                        new OA\Property(property: 'data',   ref: '#/components/schemas/Session'),
+                    ]
+                )
+            ),
+            new OA\Response(response: 401, description: 'Session invalid or expired', content: new OA\JsonContent(ref: '#/components/schemas/Error')),
+        ]
+    )]
     public function session(): never
     {
-        $token = (new AuthMiddleware())->requireToken();
+        $token = AuthMiddleware::requireToken();
         $ip    = $_SERVER['REMOTE_ADDR'] ?? '';
         $ua    = $_SERVER['HTTP_USER_AGENT'] ?? '';
 
@@ -46,28 +79,50 @@ class AuthController extends BaseController
         $this->success($session->toArray());
     }
 
-    /**
-     * POST /api/v2/auth/logout
-     *
-     * Header: X-Session-Token: <token>
-     * Response 200: empty data
-     */
+    #[OA\Post(
+        path: '/auth/logout',
+        summary: 'Terminate the current session (logout)',
+        security: [['sessionToken' => []]],
+        tags: ['Auth'],
+        responses: [
+            new OA\Response(response: 200, description: 'Logged out',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'status', type: 'string', example: 'success'),
+                        new OA\Property(property: 'data',   nullable: true, example: null),
+                    ]
+                )
+            ),
+            new OA\Response(response: 401, description: 'Unauthorized', content: new OA\JsonContent(ref: '#/components/schemas/Error')),
+        ]
+    )]
     public function logout(): never
     {
-        $token = (new AuthMiddleware())->requireToken();
+        $token = AuthMiddleware::requireToken();
         $this->authService->logout($token);
         $this->success(null);
     }
 
-    /**
-     * POST /api/v2/auth/refresh
-     *
-     * Header: X-Session-Token: <token>
-     * Response 200: session data with updated expiresOnDate
-     */
+    #[OA\Post(
+        path: '/auth/refresh',
+        summary: 'Extend the current session expiry',
+        security: [['sessionToken' => []]],
+        tags: ['Auth'],
+        responses: [
+            new OA\Response(response: 200, description: 'Session refreshed',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'status', type: 'string', example: 'success'),
+                        new OA\Property(property: 'data',   ref: '#/components/schemas/Session'),
+                    ]
+                )
+            ),
+            new OA\Response(response: 401, description: 'Session invalid or expired', content: new OA\JsonContent(ref: '#/components/schemas/Error')),
+        ]
+    )]
     public function refresh(): never
     {
-        $token = (new AuthMiddleware())->requireToken();
+        $token = AuthMiddleware::requireToken();
         $ip    = $_SERVER['REMOTE_ADDR'] ?? '';
         $ua    = $_SERVER['HTTP_USER_AGENT'] ?? '';
 

@@ -3,6 +3,32 @@ declare(strict_types=1);
 
 namespace PiClinic\Models;
 
+use OpenApi\Attributes as OA;
+
+#[OA\Schema(
+    schema: 'Clinic',
+    required: ['clinicID', 'thisClinic'],
+    properties: [
+        new OA\Property(property: 'clinicID',           type: 'integer', example: 1),
+        new OA\Property(property: 'thisClinic',         type: 'integer', example: 1, description: '1 if this is the local clinic record'),
+        new OA\Property(property: 'publicID',           type: 'string',  nullable: true, example: 'PUB001'),
+        new OA\Property(property: 'typeCode',           type: 'string',  nullable: true),
+        new OA\Property(property: 'careLevel',          type: 'string',  nullable: true),
+        new OA\Property(property: 'longName',           type: 'string',  nullable: true, example: 'Community Health Clinic'),
+        new OA\Property(property: 'shortName',          type: 'string',  nullable: true, example: 'CHC'),
+        new OA\Property(property: 'currency',           type: 'string',  nullable: true, example: 'USD'),
+        new OA\Property(property: 'address1',           type: 'string',  nullable: true),
+        new OA\Property(property: 'address2',           type: 'string',  nullable: true),
+        new OA\Property(property: 'clinicNeighborhood', type: 'string',  nullable: true),
+        new OA\Property(property: 'clinicCity',         type: 'string',  nullable: true),
+        new OA\Property(property: 'clinicState',        type: 'string',  nullable: true),
+        new OA\Property(property: 'clinicRegion',       type: 'string',  nullable: true),
+        new OA\Property(property: 'clinicDirector',     type: 'string',  nullable: true),
+        new OA\Property(property: 'clinicService',      type: 'string',  nullable: true),
+        new OA\Property(property: 'modifiedDate',       type: 'string',  format: 'date-time', nullable: true),
+        new OA\Property(property: 'createdDate',        type: 'string',  format: 'date-time', nullable: true),
+    ]
+)]
 readonly class Clinic
 {
     public function __construct(

@@ -3,6 +3,73 @@ declare(strict_types=1);
 
 namespace PiClinic\Models;
 
+use OpenApi\Attributes as OA;
+
+#[OA\Schema(
+    schema: 'Visit',
+    required: ['patientVisitID', 'clinicPatientID', 'firstVisit', 'visitType', 'visitStatus', 'patientLastName', 'patientFirstName', 'patientSex'],
+    properties: [
+        // Identity
+        new OA\Property(property: 'patientVisitID',            type: 'string',  example: '000000000001202604010101'),
+        new OA\Property(property: 'clinicPatientID',           type: 'string',  example: 'PT-001'),
+        new OA\Property(property: 'firstVisit',                type: 'string',  enum: ['YES', 'NO'], example: 'NO'),
+        new OA\Property(property: 'patientNationalID',         type: 'string',  nullable: true),
+        new OA\Property(property: 'patientFamilyID',           type: 'string',  nullable: true),
+        // Staff
+        new OA\Property(property: 'staffName',                 type: 'string',  nullable: true),
+        new OA\Property(property: 'staffUsername',             type: 'string',  nullable: true),
+        new OA\Property(property: 'staffPosition',             type: 'string',  nullable: true),
+        // Visit metadata
+        new OA\Property(property: 'visitType',                 type: 'string',  example: 'Clinic'),
+        new OA\Property(property: 'visitStatus',               type: 'string',  enum: ['Open', 'Closed', 'Deleted'], example: 'Open'),
+        new OA\Property(property: 'primaryComplaint',          type: 'string',  nullable: true),
+        new OA\Property(property: 'secondaryComplaint',        type: 'string',  nullable: true),
+        new OA\Property(property: 'dateTimeIn',                type: 'string',  format: 'date-time', nullable: true),
+        new OA\Property(property: 'dateTimeOut',               type: 'string',  format: 'date-time', nullable: true),
+        new OA\Property(property: 'payment',                   type: 'string',  nullable: true),
+        // Patient snapshot
+        new OA\Property(property: 'patientLastName',           type: 'string',  example: 'Smith'),
+        new OA\Property(property: 'patientFirstName',          type: 'string',  example: 'Jane'),
+        new OA\Property(property: 'patientSex',                type: 'string',  enum: ['M', 'F', 'X']),
+        new OA\Property(property: 'patientBirthDate',          type: 'string',  format: 'date', nullable: true),
+        new OA\Property(property: 'patientHomeAddress1',       type: 'string',  nullable: true),
+        new OA\Property(property: 'patientHomeAddress2',       type: 'string',  nullable: true),
+        new OA\Property(property: 'patientHomeNeighborhood',   type: 'string',  nullable: true),
+        new OA\Property(property: 'patientHomeCity',           type: 'string',  nullable: true),
+        new OA\Property(property: 'patientHomeCounty',         type: 'string',  nullable: true),
+        new OA\Property(property: 'patientHomeState',          type: 'string',  nullable: true),
+        new OA\Property(property: 'patientContactPhone',       type: 'string',  nullable: true),
+        new OA\Property(property: 'patientContactAltPhone',    type: 'string',  nullable: true),
+        new OA\Property(property: 'patientKnownAllergies',     type: 'string',  nullable: true),
+        new OA\Property(property: 'patientCurrentMedications', type: 'string',  nullable: true),
+        new OA\Property(property: 'patientNextVaccinationDate', type: 'string', format: 'date', nullable: true),
+        new OA\Property(property: 'patientResponsibleParty',   type: 'string',  nullable: true),
+        new OA\Property(property: 'patientMaritalStatus',      type: 'string',  nullable: true),
+        new OA\Property(property: 'patientProfession',         type: 'string',  nullable: true),
+        // Vitals
+        new OA\Property(property: 'height',      type: 'number', format: 'float', nullable: true),
+        new OA\Property(property: 'heightUnits', type: 'string', nullable: true, enum: ['cm', 'in']),
+        new OA\Property(property: 'weight',      type: 'number', format: 'float', nullable: true),
+        new OA\Property(property: 'weightUnits', type: 'string', nullable: true, enum: ['kg', 'lb']),
+        new OA\Property(property: 'temp',        type: 'number', format: 'float', nullable: true),
+        new OA\Property(property: 'tempUnits',   type: 'string', nullable: true, enum: ['C', 'F']),
+        new OA\Property(property: 'bpSystolic',  type: 'integer', nullable: true),
+        new OA\Property(property: 'bpDiastolic', type: 'integer', nullable: true),
+        new OA\Property(property: 'pulse',       type: 'integer', nullable: true),
+        new OA\Property(property: 'glucose',     type: 'integer', nullable: true),
+        new OA\Property(property: 'glucoseUnits', type: 'string', nullable: true),
+        // Diagnoses
+        new OA\Property(property: 'diagnosis1', type: 'string', nullable: true),
+        new OA\Property(property: 'condition1', type: 'string', nullable: true),
+        new OA\Property(property: 'diagnosis2', type: 'string', nullable: true),
+        new OA\Property(property: 'condition2', type: 'string', nullable: true),
+        new OA\Property(property: 'diagnosis3', type: 'string', nullable: true),
+        new OA\Property(property: 'condition3', type: 'string', nullable: true),
+        // Referrals
+        new OA\Property(property: 'referredTo',   type: 'string', nullable: true),
+        new OA\Property(property: 'referredFrom', type: 'string', nullable: true),
+    ]
+)]
 readonly class Visit
 {
     public function __construct(
