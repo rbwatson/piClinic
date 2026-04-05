@@ -158,7 +158,7 @@ deploy_pass() {
   log "Checking pass/ directory..."
 
   if $DRY_RUN; then
-    if [[ -d "$dest" ]]; then
+    if sudo test -d "$dest" 2>/dev/null; then
       info "[dry-run] ${dest} already exists - would leave existing files in place"
     else
       info "[dry-run] ${dest} not present - would copy template files from ${src}/"
@@ -167,7 +167,7 @@ deploy_pass() {
     return
   fi
 
-  if [[ ! -d "$dest" ]]; then
+  if ! sudo test -d "$dest" 2>/dev/null; then
     # First-time install: copy template files and flag for configuration
     log "pass/ not found at ${dest} - copying template files..."
     sudo mkdir -p "$dest"
@@ -177,23 +177,24 @@ deploy_pass() {
     sudo find "${dest}" -type d -exec chmod 750 {} \;
     sudo find "${dest}" -type f -exec chmod 640 {} \;
     needs_config=true
+    # Files were just copied - no need to verify, proceed to config warning
   else
     info "pass/ already present at ${dest} - leaving existing files in place"
-  fi
 
-  # Verify all expected pass files are present
-  local src_file dest_file
-  for src_file in "${src}"/*; do
-    [[ -f "$src_file" ]] || continue
-    dest_file="${dest}/$(basename "$src_file")"
-    if [[ ! -f "$dest_file" ]]; then
-      err "Missing password file: ${dest_file}"
-      missing=true
+    # Verify all expected pass files are present (using sudo for root-owned dirs)
+    local src_file dest_file
+    for src_file in "${src}"/*; do
+      [[ -f "$src_file" ]] || continue
+      dest_file="${dest}/$(basename "$src_file")"
+      if ! sudo test -f "$dest_file" 2>/dev/null; then
+        err "Missing password file: ${dest_file}"
+        missing=true
+      fi
+    done
+
+    if $missing; then
+      die "One or more required password files are missing from ${dest}. Copy the missing files from ${src}/ and configure them before use."
     fi
-  done
-
-  if $missing; then
-    die "One or more required password files are missing from ${dest}. Copy the missing files from ${src}/ and configure them before use."
   fi
 
   if $needs_config; then
@@ -201,6 +202,7 @@ deploy_pass() {
     warn "ACTION REQUIRED: Password files have been copied to ${dest}"
     warn "You must configure the following files before the system"
     warn "will work correctly:"
+    local src_file
     for src_file in "${src}"/*; do
       [[ -f "$src_file" ]] && warn "  ${dest}/$(basename "$src_file")"
     done
@@ -230,13 +232,13 @@ deploy_scripts() {
 
   sudo chown -R www-data:www-data "${dest}"
   sudo find "${dest}" -type d -exec chmod 755 {} \;
-  # Scripts need execute permission
+  # Shell scripts need execute permission; other files do not
   sudo find "${dest}" -type f -name "*.sh" -exec chmod 755 {} \;
   sudo find "${dest}" -type f ! -name "*.sh" -exec chmod 644 {} \;
 }
 
 # ---------------------------------------------------------------------------
-# Post-deploy verification
+# Post-deploy verification (uses sudo for root-owned directories)
 # ---------------------------------------------------------------------------
 verify_deployment() {
   local html_dest="${WEB_ROOT}/html"
@@ -246,17 +248,21 @@ verify_deployment() {
 
   log "Verifying deployment..."
 
-  if [[ ! -d "$html_dest" ]] || [[ -z "$(ls -A "$html_dest" 2>/dev/null)" ]]; then
+  if ! sudo test -d "$html_dest" 2>/dev/null || \
+     [[ -z "$(sudo find "$html_dest" -maxdepth 0 -empty 2>/dev/null)" && \
+        -z "$(sudo ls -A "$html_dest" 2>/dev/null)" ]]; then
     err "DEPLOYMENT NOT READY: ${html_dest} is missing or empty"
     ready=false
   fi
 
-  if [[ ! -d "$pass_dest" ]] || [[ -z "$(ls -A "$pass_dest" 2>/dev/null)" ]]; then
+  if ! sudo test -d "$pass_dest" 2>/dev/null || \
+     [[ -z "$(sudo ls -A "$pass_dest" 2>/dev/null)" ]]; then
     err "DEPLOYMENT NOT READY: ${pass_dest} is missing or empty - password files must be present and configured"
     ready=false
   fi
 
-  if [[ ! -d "$scripts_dest" ]] || [[ -z "$(ls -A "$scripts_dest" 2>/dev/null)" ]]; then
+  if ! sudo test -d "$scripts_dest" 2>/dev/null || \
+     [[ -z "$(sudo ls -A "$scripts_dest" 2>/dev/null)" ]]; then
     err "DEPLOYMENT NOT READY: ${scripts_dest} is missing or empty"
     ready=false
   fi
