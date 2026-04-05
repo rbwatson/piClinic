@@ -291,8 +291,14 @@ sudo chown -R www-data:www-data /var/local/piclinic
 sudo chmod -R 750 /var/local/piclinic
 #
 sudo mkdir -p /var/log/piclinic
-sudo chown -R www-data:www-data /var/log/piclinic
-sudo chmod -R 750 /var/log/piclinic
+sudo chown www-data:www-data /var/log/piclinic
+sudo chmod 770 /var/log/piclinic
+#
+# Developer accounts that run tests interactively need write access to the log
+# directory. Add each developer's username to the www-data group, then log out
+# and back in (or run: newgrp www-data) for the change to take effect.
+#
+#   sudo usermod -aG www-data <username>
 #
 # =============================================================================
 # STEP 14: Database setup
