@@ -20,10 +20,10 @@
 #        www/pass/      -> /var/www/pass/   (conditional: skip if already present)
 #        www/scripts/   -> /var/www/scripts/
 #
-#   v2:  www_v2/html/   -> /var/www/html/  (React build output)
-#        www_v2/api/    -> /var/www/api/   (PHP v2 API)
-#        www/pass/      -> /var/www/pass/  (shared with v1; conditional)
-#        www/scripts/   -> /var/www/scripts/ (shared with v1)
+#   v2:  www_v2/html/       -> /var/www/html/      (React build + PHP v2 API)
+#        www_v2/html/api/  -> /var/www/html/api/  (PHP v2 API, inside html tree)
+#        www/pass/         -> /var/www/pass/       (shared with v1; conditional)
+#        www/scripts/      -> /var/www/scripts/    (shared with v1)
 #
 # Examples:
 #   ./tools/deploy.sh v1
@@ -155,41 +155,26 @@ deploy_html() {
 }
 
 # ---------------------------------------------------------------------------
-# Deploy: v2 API
+# Run composer install for v2 API (called after deploy_html for v2)
 # ---------------------------------------------------------------------------
-deploy_v2_api() {
-  local src="${REPO_ROOT}/www_v2/api"
-  local dest="${WEB_ROOT}/api"
+deploy_v2_composer() {
+  local api_dest="${WEB_ROOT}/html/api"
 
-  if [[ ! -d "$src" ]] || [[ -z "$(ls -A "$src" 2>/dev/null | grep -v '.gitkeep')" ]]; then
-    warn "www_v2/api/ is empty or not present - skipping API deploy"
+  if ! sudo test -f "${api_dest}/composer.json" 2>/dev/null; then
     return
   fi
-
-  log "Deploying v2 API: ${src}/ -> ${dest}/"
 
   if $DRY_RUN; then
-    rsync -av --dry-run --exclude='.gitkeep' "${src}/" "${dest}/"
+    info "[dry-run] Would run composer install in ${api_dest}"
     return
   fi
 
-  sudo mkdir -p "$dest"
-  sudo rsync -av --delete --exclude='.gitkeep' "${src}/" "${dest}/" \
-    || die "rsync failed for v2 API"
-
-  # Run composer install if composer.json is present
-  if sudo test -f "${dest}/composer.json"; then
-    log "Running composer install for v2 API..."
-    sudo composer install \
-      --no-dev \
-      --optimize-autoloader \
-      --working-dir="${dest}" \
-      || die "composer install failed"
-  fi
-
-  sudo chown -R www-data:www-data "${dest}"
-  sudo find "${dest}" -type d -exec chmod 755 {} \;
-  sudo find "${dest}" -type f -exec chmod 644 {} \;
+  log "Running composer install for v2 API..."
+  sudo composer install \
+    --no-dev \
+    --optimize-autoloader \
+    --working-dir="${api_dest}" \
+    || die "composer install failed"
 }
 
 # ---------------------------------------------------------------------------
@@ -352,7 +337,7 @@ deploy_v2() {
   log "Deploying v2..."
 
   deploy_html "${frontend_src}"
-  deploy_v2_api
+  deploy_v2_composer
   deploy_pass
   deploy_scripts
 
