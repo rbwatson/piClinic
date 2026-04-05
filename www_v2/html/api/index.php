@@ -6,13 +6,16 @@ require_once __DIR__ . '/vendor/autoload.php';
 use Dotenv\Dotenv;
 use PiClinic\Controllers\AuthController;
 use PiClinic\Controllers\PatientController;
+use PiClinic\Controllers\VisitController;
 use PiClinic\Middleware\CorsMiddleware;
 use PiClinic\Middleware\LoggerMiddleware;
 use PiClinic\Repositories\PatientRepository;
 use PiClinic\Repositories\SessionRepository;
 use PiClinic\Repositories\StaffRepository;
+use PiClinic\Repositories\VisitRepository;
 use PiClinic\Services\AuthService;
 use PiClinic\Services\PatientService;
+use PiClinic\Services\VisitService;
 
 // ---------------------------------------------------------------------------
 // Environment
@@ -89,7 +92,11 @@ $auth = new AuthController(
 );
 
 // Phase 1C: Patients
-$patient = new PatientController(new PatientService(new PatientRepository()));
+$patientRepo = new PatientRepository();
+$patient     = new PatientController(new PatientService($patientRepo));
+
+// Phase 1D: Visits
+$visit = new VisitController(new VisitService($patientRepo, new VisitRepository()));
 
 $routes = [
     // Auth
@@ -104,6 +111,13 @@ $routes = [
     ['GET',    '/patients/(?P<id>[^/]+)',    [$patient, 'getOne']],
     ['PATCH',  '/patients/(?P<id>[^/]+)',    [$patient, 'update']],
     ['DELETE', '/patients/(?P<id>[^/]+)',    [$patient, 'delete']],
+
+    // Visits
+    ['GET',    '/visits',                    [$visit, 'search']],
+    ['POST',   '/visits',                    [$visit, 'create']],
+    ['GET',    '/visits/(?P<id>[^/]+)',      [$visit, 'getOne']],
+    ['PATCH',  '/visits/(?P<id>[^/]+)',      [$visit, 'update']],
+    ['DELETE', '/visits/(?P<id>[^/]+)',      [$visit, 'delete']],
 ];
 
 // Dispatch

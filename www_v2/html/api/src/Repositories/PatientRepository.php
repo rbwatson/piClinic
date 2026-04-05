@@ -245,4 +245,24 @@ class PatientRepository extends BaseRepository
         $stmt->close();
         return $found;
     }
+
+    /**
+     * Returns the full patient row from the patient TABLE (not the view),
+     * including the auto-increment `patientID`. Used when creating a visit
+     * to build the patientVisitID and copy the demographic snapshot.
+     *
+     * @return array<string,mixed>|null
+     */
+    public function findRawByClinicPatientID(string $clinicPatientID): ?array
+    {
+        $stmt = $this->prepare(
+            'SELECT * FROM `' . self::TABLE . '` WHERE `clinicPatientID` = ? LIMIT 1'
+        );
+        $stmt->bind_param('s', $clinicPatientID);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $row    = $result->fetch_assoc();
+        $stmt->close();
+        return $row ?: null;
+    }
 }
