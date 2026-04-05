@@ -22,7 +22,13 @@
 #   ./tools/deploy.sh v2 --backup --backup-dir /home/user/backups
 #   ./tools/deploy.sh v2 --web-root /srv/www/html
 
-set -euo pipefail
+# Require bash - pipefail and BASH_SOURCE are not available in sh/dash
+if [ -z "${BASH_VERSION:-}" ]; then
+  echo "ERROR: This script requires bash. Run as: bash tools/deploy.sh" >&2
+  exit 1
+fi
+
+set -eu
 
 # ---------------------------------------------------------------------------
 # Defaults
