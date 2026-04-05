@@ -15,7 +15,7 @@ paths:
       tags:
         - Auth
       summary: 'Create a new session (login)'
-      operationId: 49e1326014cf452096c9618297240562
+      operationId: login
       requestBody:
         required: true
         content:
@@ -59,7 +59,7 @@ paths:
       tags:
         - Auth
       summary: 'Validate the current session'
-      operationId: 2f5ed47b849e3809deb6fb5c9915b62b
+      operationId: getSession
       responses:
         '200':
           description: 'Session is valid'
@@ -84,7 +84,7 @@ paths:
       tags:
         - Auth
       summary: 'Terminate the current session (logout)'
-      operationId: a0da5404687fe24323138016dc6d6c4e
+      operationId: logout
       responses:
         '200':
           description: 'Logged out'
@@ -109,7 +109,7 @@ paths:
       tags:
         - Auth
       summary: 'Extend the current session expiry'
-      operationId: fe949978d5935df53e32ba5a069586f6
+      operationId: refreshSession
       responses:
         '200':
           description: 'Session refreshed'
@@ -135,7 +135,7 @@ paths:
         - Clinic
       summary: 'Search for clinic records'
       description: 'GET /api/v2/clinic[?thisClinic=1|publicID=...|shortName=...]'
-      operationId: bf8817e115753b90c317a3f0e7b9e420
+      operationId: searchClinics
       parameters:
         -
           name: thisClinic
@@ -187,7 +187,7 @@ paths:
         - ICD
       summary: 'Search ICD-10 codes'
       description: 'GET /api/v2/icd[?q=...&t=...&c=...&language=...&sort=...]'
-      operationId: 97e4cfebf0b10eb07c255bd4177fb023
+      operationId: searchIcdCodes
       parameters:
         -
           name: q
@@ -257,7 +257,7 @@ paths:
         - ICD
       summary: 'Get a single ICD-10 code'
       description: 'GET /api/v2/icd/{code}[?language=en]'
-      operationId: ef975394fee1e1eeff687f45983a5464
+      operationId: getIcdCode
       parameters:
         -
           name: code
@@ -305,7 +305,7 @@ paths:
         - Patients
       summary: 'Get a patient by clinic patient ID'
       description: 'GET /api/v2/patients/{id}'
-      operationId: 06f4b87d0bbad6970c1ecdae720c06ad
+      operationId: getPatient
       parameters:
         -
           name: id
@@ -342,7 +342,7 @@ paths:
         - Patients
       summary: 'Deactivate a patient record (soft delete)'
       description: 'DELETE /api/v2/patients/{id}'
-      operationId: 8ac67c1ab23d4d0dc0efee5812fd6302
+      operationId: deletePatient
       parameters:
         -
           name: id
@@ -379,7 +379,7 @@ paths:
         - Patients
       summary: 'Update a patient record'
       description: 'PATCH /api/v2/patients/{id}'
-      operationId: 955bfd7c530e2d796eda02975b408e5c
+      operationId: updatePatient
       parameters:
         -
           name: id
@@ -429,7 +429,7 @@ paths:
         - Patients
       summary: 'Search patients'
       description: 'GET /api/v2/patients[?q=...&lastName=...&...]'
-      operationId: c821f655dc528a33a47052b9ee8fc719
+      operationId: searchPatients
       parameters:
         -
           name: q
@@ -490,7 +490,7 @@ paths:
         - Patients
       summary: 'Create a new patient record'
       description: 'POST /api/v2/patients'
-      operationId: 6d7f793f55aabb01a30eacfbe74637c2
+      operationId: createPatient
       requestBody:
         required: true
         content:
@@ -534,7 +534,7 @@ paths:
         - Staff
       summary: 'Get a staff member by username'
       description: 'GET /api/v2/staff/{username}'
-      operationId: 5f37cd7c22162968aeddb681c5a96e70
+      operationId: getStaffMember
       parameters:
         -
           name: username
@@ -571,7 +571,7 @@ paths:
         - Staff
       summary: 'Deactivate a staff member (soft delete)'
       description: 'DELETE /api/v2/staff/{username}'
-      operationId: 4f51158d1fbaaff49236773e612ff2cb
+      operationId: deleteStaffMember
       parameters:
         -
           name: username
@@ -608,7 +608,7 @@ paths:
         - Staff
       summary: 'Update a staff member'
       description: 'PATCH /api/v2/staff/{username}'
-      operationId: 7d9247ab6ee8acd420fda5f4a56cdb4f
+      operationId: updateStaffMember
       parameters:
         -
           name: username
@@ -658,7 +658,7 @@ paths:
         - Staff
       summary: 'List staff members'
       description: 'GET /api/v2/staff[?position=...&active=...]'
-      operationId: 0b7e92754fd8a2153d303118be964698
+      operationId: listStaff
       parameters:
         -
           name: position
@@ -715,7 +715,7 @@ paths:
         - Staff
       summary: 'Create a new staff member'
       description: 'POST /api/v2/staff'
-      operationId: 98fbe5bf1e97c6b69b13e10d9cfdaecc
+      operationId: createStaffMember
       requestBody:
         required: true
         content:
@@ -785,7 +785,7 @@ paths:
         - Visits
       summary: 'Get a visit by patient visit ID'
       description: 'GET /api/v2/visits/{id}'
-      operationId: add7a01f20e636c8239bb8fba06054f4
+      operationId: getVisit
       parameters:
         -
           name: id
@@ -822,7 +822,7 @@ paths:
         - Visits
       summary: 'Soft-delete a visit record'
       description: 'DELETE /api/v2/visits/{id}'
-      operationId: f22ed3733d9f3d80fad9e39c63637da6
+      operationId: deleteVisit
       parameters:
         -
           name: id
@@ -859,7 +859,7 @@ paths:
         - Visits
       summary: 'Update a visit record'
       description: 'PATCH /api/v2/visits/{id}'
-      operationId: 28ce74237a44fde3117eefd2acd6e610
+      operationId: updateVisit
       parameters:
         -
           name: id
@@ -909,7 +909,7 @@ paths:
         - Visits
       summary: 'Search visits by patient or status'
       description: 'GET /api/v2/visits?clinicPatientID=...&visitStatus=...'
-      operationId: eb2eb81aedef0fe3653bc20fb8074676
+      operationId: searchVisits
       parameters:
         -
           name: clinicPatientID
@@ -958,7 +958,7 @@ paths:
         - Visits
       summary: 'Open a new visit'
       description: 'POST /api/v2/visits'
-      operationId: 5622df80f324ec7a70be3cc045d99652
+      operationId: createVisit
       requestBody:
         required: true
         content:
