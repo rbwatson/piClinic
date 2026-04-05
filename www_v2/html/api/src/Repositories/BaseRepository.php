@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace PiClinic\Repositories;
 
 use mysqli;
+use mysqli_result;
 use mysqli_stmt;
 use RuntimeException;
 use PiClinic\Config\Database;
@@ -35,6 +36,21 @@ abstract class BaseRepository
             );
         }
         return $stmt;
+    }
+
+    /**
+     * Get the result set from a prepared statement, throwing on failure.
+     * Eliminates the mysqli_result|false union that PHPStan would otherwise flag.
+     */
+    protected function getResult(mysqli_stmt $stmt): mysqli_result
+    {
+        $result = $stmt->get_result();
+        if ($result === false) {
+            throw new RuntimeException(
+                'mysqli_stmt::get_result() failed: ' . $stmt->error
+            );
+        }
+        return $result;
     }
 
     /**

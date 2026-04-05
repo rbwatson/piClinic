@@ -19,7 +19,7 @@ class SessionRepository extends BaseRepository
         );
         $stmt->bind_param('s', $token);
         $stmt->execute();
-        $result = $stmt->get_result();
+        $result = $this->getResult($stmt);
         /** @var array<string,mixed>|null|false $row */
         $row = $result->fetch_assoc();
         $stmt->close();

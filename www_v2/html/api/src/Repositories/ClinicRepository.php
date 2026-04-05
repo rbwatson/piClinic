@@ -14,7 +14,7 @@ class ClinicRepository extends BaseRepository
             'SELECT * FROM `' . self::TABLE . '` WHERE `thisClinic` = 1 LIMIT 1'
         );
         $stmt->execute();
-        $row = $stmt->get_result()->fetch_assoc();
+        $row = $this->getResult($stmt)->fetch_assoc();
         $stmt->close();
         return $row ?: null;
     }
@@ -27,7 +27,7 @@ class ClinicRepository extends BaseRepository
         );
         $stmt->bind_param('s', $publicID);
         $stmt->execute();
-        $row = $stmt->get_result()->fetch_assoc();
+        $row = $this->getResult($stmt)->fetch_assoc();
         $stmt->close();
         return $row ?: null;
     }
@@ -44,7 +44,7 @@ class ClinicRepository extends BaseRepository
         );
         $stmt->bind_param('s', $like);
         $stmt->execute();
-        $rows = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        $rows = $this->getResult($stmt)->fetch_all(MYSQLI_ASSOC);
         $stmt->close();
         return $rows;
     }

@@ -48,7 +48,7 @@ class StaffService
         }
 
         $rows = $this->repo->findAll(
-            $position !== '' ? $position : null,
+            ($position !== null && $position !== '') ? $position : null,
             $active
         );
         return array_map(fn(array $r) => Staff::fromRow($r), $rows);

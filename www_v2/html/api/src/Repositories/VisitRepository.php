@@ -17,7 +17,7 @@ class VisitRepository extends BaseRepository
         );
         $stmt->bind_param('s', $patientVisitID);
         $stmt->execute();
-        $result = $stmt->get_result();
+        $result = $this->getResult($stmt);
         $row    = $result->fetch_assoc();
         $stmt->close();
         return $row ?: null;
@@ -47,7 +47,7 @@ class VisitRepository extends BaseRepository
             $stmt->bind_param('s', $clinicPatientID);
         }
         $stmt->execute();
-        $rows = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        $rows = $this->getResult($stmt)->fetch_all(MYSQLI_ASSOC);
         $stmt->close();
         return $rows;
     }
@@ -66,7 +66,7 @@ class VisitRepository extends BaseRepository
         );
         $stmt->bind_param('s', $visitStatus);
         $stmt->execute();
-        $rows = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        $rows = $this->getResult($stmt)->fetch_all(MYSQLI_ASSOC);
         $stmt->close();
         return $rows;
     }
@@ -83,7 +83,7 @@ class VisitRepository extends BaseRepository
         );
         $stmt->bind_param('ss', $clinicPatientID, $visitDate);
         $stmt->execute();
-        $result = $stmt->get_result()->fetch_assoc();
+        $result = $this->getResult($stmt)->fetch_assoc();
         $stmt->close();
         return (int) ($result['maxIdx'] ?? 0);
     }

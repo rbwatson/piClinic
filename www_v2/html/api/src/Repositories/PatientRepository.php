@@ -16,7 +16,7 @@ class PatientRepository extends BaseRepository
         );
         $stmt->bind_param('s', $clinicPatientID);
         $stmt->execute();
-        $result = $stmt->get_result();
+        $result = $this->getResult($stmt);
         $row    = $result->fetch_assoc();
         $stmt->close();
         return $row ?: null;
@@ -62,7 +62,7 @@ class PatientRepository extends BaseRepository
         $stmt = $this->prepare($sql);
         $stmt->bind_param($types, ...$binds);
         $stmt->execute();
-        $result = $stmt->get_result();
+        $result = $this->getResult($stmt);
         $rows   = $result->fetch_all(MYSQLI_ASSOC);
         $stmt->close();
         return $rows;
@@ -110,7 +110,7 @@ class PatientRepository extends BaseRepository
         $stmt = $this->prepare($sql);
         $stmt->bind_param($types, ...$binds);
         $stmt->execute();
-        $result = $stmt->get_result();
+        $result = $this->getResult($stmt);
         $rows   = $result->fetch_all(MYSQLI_ASSOC);
         $stmt->close();
         return $rows;
@@ -260,7 +260,7 @@ class PatientRepository extends BaseRepository
         );
         $stmt->bind_param('s', $clinicPatientID);
         $stmt->execute();
-        $result = $stmt->get_result();
+        $result = $this->getResult($stmt);
         $row    = $result->fetch_assoc();
         $stmt->close();
         return $row ?: null;

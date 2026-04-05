@@ -23,7 +23,7 @@ class IcdRepository extends BaseRepository
         );
         $stmt->bind_param('sss', $language, $like, $like);
         $stmt->execute();
-        $rows = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        $rows = $this->getResult($stmt)->fetch_all(MYSQLI_ASSOC);
         $stmt->close();
         return $rows;
     }
@@ -44,7 +44,7 @@ class IcdRepository extends BaseRepository
         );
         $stmt->bind_param('ss', $language, $like);
         $stmt->execute();
-        $rows = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        $rows = $this->getResult($stmt)->fetch_all(MYSQLI_ASSOC);
         $stmt->close();
         return $rows;
     }
@@ -65,7 +65,7 @@ class IcdRepository extends BaseRepository
         );
         $stmt->bind_param('ss', $language, $like);
         $stmt->execute();
-        $rows = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        $rows = $this->getResult($stmt)->fetch_all(MYSQLI_ASSOC);
         $stmt->close();
         return $rows;
     }
@@ -79,7 +79,7 @@ class IcdRepository extends BaseRepository
         );
         $stmt->bind_param('ss', $language, $icd10code);
         $stmt->execute();
-        $row = $stmt->get_result()->fetch_assoc();
+        $row = $this->getResult($stmt)->fetch_assoc();
         $stmt->close();
         return $row ?: null;
     }

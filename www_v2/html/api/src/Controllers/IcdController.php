@@ -10,7 +10,10 @@ class IcdController extends BaseController
 {
     public function __construct(private IcdService $icdService) {}
 
-    /** GET /api/v2/icd[?q=...&t=...&c=...&language=...&sort=...] */
+    /**
+     * GET /api/v2/icd[?q=...&t=...&c=...&language=...&sort=...]
+     * @param array<string,string> $params
+     */
     public function search(array $params): never
     {
         AuthMiddleware::requireToken();
@@ -18,7 +21,10 @@ class IcdController extends BaseController
         $this->json(array_map(fn($code) => $code->toArray(), $codes));
     }
 
-    /** GET /api/v2/icd/{code}[?language=en] */
+    /**
+     * GET /api/v2/icd/{code}[?language=en]
+     * @param array<string,string> $params
+     */
     public function getOne(array $params): never
     {
         AuthMiddleware::requireToken();
