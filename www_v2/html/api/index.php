@@ -1,0 +1,103 @@
+<?php
+declare(strict_types=1);
+
+require_once __DIR__ . '/vendor/autoload.php';
+
+use Dotenv\Dotenv;
+use PiClinic\Middleware\CorsMiddleware;
+use PiClinic\Middleware\LoggerMiddleware;
+
+// ---------------------------------------------------------------------------
+// Environment
+// ---------------------------------------------------------------------------
+$dotenv = Dotenv::createImmutable(__DIR__);
+$dotenv->safeLoad();
+
+// ---------------------------------------------------------------------------
+// Global exception handler — always return JSON, never HTML
+// ---------------------------------------------------------------------------
+set_exception_handler(function (Throwable $e): never {
+    $statusCode = ($e instanceof \PiClinic\Exceptions\HttpException)
+        ? $e->getStatusCode()
+        : 500;
+
+    http_response_code($statusCode);
+    header('Content-Type: application/json; charset=utf-8');
+
+    $body = ['status' => 'error', 'message' => $e->getMessage()];
+
+    if (($_ENV['APP_DEBUG'] ?? 'false') === 'true') {
+        $body['trace'] = $e->getTraceAsString();
+    }
+
+    echo json_encode($body);
+    exit;
+});
+
+// ---------------------------------------------------------------------------
+// CORS (handles OPTIONS preflight and sets headers on all responses)
+// ---------------------------------------------------------------------------
+(new CorsMiddleware())->handle();
+
+// ---------------------------------------------------------------------------
+// Request logging
+// ---------------------------------------------------------------------------
+$logger = LoggerMiddleware::getLogger();
+$logger->info('Request', [
+    'method' => $_SERVER['REQUEST_METHOD'],
+    'uri'    => $_SERVER['REQUEST_URI'] ?? '',
+    'ip'     => $_SERVER['REMOTE_ADDR'] ?? '',
+]);
+
+// ---------------------------------------------------------------------------
+// Routing
+// ---------------------------------------------------------------------------
+$method = $_SERVER['REQUEST_METHOD'];
+$uri    = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?? '/';
+
+// Strip the base path so controllers see only the resource path.
+// e.g. /api/v2/patients/123 -> /patients/123
+$basePath = '/api/v2';
+$path = str_starts_with($uri, $basePath)
+    ? substr($uri, strlen($basePath))
+    : $uri;
+$path = '/' . trim($path, '/');
+
+// ---------------------------------------------------------------------------
+// Route table
+// Each entry: [HTTP_METHOD, regex_pattern, callable_handler]
+// Named capture groups become the $params array passed to the handler.
+// Use '*' as method to match all HTTP methods.
+//
+// Routes are registered here as sub-phases are implemented:
+//   Phase 1B: /auth/login  /auth/logout  /auth/session
+//   Phase 1C: /patients    /patients/{id}
+//   Phase 1D: /visits      /visits/{id}
+//   Phase 1E: /staff       /clinic       /icd
+// ---------------------------------------------------------------------------
+$routes = [
+    // Example (uncomment and adapt when implementing Phase 1B):
+    // ['POST', '/auth/login',   [new AuthController(), 'login']],
+    // ['GET',  '/auth/session', [new AuthController(), 'session']],
+];
+
+// Dispatch
+foreach ($routes as [$routeMethod, $pattern, $handler]) {
+    if ($routeMethod !== '*' && $routeMethod !== $method) {
+        continue;
+    }
+    if (preg_match('#^' . $pattern . '$#', $path, $matches)) {
+        $params = array_filter($matches, 'is_string', ARRAY_FILTER_USE_KEY);
+        $handler($params);
+        exit;
+    }
+}
+
+// No route matched
+http_response_code(404);
+header('Content-Type: application/json; charset=utf-8');
+echo json_encode([
+    'status'  => 'error',
+    'message' => 'Endpoint not found',
+    'path'    => $path,
+]);

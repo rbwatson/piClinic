@@ -1,0 +1,16 @@
+# Block direct HTTP access to sensitive files
+<FilesMatch "(^\.env|composer\.(json|lock))">
+    Require all denied
+</FilesMatch>
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Block direct access to source and vendor directories
+    RewriteRule ^(src|vendor)/.*$ - [F,L]
+
+    # Route all requests that don't match a real file or directory to index.php
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^ index.php [QSA,L]
+</IfModule>
