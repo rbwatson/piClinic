@@ -5,16 +5,24 @@ require_once __DIR__ . '/vendor/autoload.php';
 
 use Dotenv\Dotenv;
 use PiClinic\Controllers\AuthController;
+use PiClinic\Controllers\ClinicController;
+use PiClinic\Controllers\IcdController;
 use PiClinic\Controllers\PatientController;
+use PiClinic\Controllers\StaffController;
 use PiClinic\Controllers\VisitController;
 use PiClinic\Middleware\CorsMiddleware;
 use PiClinic\Middleware\LoggerMiddleware;
+use PiClinic\Repositories\ClinicRepository;
+use PiClinic\Repositories\IcdRepository;
 use PiClinic\Repositories\PatientRepository;
 use PiClinic\Repositories\SessionRepository;
 use PiClinic\Repositories\StaffRepository;
 use PiClinic\Repositories\VisitRepository;
 use PiClinic\Services\AuthService;
+use PiClinic\Services\ClinicService;
+use PiClinic\Services\IcdService;
 use PiClinic\Services\PatientService;
+use PiClinic\Services\StaffService;
 use PiClinic\Services\VisitService;
 
 // ---------------------------------------------------------------------------
@@ -86,17 +94,25 @@ $path = '/' . trim($path, '/');
 //   Phase 1E: /staff       /clinic       /icd
 // ---------------------------------------------------------------------------
 
+// Shared repository instances
+$staffRepo   = new StaffRepository();
+$patientRepo = new PatientRepository();
+
 // Phase 1B: Auth
 $auth = new AuthController(
-    new AuthService(new SessionRepository(), new StaffRepository())
+    new AuthService(new SessionRepository(), $staffRepo)
 );
 
 // Phase 1C: Patients
-$patientRepo = new PatientRepository();
-$patient     = new PatientController(new PatientService($patientRepo));
+$patient = new PatientController(new PatientService($patientRepo));
 
 // Phase 1D: Visits
 $visit = new VisitController(new VisitService($patientRepo, new VisitRepository()));
+
+// Phase 1E: Supporting APIs
+$staff  = new StaffController(new StaffService($staffRepo));
+$clinic = new ClinicController(new ClinicService(new ClinicRepository()));
+$icd    = new IcdController(new IcdService(new IcdRepository()));
 
 $routes = [
     // Auth
@@ -113,11 +129,25 @@ $routes = [
     ['DELETE', '/patients/(?P<id>[^/]+)',    [$patient, 'delete']],
 
     // Visits
-    ['GET',    '/visits',                    [$visit, 'search']],
-    ['POST',   '/visits',                    [$visit, 'create']],
-    ['GET',    '/visits/(?P<id>[^/]+)',      [$visit, 'getOne']],
-    ['PATCH',  '/visits/(?P<id>[^/]+)',      [$visit, 'update']],
-    ['DELETE', '/visits/(?P<id>[^/]+)',      [$visit, 'delete']],
+    ['GET',    '/visits',                                    [$visit, 'search']],
+    ['POST',   '/visits',                                    [$visit, 'create']],
+    ['GET',    '/visits/(?P<id>[^/]+)',                      [$visit, 'getOne']],
+    ['PATCH',  '/visits/(?P<id>[^/]+)',                      [$visit, 'update']],
+    ['DELETE', '/visits/(?P<id>[^/]+)',                      [$visit, 'delete']],
+
+    // Staff
+    ['GET',    '/staff',                                     [$staff, 'list']],
+    ['POST',   '/staff',                                     [$staff, 'create']],
+    ['GET',    '/staff/(?P<username>[^/]+)',                  [$staff, 'getOne']],
+    ['PATCH',  '/staff/(?P<username>[^/]+)',                  [$staff, 'update']],
+    ['DELETE', '/staff/(?P<username>[^/]+)',                  [$staff, 'delete']],
+
+    // Clinic (read-only)
+    ['GET',    '/clinic',                                    [$clinic, 'search']],
+
+    // ICD-10 (read-only)
+    ['GET',    '/icd',                                       [$icd, 'search']],
+    ['GET',    '/icd/(?P<code>[^/]+)',                       [$icd, 'getOne']],
 ];
 
 // Dispatch

@@ -155,6 +155,21 @@ class VisitServiceTest extends TestCase
         $this->assertCount(1, $results);
     }
 
+    public function testSearchByClinicPatientIDWithStatusPassesStatusToRepo(): void
+    {
+        // Use createMock() to verify findByClinicPatientID is called with the status arg.
+        $visitRepo = $this->createMock(VisitRepository::class);
+        $visitRepo->expects($this->once())
+                  ->method('findByClinicPatientID')
+                  ->with('PT-001', 'Open')
+                  ->willReturn([$this->visitRow]);
+
+        $results = (new VisitService($this->patientRepo, $visitRepo))
+            ->search(['clinicPatientID' => 'PT-001', 'visitStatus' => 'Open']);
+
+        $this->assertCount(1, $results);
+    }
+
     public function testSearchWithNoParamsThrows400(): void
     {
         $this->expectException(HttpException::class);
@@ -181,6 +196,24 @@ class VisitServiceTest extends TestCase
 
         $this->assertInstanceOf(Visit::class, $visit);
         $this->assertSame('PT-001', $visit->clinicPatientID);
+    }
+
+    public function testCreateConcatenatesLastName2(): void
+    {
+        $patientWithLastName2 = array_merge($this->rawPatient, ['lastName2' => 'García']);
+        $visitWithConcatName  = array_merge($this->visitRow,   ['patientLastName' => 'Smith García']);
+
+        $this->patientRepo->method('findRawByClinicPatientID')->willReturn($patientWithLastName2);
+        $this->visitRepo->method('getMaxVisitIndex')->willReturn(0);
+        $this->visitRepo->method('create')->willReturn(true);
+        $this->visitRepo->method('findByPatientVisitID')->willReturn($visitWithConcatName);
+
+        $visit = $this->service->create([
+            'clinicPatientID' => 'PT-001',
+            'visitType'       => 'General',
+        ]);
+
+        $this->assertSame('Smith García', $visit->patientLastName);
     }
 
     public function testCreateWithMissingClinicPatientIDThrows400(): void
