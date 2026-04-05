@@ -47,10 +47,7 @@ class StaffService
             $active = ($activeParam === '1' || strtolower($activeParam) === 'true');
         }
 
-        $rows = $this->repo->findAll(
-            ($position !== null && $position !== '') ? $position : null,
-            $active
-        );
+        $rows = $this->repo->findAll($position, $active);
         return array_map(fn(array $r) => Staff::fromRow($r), $rows);
     }
 
