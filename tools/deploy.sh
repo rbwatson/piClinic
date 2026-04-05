@@ -12,7 +12,7 @@
 #   --backup                Back up current deployment before deploying
 #                           (uses default backup dir: /var/backups/piclinic)
 #   --backup-dir <path>     Back up to a specific directory
-#   --web-root <path>       Override the web root (default: /var/www/html)
+#   --web-root <path>       Override the web root (default: /var/www)
 #   --help                  Show this help message
 #
 # Examples:
@@ -20,9 +20,9 @@
 #   ./tools/deploy.sh v2 --dry-run
 #   ./tools/deploy.sh v1 --backup
 #   ./tools/deploy.sh v2 --backup --backup-dir /home/user/backups
-#   ./tools/deploy.sh v2 --web-root /srv/www/html
+#   ./tools/deploy.sh v2 --web-root /srv/www
 
-# Require bash - pipefail and BASH_SOURCE are not available in sh/dash
+# Require bash - BASH_SOURCE and other features are not available in sh/dash
 if [ -z "${BASH_VERSION:-}" ]; then
   echo "ERROR: This script requires bash. Run as: bash tools/deploy.sh" >&2
   exit 1
@@ -36,7 +36,7 @@ set -eu
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
-WEB_ROOT="/var/www/html"
+WEB_ROOT="/var/www"
 DEFAULT_BACKUP_DIR="/var/backups/piclinic"
 BACKUP_DIR=""
 VERSION=""
@@ -120,40 +120,174 @@ do_backup() {
 }
 
 # ---------------------------------------------------------------------------
-# Deploy functions
+# Deploy: html files
 # ---------------------------------------------------------------------------
-deploy_v1() {
-  local src="${REPO_ROOT}/www/html"
+deploy_html() {
+  local src="$1"
+  local dest="${WEB_ROOT}/html"
 
-  [[ -d "$src" ]] || die "V1 source directory not found: ${src}"
+  [[ -d "$src" ]] || die "HTML source directory not found: ${src}"
 
-  log "Deploying v1 from ${src} to ${WEB_ROOT}..."
+  log "Deploying html: ${src}/ -> ${dest}/"
 
   if $DRY_RUN; then
-    info "[dry-run] Would rsync: ${src}/ -> ${WEB_ROOT}/"
-    rsync -av --dry-run "${src}/" "${WEB_ROOT}/"
+    rsync -av --dry-run "${src}/" "${dest}/"
     return
   fi
 
-  sudo rsync -av --delete "${src}/" "${WEB_ROOT}/" \
-    || die "rsync failed for v1"
+  sudo mkdir -p "$dest"
+  sudo rsync -av --delete "${src}/" "${dest}/" \
+    || die "rsync failed for html directory"
 
-  sudo chown -R www-data:www-data "${WEB_ROOT}" \
-    || warn "Could not set ownership on ${WEB_ROOT}"
+  sudo chown -R www-data:www-data "${dest}"
+  sudo find "${dest}" -type d -exec chmod 755 {} \;
+  sudo find "${dest}" -type f -exec chmod 644 {} \;
+}
 
-  sudo find "${WEB_ROOT}" -type d -exec chmod 755 {} \; \
-    || warn "Could not set directory permissions"
+# ---------------------------------------------------------------------------
+# Deploy: pass files (conditional - do not overwrite if already present)
+# ---------------------------------------------------------------------------
+deploy_pass() {
+  local src="${REPO_ROOT}/www/pass"
+  local dest="${WEB_ROOT}/pass"
+  local needs_config=false
+  local missing=false
 
-  sudo find "${WEB_ROOT}" -type f -exec chmod 644 {} \; \
-    || warn "Could not set file permissions"
+  [[ -d "$src" ]] || die "pass/ source directory not found: ${src}"
 
+  log "Checking pass/ directory..."
+
+  if $DRY_RUN; then
+    if [[ -d "$dest" ]]; then
+      info "[dry-run] ${dest} already exists - would leave existing files in place"
+    else
+      info "[dry-run] ${dest} not present - would copy template files from ${src}/"
+      rsync -av --dry-run "${src}/" "${dest}/"
+    fi
+    return
+  fi
+
+  if [[ ! -d "$dest" ]]; then
+    # First-time install: copy template files and flag for configuration
+    log "pass/ not found at ${dest} - copying template files..."
+    sudo mkdir -p "$dest"
+    sudo rsync -av "${src}/" "${dest}/" \
+      || die "rsync failed for pass/ directory"
+    sudo chown -R www-data:www-data "${dest}"
+    sudo find "${dest}" -type d -exec chmod 750 {} \;
+    sudo find "${dest}" -type f -exec chmod 640 {} \;
+    needs_config=true
+  else
+    info "pass/ already present at ${dest} - leaving existing files in place"
+  fi
+
+  # Verify all expected pass files are present
+  local src_file dest_file
+  for src_file in "${src}"/*; do
+    [[ -f "$src_file" ]] || continue
+    dest_file="${dest}/$(basename "$src_file")"
+    if [[ ! -f "$dest_file" ]]; then
+      err "Missing password file: ${dest_file}"
+      missing=true
+    fi
+  done
+
+  if $missing; then
+    die "One or more required password files are missing from ${dest}. Copy the missing files from ${src}/ and configure them before use."
+  fi
+
+  if $needs_config; then
+    warn "================================================================"
+    warn "ACTION REQUIRED: Password files have been copied to ${dest}"
+    warn "You must configure the following files before the system"
+    warn "will work correctly:"
+    for src_file in "${src}"/*; do
+      [[ -f "$src_file" ]] && warn "  ${dest}/$(basename "$src_file")"
+    done
+    warn "================================================================"
+  fi
+}
+
+# ---------------------------------------------------------------------------
+# Deploy: scripts (always copy, must be executable)
+# ---------------------------------------------------------------------------
+deploy_scripts() {
+  local src="${REPO_ROOT}/www/scripts"
+  local dest="${WEB_ROOT}/scripts"
+
+  [[ -d "$src" ]] || die "scripts/ source directory not found: ${src}"
+
+  log "Deploying scripts: ${src}/ -> ${dest}/"
+
+  if $DRY_RUN; then
+    rsync -av --dry-run "${src}/" "${dest}/"
+    return
+  fi
+
+  sudo mkdir -p "$dest"
+  sudo rsync -av --delete "${src}/" "${dest}/" \
+    || die "rsync failed for scripts/ directory"
+
+  sudo chown -R www-data:www-data "${dest}"
+  sudo find "${dest}" -type d -exec chmod 755 {} \;
+  # Scripts need execute permission
+  sudo find "${dest}" -type f -name "*.sh" -exec chmod 755 {} \;
+  sudo find "${dest}" -type f ! -name "*.sh" -exec chmod 644 {} \;
+}
+
+# ---------------------------------------------------------------------------
+# Post-deploy verification
+# ---------------------------------------------------------------------------
+verify_deployment() {
+  local html_dest="${WEB_ROOT}/html"
+  local pass_dest="${WEB_ROOT}/pass"
+  local scripts_dest="${WEB_ROOT}/scripts"
+  local ready=true
+
+  log "Verifying deployment..."
+
+  if [[ ! -d "$html_dest" ]] || [[ -z "$(ls -A "$html_dest" 2>/dev/null)" ]]; then
+    err "DEPLOYMENT NOT READY: ${html_dest} is missing or empty"
+    ready=false
+  fi
+
+  if [[ ! -d "$pass_dest" ]] || [[ -z "$(ls -A "$pass_dest" 2>/dev/null)" ]]; then
+    err "DEPLOYMENT NOT READY: ${pass_dest} is missing or empty - password files must be present and configured"
+    ready=false
+  fi
+
+  if [[ ! -d "$scripts_dest" ]] || [[ -z "$(ls -A "$scripts_dest" 2>/dev/null)" ]]; then
+    err "DEPLOYMENT NOT READY: ${scripts_dest} is missing or empty"
+    ready=false
+  fi
+
+  if ! $ready; then
+    die "Deployment verification failed - see errors above"
+  fi
+
+  info "Verification passed: html/, pass/, and scripts/ are all present"
+}
+
+# ---------------------------------------------------------------------------
+# Deploy v1
+# ---------------------------------------------------------------------------
+deploy_v1() {
+  deploy_html "${REPO_ROOT}/www/html"
+  deploy_pass
+  deploy_scripts
+  if ! $DRY_RUN; then
+    verify_deployment
+  fi
   info "v1 deploy complete"
 }
 
+# ---------------------------------------------------------------------------
+# Deploy v2
+# ---------------------------------------------------------------------------
 deploy_v2() {
   local api_src="${REPO_ROOT}/www/html/api/v2"
   local frontend_src="${REPO_ROOT}/frontend/dist"
-  local api_dest="${WEB_ROOT}/api/v2"
+  local api_dest="${WEB_ROOT}/html/api/v2"
 
   # Frontend build is required for v2
   if [[ ! -d "$frontend_src" ]]; then
@@ -172,8 +306,10 @@ deploy_v2() {
       info "[dry-run] Would rsync: ${api_src}/ -> ${api_dest}/"
       rsync -av --dry-run "${api_src}/" "${api_dest}/"
     fi
-    info "[dry-run] Would rsync: ${frontend_src}/ -> ${WEB_ROOT}/"
-    rsync -av --dry-run "${frontend_src}/" "${WEB_ROOT}/"
+    info "[dry-run] Would rsync: ${frontend_src}/ -> ${WEB_ROOT}/html/"
+    rsync -av --dry-run "${frontend_src}/" "${WEB_ROOT}/html/"
+    deploy_pass
+    deploy_scripts
     return
   fi
 
@@ -194,20 +330,20 @@ deploy_v2() {
     fi
   fi
 
-  # Deploy React frontend (static files)
+  # Deploy React frontend (static files), preserving api/ directory
+  sudo mkdir -p "${WEB_ROOT}/html"
   sudo rsync -av --delete \
     --exclude='api/' \
-    "${frontend_src}/" "${WEB_ROOT}/" \
+    "${frontend_src}/" "${WEB_ROOT}/html/" \
     || die "rsync failed for v2 frontend"
 
-  sudo chown -R www-data:www-data "${WEB_ROOT}" \
-    || warn "Could not set ownership on ${WEB_ROOT}"
+  sudo chown -R www-data:www-data "${WEB_ROOT}/html"
+  sudo find "${WEB_ROOT}/html" -type d -exec chmod 755 {} \;
+  sudo find "${WEB_ROOT}/html" -type f -exec chmod 644 {} \;
 
-  sudo find "${WEB_ROOT}" -type d -exec chmod 755 {} \; \
-    || warn "Could not set directory permissions"
-
-  sudo find "${WEB_ROOT}" -type f -exec chmod 644 {} \; \
-    || warn "Could not set file permissions"
+  deploy_pass
+  deploy_scripts
+  verify_deployment
 
   info "v2 deploy complete"
 }
