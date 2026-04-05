@@ -17,6 +17,7 @@ class ClinicController extends BaseController
      */
     #[OA\Get(
         path: '/clinic',
+        operationId: 'searchClinics',
         summary: 'Search for clinic records',
         security: [['sessionToken' => []]],
         tags: ['Clinic'],

@@ -13,6 +13,7 @@ class AuthController extends BaseController
 
     #[OA\Post(
         path: '/auth/login',
+        operationId: 'login',
         summary: 'Create a new session (login)',
         tags: ['Auth'],
         requestBody: new OA\RequestBody(
@@ -54,6 +55,7 @@ class AuthController extends BaseController
 
     #[OA\Get(
         path: '/auth/session',
+        operationId: 'getSession',
         summary: 'Validate the current session',
         security: [['sessionToken' => []]],
         tags: ['Auth'],
@@ -81,6 +83,7 @@ class AuthController extends BaseController
 
     #[OA\Post(
         path: '/auth/logout',
+        operationId: 'logout',
         summary: 'Terminate the current session (logout)',
         security: [['sessionToken' => []]],
         tags: ['Auth'],
@@ -105,6 +108,7 @@ class AuthController extends BaseController
 
     #[OA\Post(
         path: '/auth/refresh',
+        operationId: 'refreshSession',
         summary: 'Extend the current session expiry',
         security: [['sessionToken' => []]],
         tags: ['Auth'],

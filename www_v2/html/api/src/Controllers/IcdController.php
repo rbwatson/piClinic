@@ -17,6 +17,7 @@ class IcdController extends BaseController
      */
     #[OA\Get(
         path: '/icd',
+        operationId: 'searchIcdCodes',
         summary: 'Search ICD-10 codes',
         security: [['sessionToken' => []]],
         tags: ['ICD'],
@@ -49,6 +50,7 @@ class IcdController extends BaseController
      */
     #[OA\Get(
         path: '/icd/{code}',
+        operationId: 'getIcdCode',
         summary: 'Get a single ICD-10 code',
         security: [['sessionToken' => []]],
         tags: ['ICD'],

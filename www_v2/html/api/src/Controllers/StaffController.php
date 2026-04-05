@@ -17,6 +17,7 @@ class StaffController extends BaseController
      */
     #[OA\Get(
         path: '/staff/{username}',
+        operationId: 'getStaffMember',
         summary: 'Get a staff member by username',
         security: [['sessionToken' => []]],
         tags: ['Staff'],
@@ -43,6 +44,7 @@ class StaffController extends BaseController
      */
     #[OA\Get(
         path: '/staff',
+        operationId: 'listStaff',
         summary: 'List staff members',
         security: [['sessionToken' => []]],
         tags: ['Staff'],
@@ -74,6 +76,7 @@ class StaffController extends BaseController
      */
     #[OA\Post(
         path: '/staff',
+        operationId: 'createStaffMember',
         summary: 'Create a new staff member',
         security: [['sessionToken' => []]],
         tags: ['Staff'],
@@ -119,6 +122,7 @@ class StaffController extends BaseController
      */
     #[OA\Patch(
         path: '/staff/{username}',
+        operationId: 'updateStaffMember',
         summary: 'Update a staff member',
         security: [['sessionToken' => []]],
         tags: ['Staff'],
@@ -151,6 +155,7 @@ class StaffController extends BaseController
      */
     #[OA\Delete(
         path: '/staff/{username}',
+        operationId: 'deleteStaffMember',
         summary: 'Deactivate a staff member (soft delete)',
         security: [['sessionToken' => []]],
         tags: ['Staff'],

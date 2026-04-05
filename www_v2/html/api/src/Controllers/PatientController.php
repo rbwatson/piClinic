@@ -18,6 +18,7 @@ class PatientController extends BaseController
      */
     #[OA\Get(
         path: '/patients/{id}',
+        operationId: 'getPatient',
         summary: 'Get a patient by clinic patient ID',
         security: [['sessionToken' => []]],
         tags: ['Patients'],
@@ -45,6 +46,7 @@ class PatientController extends BaseController
      */
     #[OA\Get(
         path: '/patients',
+        operationId: 'searchPatients',
         summary: 'Search patients',
         security: [['sessionToken' => []]],
         tags: ['Patients'],
@@ -77,6 +79,7 @@ class PatientController extends BaseController
      */
     #[OA\Post(
         path: '/patients',
+        operationId: 'createPatient',
         summary: 'Create a new patient record',
         security: [['sessionToken' => []]],
         tags: ['Patients'],
@@ -113,6 +116,7 @@ class PatientController extends BaseController
      */
     #[OA\Patch(
         path: '/patients/{id}',
+        operationId: 'updatePatient',
         summary: 'Update a patient record',
         security: [['sessionToken' => []]],
         tags: ['Patients'],
@@ -146,6 +150,7 @@ class PatientController extends BaseController
      */
     #[OA\Delete(
         path: '/patients/{id}',
+        operationId: 'deletePatient',
         summary: 'Deactivate a patient record (soft delete)',
         security: [['sessionToken' => []]],
         tags: ['Patients'],

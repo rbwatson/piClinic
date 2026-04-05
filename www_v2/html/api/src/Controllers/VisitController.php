@@ -18,6 +18,7 @@ class VisitController extends BaseController
      */
     #[OA\Get(
         path: '/visits/{id}',
+        operationId: 'getVisit',
         summary: 'Get a visit by patient visit ID',
         security: [['sessionToken' => []]],
         tags: ['Visits'],
@@ -45,6 +46,7 @@ class VisitController extends BaseController
      */
     #[OA\Get(
         path: '/visits',
+        operationId: 'searchVisits',
         summary: 'Search visits by patient or status',
         security: [['sessionToken' => []]],
         tags: ['Visits'],
@@ -75,6 +77,7 @@ class VisitController extends BaseController
      */
     #[OA\Post(
         path: '/visits',
+        operationId: 'createVisit',
         summary: 'Open a new visit',
         security: [['sessionToken' => []]],
         tags: ['Visits'],
@@ -120,6 +123,7 @@ class VisitController extends BaseController
      */
     #[OA\Patch(
         path: '/visits/{id}',
+        operationId: 'updateVisit',
         summary: 'Update a visit record',
         security: [['sessionToken' => []]],
         tags: ['Visits'],
@@ -153,6 +157,7 @@ class VisitController extends BaseController
      */
     #[OA\Delete(
         path: '/visits/{id}',
+        operationId: 'deleteVisit',
         summary: 'Soft-delete a visit record',
         security: [['sessionToken' => []]],
         tags: ['Visits'],
