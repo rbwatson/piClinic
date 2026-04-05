@@ -18,3 +18,9 @@ if (file_exists($envFile)) {
     $dotenv = Dotenv\Dotenv::createImmutable(dirname($envFile), '.env.test');
     $dotenv->safeLoad();
 }
+
+// Set test defaults for any env vars not provided by .env.test.
+// These must be set before the first test runs so that singletons like
+// LoggerMiddleware pick them up before they are initialised.
+$_ENV['LOG_PATH']  = $_ENV['LOG_PATH']  ?? sys_get_temp_dir() . '/';
+$_ENV['LOG_LEVEL'] = $_ENV['LOG_LEVEL'] ?? 'debug';

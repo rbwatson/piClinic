@@ -69,4 +69,23 @@ abstract class BaseController
     {
         $this->error($message, 403);
     }
+
+    /**
+     * Parse the request body as JSON and return it as an associative array.
+     * Throws 400 if the body is missing or not valid JSON.
+     *
+     * @return array<string,mixed>
+     */
+    protected function parseJsonBody(): array
+    {
+        $raw = file_get_contents('php://input');
+        if ($raw === false || $raw === '') {
+            throw new \PiClinic\Exceptions\HttpException(400, 'Request body is required.');
+        }
+        $data = json_decode($raw, true);
+        if (!is_array($data)) {
+            throw new \PiClinic\Exceptions\HttpException(400, 'Request body must be valid JSON.');
+        }
+        return $data;
+    }
 }

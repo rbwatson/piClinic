@@ -5,11 +5,14 @@ require_once __DIR__ . '/vendor/autoload.php';
 
 use Dotenv\Dotenv;
 use PiClinic\Controllers\AuthController;
+use PiClinic\Controllers\PatientController;
 use PiClinic\Middleware\CorsMiddleware;
 use PiClinic\Middleware\LoggerMiddleware;
+use PiClinic\Repositories\PatientRepository;
 use PiClinic\Repositories\SessionRepository;
 use PiClinic\Repositories\StaffRepository;
 use PiClinic\Services\AuthService;
+use PiClinic\Services\PatientService;
 
 // ---------------------------------------------------------------------------
 // Environment
@@ -85,11 +88,22 @@ $auth = new AuthController(
     new AuthService(new SessionRepository(), new StaffRepository())
 );
 
+// Phase 1C: Patients
+$patient = new PatientController(new PatientService(new PatientRepository()));
+
 $routes = [
+    // Auth
     ['POST', '/auth/login',   [$auth, 'login']],
     ['GET',  '/auth/session', [$auth, 'session']],
     ['POST', '/auth/logout',  [$auth, 'logout']],
     ['POST', '/auth/refresh', [$auth, 'refresh']],
+
+    // Patients
+    ['GET',    '/patients',                  [$patient, 'search']],
+    ['POST',   '/patients',                  [$patient, 'create']],
+    ['GET',    '/patients/(?P<id>[^/]+)',    [$patient, 'getOne']],
+    ['PATCH',  '/patients/(?P<id>[^/]+)',    [$patient, 'update']],
+    ['DELETE', '/patients/(?P<id>[^/]+)',    [$patient, 'delete']],
 ];
 
 // Dispatch

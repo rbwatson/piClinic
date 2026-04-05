@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace PiClinic\Tests\Unit\Services;
 
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use PiClinic\Exceptions\HttpException;
 use PiClinic\Models\Session;
@@ -13,41 +12,43 @@ use PiClinic\Services\AuthService;
 
 class AuthServiceTest extends TestCase
 {
-    private StaffRepository&MockObject   $staffRepo;
-    private SessionRepository&MockObject $sessionRepo;
+    // createStub() is used throughout setUp() — PHPUnit 12 generates a notice
+    // when createMock() is used on doubles that never have expects() set on them.
+    // Use createMock() only in tests that verify a method is called.
+    private StaffRepository   $staffRepo;
+    private SessionRepository $sessionRepo;
     private AuthService $authService;
 
-    // A bcrypt hash of 'correct-password'
-    private const HASHED_PASSWORD = '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi';
-
     /** @var array<string,mixed> */
-    private array $activeStaff = [
-        'staffID'               => 1,
-        'username'              => 'jsmith',
-        'password'              => self::HASHED_PASSWORD,
-        'active'                => 1,
-        'accessGranted'         => 'ClinicStaff',
-        'preferredLanguage'     => 'en',
-        'preferredClinicPublicID' => 'CL01',
-    ];
+    private array $activeStaff;
 
     /** @var array<string,mixed> */
     private array $activeSession = [
-        'token'                => 'abc123',
-        'username'             => 'jsmith',
-        'accessGranted'        => 'ClinicStaff',
-        'sessionLanguage'      => 'en',
+        'token'                 => 'abc123',
+        'username'              => 'jsmith',
+        'accessGranted'         => 'ClinicStaff',
+        'sessionLanguage'       => 'en',
         'sessionClinicPublicID' => 'CL01',
-        'expiresOnDate'        => '2099-12-31 23:59:59',
-        'loggedIn'             => 1,
-        'sessionIP'            => '127.0.0.1',
-        'sessionUA'            => 'TestAgent/1.0',
+        'expiresOnDate'         => '2099-12-31 23:59:59',
+        'loggedIn'              => 1,
+        'sessionIP'             => '127.0.0.1',
+        'sessionUA'             => 'TestAgent/1.0',
     ];
 
     protected function setUp(): void
     {
-        $this->staffRepo   = $this->createMock(StaffRepository::class);
-        $this->sessionRepo = $this->createMock(SessionRepository::class);
+        $this->activeStaff = [
+            'staffID'                => 1,
+            'username'               => 'jsmith',
+            'password'               => password_hash('correct-password', PASSWORD_DEFAULT),
+            'active'                 => 1,
+            'accessGranted'          => 'ClinicStaff',
+            'preferredLanguage'      => 'en',
+            'preferredClinicPublicID' => 'CL01',
+        ];
+
+        $this->staffRepo   = $this->createStub(StaffRepository::class);
+        $this->sessionRepo = $this->createStub(SessionRepository::class);
         $this->authService = new AuthService($this->sessionRepo, $this->staffRepo);
     }
 
@@ -123,11 +124,12 @@ class AuthServiceTest extends TestCase
 
     public function testLogoutWithValidTokenSucceeds(): void
     {
-        $this->sessionRepo->method('findByToken')->willReturn($this->activeSession);
-        $this->sessionRepo->expects($this->once())->method('setLoggedOut');
+        // Use createMock() here so we can verify setLoggedOut() is called once.
+        $sessionRepo = $this->createMock(SessionRepository::class);
+        $sessionRepo->method('findByToken')->willReturn($this->activeSession);
+        $sessionRepo->expects($this->once())->method('setLoggedOut');
 
-        $this->authService->logout('abc123');
-        $this->addToAssertionCount(1); // no exception = success
+        (new AuthService($sessionRepo, $this->staffRepo))->logout('abc123');
     }
 
     public function testLogoutWithUnknownTokenThrows404(): void
@@ -229,8 +231,6 @@ class AuthServiceTest extends TestCase
         $session = $this->authService->refresh('abc123', '127.0.0.1', 'TestAgent/1.0');
 
         $this->assertInstanceOf(Session::class, $session);
-        // New expiry should be in the future (past 2099-12-31 in our fixture,
-        // but a fresh +1 day from now is also fine — just confirm it's not empty)
         $this->assertNotEmpty($session->expiresOnDate);
     }
 }
