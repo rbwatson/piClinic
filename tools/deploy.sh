@@ -15,6 +15,16 @@
 #   --web-root <path>       Override the web root (default: /var/www)
 #   --help                  Show this help message
 #
+# Source trees:
+#   v1:  www/html/      -> /var/www/html/
+#        www/pass/      -> /var/www/pass/   (conditional: skip if already present)
+#        www/scripts/   -> /var/www/scripts/
+#
+#   v2:  www_v2/html/   -> /var/www/html/  (React build output)
+#        www_v2/api/    -> /var/www/api/   (PHP v2 API)
+#        www/pass/      -> /var/www/pass/  (shared with v1; conditional)
+#        www/scripts/   -> /var/www/scripts/ (shared with v1)
+#
 # Examples:
 #   ./tools/deploy.sh v1
 #   ./tools/deploy.sh v2 --dry-run
@@ -145,13 +155,51 @@ deploy_html() {
 }
 
 # ---------------------------------------------------------------------------
+# Deploy: v2 API
+# ---------------------------------------------------------------------------
+deploy_v2_api() {
+  local src="${REPO_ROOT}/www_v2/api"
+  local dest="${WEB_ROOT}/api"
+
+  if [[ ! -d "$src" ]] || [[ -z "$(ls -A "$src" 2>/dev/null | grep -v '.gitkeep')" ]]; then
+    warn "www_v2/api/ is empty or not present - skipping API deploy"
+    return
+  fi
+
+  log "Deploying v2 API: ${src}/ -> ${dest}/"
+
+  if $DRY_RUN; then
+    rsync -av --dry-run --exclude='.gitkeep' "${src}/" "${dest}/"
+    return
+  fi
+
+  sudo mkdir -p "$dest"
+  sudo rsync -av --delete --exclude='.gitkeep' "${src}/" "${dest}/" \
+    || die "rsync failed for v2 API"
+
+  # Run composer install if composer.json is present
+  if sudo test -f "${dest}/composer.json"; then
+    log "Running composer install for v2 API..."
+    sudo composer install \
+      --no-dev \
+      --optimize-autoloader \
+      --working-dir="${dest}" \
+      || die "composer install failed"
+  fi
+
+  sudo chown -R www-data:www-data "${dest}"
+  sudo find "${dest}" -type d -exec chmod 755 {} \;
+  sudo find "${dest}" -type f -exec chmod 644 {} \;
+}
+
+# ---------------------------------------------------------------------------
 # Deploy: pass files (conditional - do not overwrite if already present)
+# pass/ is always sourced from www/pass/ for both v1 and v2
 # ---------------------------------------------------------------------------
 deploy_pass() {
   local src="${REPO_ROOT}/www/pass"
   local dest="${WEB_ROOT}/pass"
   local needs_config=false
-  local missing=false
 
   [[ -d "$src" ]] || die "pass/ source directory not found: ${src}"
 
@@ -177,12 +225,12 @@ deploy_pass() {
     sudo find "${dest}" -type d -exec chmod 750 {} \;
     sudo find "${dest}" -type f -exec chmod 640 {} \;
     needs_config=true
-    # Files were just copied - no need to verify, proceed to config warning
   else
     info "pass/ already present at ${dest} - leaving existing files in place"
 
-    # Verify all expected pass files are present (using sudo for root-owned dirs)
+    # Verify all expected pass files are present
     local src_file dest_file
+    local missing=false
     for src_file in "${src}"/*; do
       [[ -f "$src_file" ]] || continue
       dest_file="${dest}/$(basename "$src_file")"
@@ -212,6 +260,7 @@ deploy_pass() {
 
 # ---------------------------------------------------------------------------
 # Deploy: scripts (always copy, must be executable)
+# scripts/ is always sourced from www/scripts/ for both v1 and v2
 # ---------------------------------------------------------------------------
 deploy_scripts() {
   local src="${REPO_ROOT}/www/scripts"
@@ -249,8 +298,7 @@ verify_deployment() {
   log "Verifying deployment..."
 
   if ! sudo test -d "$html_dest" 2>/dev/null || \
-     [[ -z "$(sudo find "$html_dest" -maxdepth 0 -empty 2>/dev/null)" && \
-        -z "$(sudo ls -A "$html_dest" 2>/dev/null)" ]]; then
+     [[ -z "$(sudo ls -A "$html_dest" 2>/dev/null)" ]]; then
     err "DEPLOYMENT NOT READY: ${html_dest} is missing or empty"
     ready=false
   fi
@@ -276,6 +324,7 @@ verify_deployment() {
 
 # ---------------------------------------------------------------------------
 # Deploy v1
+# Source: www/html/ www/pass/ www/scripts/
 # ---------------------------------------------------------------------------
 deploy_v1() {
   deploy_html "${REPO_ROOT}/www/html"
@@ -289,67 +338,27 @@ deploy_v1() {
 
 # ---------------------------------------------------------------------------
 # Deploy v2
+# Source: www_v2/html/ (React build) www_v2/api/ www/pass/ www/scripts/
 # ---------------------------------------------------------------------------
 deploy_v2() {
-  local api_src="${REPO_ROOT}/www/html/api/v2"
-  local frontend_src="${REPO_ROOT}/frontend/dist"
-  local api_dest="${WEB_ROOT}/html/api/v2"
+  local frontend_src="${REPO_ROOT}/www_v2/html"
 
   # Frontend build is required for v2
-  if [[ ! -d "$frontend_src" ]]; then
-    die "Frontend build not found at ${frontend_src}. Run 'npm run build' in the frontend/ directory first."
-  fi
-
-  # v2 API directory may not exist yet during early development - warn but continue
-  if [[ ! -d "$api_src" ]]; then
-    warn "v2 API source not found at ${api_src} - skipping API deploy"
+  if [[ ! -d "$frontend_src" ]] || \
+     [[ -z "$(ls -A "$frontend_src" 2>/dev/null | grep -v '.gitkeep')" ]]; then
+    die "Frontend build not found at ${frontend_src}. Run 'npm run build' in the frontend/ directory and copy the output to www_v2/html/ first."
   fi
 
   log "Deploying v2..."
 
-  if $DRY_RUN; then
-    if [[ -d "$api_src" ]]; then
-      info "[dry-run] Would rsync: ${api_src}/ -> ${api_dest}/"
-      rsync -av --dry-run "${api_src}/" "${api_dest}/"
-    fi
-    info "[dry-run] Would rsync: ${frontend_src}/ -> ${WEB_ROOT}/html/"
-    rsync -av --dry-run "${frontend_src}/" "${WEB_ROOT}/html/"
-    deploy_pass
-    deploy_scripts
-    return
-  fi
-
-  # Deploy v2 API
-  if [[ -d "$api_src" ]]; then
-    sudo mkdir -p "$api_dest"
-    sudo rsync -av --delete "${api_src}/" "${api_dest}/" \
-      || die "rsync failed for v2 API"
-
-    # Run composer install for v2 dependencies
-    if [[ -f "${api_src}/composer.json" ]]; then
-      log "Running composer install for v2 API..."
-      sudo composer install \
-        --no-dev \
-        --optimize-autoloader \
-        --working-dir="${api_dest}" \
-        || die "composer install failed"
-    fi
-  fi
-
-  # Deploy React frontend (static files), preserving api/ directory
-  sudo mkdir -p "${WEB_ROOT}/html"
-  sudo rsync -av --delete \
-    --exclude='api/' \
-    "${frontend_src}/" "${WEB_ROOT}/html/" \
-    || die "rsync failed for v2 frontend"
-
-  sudo chown -R www-data:www-data "${WEB_ROOT}/html"
-  sudo find "${WEB_ROOT}/html" -type d -exec chmod 755 {} \;
-  sudo find "${WEB_ROOT}/html" -type f -exec chmod 644 {} \;
-
+  deploy_html "${frontend_src}"
+  deploy_v2_api
   deploy_pass
   deploy_scripts
-  verify_deployment
+
+  if ! $DRY_RUN; then
+    verify_deployment
+  fi
 
   info "v2 deploy complete"
 }
