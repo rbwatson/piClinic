@@ -17,19 +17,8 @@ class AuthServiceTest extends TestCase
     private SessionRepository&MockObject $sessionRepo;
     private AuthService $authService;
 
-    // A bcrypt hash of 'correct-password'
-    private const HASHED_PASSWORD = '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi';
-
     /** @var array<string,mixed> */
-    private array $activeStaff = [
-        'staffID'               => 1,
-        'username'              => 'jsmith',
-        'password'              => self::HASHED_PASSWORD,
-        'active'                => 1,
-        'accessGranted'         => 'ClinicStaff',
-        'preferredLanguage'     => 'en',
-        'preferredClinicPublicID' => 'CL01',
-    ];
+    private array $activeStaff;
 
     /** @var array<string,mixed> */
     private array $activeSession = [
@@ -46,6 +35,16 @@ class AuthServiceTest extends TestCase
 
     protected function setUp(): void
     {
+        $this->activeStaff = [
+            'staffID'                => 1,
+            'username'               => 'jsmith',
+            'password'               => password_hash('correct-password', PASSWORD_DEFAULT),
+            'active'                 => 1,
+            'accessGranted'          => 'ClinicStaff',
+            'preferredLanguage'      => 'en',
+            'preferredClinicPublicID' => 'CL01',
+        ];
+
         $this->staffRepo   = $this->createMock(StaffRepository::class);
         $this->sessionRepo = $this->createMock(SessionRepository::class);
         $this->authService = new AuthService($this->sessionRepo, $this->staffRepo);
