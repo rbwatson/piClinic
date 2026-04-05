@@ -21,7 +21,7 @@ class AuthMiddleware
      *
      * @return string The raw session token string.
      */
-    public function requireToken(): string
+    public static function requireToken(): string
     {
         $token = $_SERVER['HTTP_X_SESSION_TOKEN']
             ?? $_COOKIE['piclinic_session']

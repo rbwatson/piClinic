@@ -85,13 +85,13 @@ class VisitService
         // Determine dateTimeIn
         $dateTimeIn = null;
         if (!empty($data['dateTimeIn'])) {
-            $dt = date_create_from_format('Y-m-d H:i:s', $data['dateTimeIn']);
+            $dt = \DateTime::createFromFormat('Y-m-d H:i:s', $data['dateTimeIn']);
             if ($dt !== false) {
                 $dateTimeIn = $dt;
             }
         }
         if ($dateTimeIn === null) {
-            $dateTimeIn = date_create_from_format('Y-m-d H:i:s', date('Y-m-d H:i:s'));
+            $dateTimeIn = new \DateTime();
         }
 
         $visitDate    = $dateTimeIn->format('Y-m-d');

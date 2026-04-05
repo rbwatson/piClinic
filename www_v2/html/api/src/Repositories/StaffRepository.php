@@ -17,7 +17,7 @@ class StaffRepository extends BaseRepository
         );
         $stmt->bind_param('s', $username);
         $stmt->execute();
-        $result = $stmt->get_result();
+        $result = $this->getResult($stmt);
         /** @var array<string,mixed>|null|false $row */
         $row = $result->fetch_assoc();
         $stmt->close();
@@ -55,7 +55,7 @@ class StaffRepository extends BaseRepository
         );
         $stmt->bind_param('s', $username);
         $stmt->execute();
-        $row = $stmt->get_result()->fetch_assoc();
+        $row = $this->getResult($stmt)->fetch_assoc();
         $stmt->close();
         return $row ?: null;
     }
@@ -92,7 +92,7 @@ class StaffRepository extends BaseRepository
             $stmt->bind_param($types, ...$binds);
         }
         $stmt->execute();
-        $rows = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        $rows = $this->getResult($stmt)->fetch_all(MYSQLI_ASSOC);
         $stmt->close();
         return $rows;
     }

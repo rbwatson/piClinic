@@ -10,7 +10,10 @@ class ClinicController extends BaseController
 {
     public function __construct(private ClinicService $clinicService) {}
 
-    /** GET /api/v2/clinic[?thisClinic=1|publicID=...|shortName=...] */
+    /**
+     * GET /api/v2/clinic[?thisClinic=1|publicID=...|shortName=...]
+     * @param array<string,string> $params
+     */
     public function search(array $params): never
     {
         AuthMiddleware::requireToken();
