@@ -3,6 +3,40 @@ declare(strict_types=1);
 
 namespace PiClinic\Models;
 
+use OpenApi\Attributes as OA;
+
+#[OA\Schema(
+    schema: 'Patient',
+    required: ['clinicPatientID', 'lastName', 'firstName', 'sex'],
+    properties: [
+        new OA\Property(property: 'clinicPatientID',     type: 'string',  example: 'PT-001'),
+        new OA\Property(property: 'patientNationalID',   type: 'string',  nullable: true),
+        new OA\Property(property: 'familyID',            type: 'string',  nullable: true),
+        new OA\Property(property: 'lastName',            type: 'string',  example: 'Smith'),
+        new OA\Property(property: 'lastName2',           type: 'string',  nullable: true),
+        new OA\Property(property: 'firstName',           type: 'string',  example: 'Jane'),
+        new OA\Property(property: 'middleInitial',       type: 'string',  nullable: true),
+        new OA\Property(property: 'sex',                 type: 'string',  enum: ['M', 'F', 'X'], example: 'F'),
+        new OA\Property(property: 'birthDate',           type: 'string',  format: 'date', nullable: true, example: '1985-06-15'),
+        new OA\Property(property: 'nextVaccinationDate', type: 'string',  format: 'date', nullable: true),
+        new OA\Property(property: 'homeAddress1',        type: 'string',  nullable: true),
+        new OA\Property(property: 'homeAddress2',        type: 'string',  nullable: true),
+        new OA\Property(property: 'homeNeighborhood',    type: 'string',  nullable: true),
+        new OA\Property(property: 'homeCity',            type: 'string',  nullable: true),
+        new OA\Property(property: 'homeCounty',          type: 'string',  nullable: true),
+        new OA\Property(property: 'homeState',           type: 'string',  nullable: true),
+        new OA\Property(property: 'contactPhone',        type: 'string',  nullable: true),
+        new OA\Property(property: 'contactAltPhone',     type: 'string',  nullable: true),
+        new OA\Property(property: 'bloodType',           type: 'string',  nullable: true, enum: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', 'NA']),
+        new OA\Property(property: 'organDonor',          type: 'integer', nullable: true, example: 0),
+        new OA\Property(property: 'preferredLanguage',   type: 'string',  nullable: true, enum: ['en', 'es', 'ui']),
+        new OA\Property(property: 'knownAllergies',      type: 'string',  nullable: true),
+        new OA\Property(property: 'currentMedications',  type: 'string',  nullable: true),
+        new OA\Property(property: 'responsibleParty',    type: 'string',  nullable: true),
+        new OA\Property(property: 'maritalStatus',       type: 'string',  nullable: true),
+        new OA\Property(property: 'profession',          type: 'string',  nullable: true),
+    ]
+)]
 readonly class Patient
 {
     public function __construct(

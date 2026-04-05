@@ -1,0 +1,1589 @@
+openapi: 3.0.0
+info:
+  title: 'piClinic API'
+  description: 'REST API for the piClinic clinic information system (v2.0). All endpoints except POST /auth/login require a valid session token supplied via the X-Session-Token header or the piclinic_session cookie.'
+  license:
+    name: MIT
+  version: 2.0.0
+servers:
+  -
+    url: /api/v2
+    description: 'piClinic v2 API'
+paths:
+  /auth/login:
+    post:
+      tags:
+        - Auth
+      summary: 'Create a new session (login)'
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - username
+                - password
+              properties:
+                username:
+                  type: string
+                  example: jsmith
+                password:
+                  type: string
+                  format: password
+              type: object
+      responses:
+        '201':
+          description: 'Session created'
+          content:
+            application/json:
+              schema:
+                properties:
+                  status: { type: string, example: success }
+                  data: { $ref: '#/components/schemas/Session' }
+                type: object
+        '400':
+          description: 'Missing credentials'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: 'Invalid credentials'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /auth/session:
+    get:
+      tags:
+        - Auth
+      summary: 'Validate the current session'
+      operationId: getSession
+      responses:
+        '200':
+          description: 'Session is valid'
+          content:
+            application/json:
+              schema:
+                properties:
+                  status: { type: string, example: success }
+                  data: { $ref: '#/components/schemas/Session' }
+                type: object
+        '401':
+          description: 'Session invalid or expired'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        -
+          sessionToken: []
+  /auth/logout:
+    post:
+      tags:
+        - Auth
+      summary: 'Terminate the current session (logout)'
+      operationId: logout
+      responses:
+        '200':
+          description: 'Logged out'
+          content:
+            application/json:
+              schema:
+                properties:
+                  status: { type: string, example: success }
+                  data: { example: null, nullable: true }
+                type: object
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        -
+          sessionToken: []
+  /auth/refresh:
+    post:
+      tags:
+        - Auth
+      summary: 'Extend the current session expiry'
+      operationId: refreshSession
+      responses:
+        '200':
+          description: 'Session refreshed'
+          content:
+            application/json:
+              schema:
+                properties:
+                  status: { type: string, example: success }
+                  data: { $ref: '#/components/schemas/Session' }
+                type: object
+        '401':
+          description: 'Session invalid or expired'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        -
+          sessionToken: []
+  /clinic:
+    get:
+      tags:
+        - Clinic
+      summary: 'Search for clinic records'
+      description: 'GET /api/v2/clinic[?thisClinic=1|publicID=...|shortName=...]'
+      operationId: searchClinics
+      parameters:
+        -
+          name: thisClinic
+          in: query
+          description: 'Return the local clinic record (value: 1)'
+          schema:
+            type: string
+            enum:
+              - '1'
+        -
+          name: publicID
+          in: query
+          description: 'Filter by public ID'
+          schema:
+            type: string
+        -
+          name: shortName
+          in: query
+          description: 'Filter by short name'
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'List of matching clinics'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Clinic'
+        '400':
+          description: 'No valid search parameter provided'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        -
+          sessionToken: []
+  /icd:
+    get:
+      tags:
+        - ICD
+      summary: 'Search ICD-10 codes'
+      description: 'GET /api/v2/icd[?q=...&t=...&c=...&language=...&sort=...]'
+      operationId: searchIcdCodes
+      parameters:
+        -
+          name: q
+          in: query
+          description: 'Search code or description text'
+          schema:
+            type: string
+        -
+          name: t
+          in: query
+          description: 'Search description text only'
+          schema:
+            type: string
+        -
+          name: c
+          in: query
+          description: 'Search by code prefix'
+          schema:
+            type: string
+        -
+          name: language
+          in: query
+          description: 'Language for descriptions (default en)'
+          schema:
+            type: string
+            default: en
+            enum:
+              - en
+              - es
+        -
+          name: sort
+          in: query
+          description: 'Sort field: c=code, t=description, d=last used date'
+          schema:
+            type: string
+            enum:
+              - c
+              - t
+              - d
+      responses:
+        '200':
+          description: 'List of matching ICD-10 codes'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/IcdCode'
+        '400':
+          description: 'No search parameter provided'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        -
+          sessionToken: []
+  '/icd/{code}':
+    get:
+      tags:
+        - ICD
+      summary: 'Get a single ICD-10 code'
+      description: 'GET /api/v2/icd/{code}[?language=en]'
+      operationId: getIcdCode
+      parameters:
+        -
+          name: code
+          in: path
+          description: 'ICD-10 code (e.g. J06.9)'
+          required: true
+          schema:
+            type: string
+            example: J06.9
+        -
+          name: language
+          in: query
+          description: 'Language for description (default en)'
+          schema:
+            type: string
+            default: en
+            enum:
+              - en
+              - es
+      responses:
+        '200':
+          description: 'ICD-10 code found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IcdCode'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: 'Not found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        -
+          sessionToken: []
+  '/patients/{id}':
+    get:
+      tags:
+        - Patients
+      summary: 'Get a patient by clinic patient ID'
+      description: 'GET /api/v2/patients/{id}'
+      operationId: getPatient
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'Clinic patient ID'
+          required: true
+          schema:
+            type: string
+            example: PT-001
+      responses:
+        '200':
+          description: 'Patient found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Patient'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: 'Not found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        -
+          sessionToken: []
+    delete:
+      tags:
+        - Patients
+      summary: 'Deactivate a patient record (soft delete)'
+      description: 'DELETE /api/v2/patients/{id}'
+      operationId: deletePatient
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'Clinic patient ID'
+          required: true
+          schema:
+            type: string
+            example: PT-001
+      responses:
+        '200':
+          description: 'Patient deactivated'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessMessage'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: 'Not found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        -
+          sessionToken: []
+    patch:
+      tags:
+        - Patients
+      summary: 'Update a patient record'
+      description: 'PATCH /api/v2/patients/{id}'
+      operationId: updatePatient
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'Clinic patient ID'
+          required: true
+          schema:
+            type: string
+            example: PT-001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Patient'
+      responses:
+        '200':
+          description: 'Patient updated'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Patient'
+        '400':
+          description: 'Validation error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: 'Not found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        -
+          sessionToken: []
+  /patients:
+    get:
+      tags:
+        - Patients
+      summary: 'Search patients'
+      description: 'GET /api/v2/patients[?q=...&lastName=...&...]'
+      operationId: searchPatients
+      parameters:
+        -
+          name: q
+          in: query
+          description: 'Free-text search across name fields'
+          schema:
+            type: string
+        -
+          name: lastName
+          in: query
+          description: 'Filter by last name'
+          schema:
+            type: string
+        -
+          name: firstName
+          in: query
+          description: 'Filter by first name'
+          schema:
+            type: string
+        -
+          name: clinicPatientID
+          in: query
+          description: 'Filter by clinic patient ID'
+          schema:
+            type: string
+        -
+          name: patientNationalID
+          in: query
+          description: 'Filter by national ID'
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'List of matching patients'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Patient'
+        '400':
+          description: 'No search parameters provided'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        -
+          sessionToken: []
+    post:
+      tags:
+        - Patients
+      summary: 'Create a new patient record'
+      description: 'POST /api/v2/patients'
+      operationId: createPatient
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Patient'
+      responses:
+        '201':
+          description: 'Patient created'
+          content:
+            application/json:
+              schema:
+                properties:
+                  status: { type: string, example: success }
+                  data: { $ref: '#/components/schemas/Patient' }
+                type: object
+        '400':
+          description: 'Validation error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: 'Patient ID already exists'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        -
+          sessionToken: []
+  '/staff/{username}':
+    get:
+      tags:
+        - Staff
+      summary: 'Get a staff member by username'
+      description: 'GET /api/v2/staff/{username}'
+      operationId: getStaffMember
+      parameters:
+        -
+          name: username
+          in: path
+          description: 'Staff username'
+          required: true
+          schema:
+            type: string
+            example: jsmith
+      responses:
+        '200':
+          description: 'Staff member found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Staff'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: 'Not found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        -
+          sessionToken: []
+    delete:
+      tags:
+        - Staff
+      summary: 'Deactivate a staff member (soft delete)'
+      description: 'DELETE /api/v2/staff/{username}'
+      operationId: deleteStaffMember
+      parameters:
+        -
+          name: username
+          in: path
+          description: 'Staff username'
+          required: true
+          schema:
+            type: string
+            example: jsmith
+      responses:
+        '200':
+          description: 'Staff member deactivated'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessMessage'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: 'Not found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        -
+          sessionToken: []
+    patch:
+      tags:
+        - Staff
+      summary: 'Update a staff member'
+      description: 'PATCH /api/v2/staff/{username}'
+      operationId: updateStaffMember
+      parameters:
+        -
+          name: username
+          in: path
+          description: 'Staff username'
+          required: true
+          schema:
+            type: string
+            example: jsmith
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Staff'
+      responses:
+        '200':
+          description: 'Staff member updated'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Staff'
+        '400':
+          description: 'Validation error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: 'Not found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        -
+          sessionToken: []
+  /staff:
+    get:
+      tags:
+        - Staff
+      summary: 'List staff members'
+      description: 'GET /api/v2/staff[?position=...&active=...]'
+      operationId: listStaff
+      parameters:
+        -
+          name: position
+          in: query
+          description: 'Filter by position'
+          schema:
+            type: string
+            enum:
+              - Nurse
+              - NursesAid
+              - NursingStudent
+              - DoctorGeneral
+              - DoctorSpecialist
+              - MedicalStudent
+              - ClinicStaff
+              - Other
+        -
+          name: active
+          in: query
+          description: 'Filter by active status'
+          schema:
+            type: string
+            enum:
+              - '0'
+              - '1'
+              - 'true'
+              - 'false'
+      responses:
+        '200':
+          description: 'List of staff'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Staff'
+        '400':
+          description: 'Invalid filter value'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        -
+          sessionToken: []
+    post:
+      tags:
+        - Staff
+      summary: 'Create a new staff member'
+      description: 'POST /api/v2/staff'
+      operationId: createStaffMember
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - username
+                - lastName
+                - firstName
+                - position
+                - password
+                - accessGranted
+              properties:
+                username:
+                  type: string
+                  example: jsmith
+                lastName:
+                  type: string
+                  example: Smith
+                firstName:
+                  type: string
+                  example: Jane
+                position:
+                  type: string
+                  enum: [Nurse, NursesAid, NursingStudent, DoctorGeneral, DoctorSpecialist, MedicalStudent, ClinicStaff, Other]
+                password:
+                  type: string
+                  format: password
+                accessGranted:
+                  type: string
+                  enum: [SystemAdmin, ClinicAdmin, ClinicStaff, ClinicReadOnly]
+              type: object
+      responses:
+        '201':
+          description: 'Staff member created'
+          content:
+            application/json:
+              schema:
+                properties:
+                  status: { type: string, example: success }
+                  data: { $ref: '#/components/schemas/Staff' }
+                type: object
+        '400':
+          description: 'Validation error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: 'Username already exists'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        -
+          sessionToken: []
+  '/visits/{id}':
+    get:
+      tags:
+        - Visits
+      summary: 'Get a visit by patient visit ID'
+      description: 'GET /api/v2/visits/{id}'
+      operationId: getVisit
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'Patient visit ID (22-character composite key)'
+          required: true
+          schema:
+            type: string
+            example: '000000000001202604010101'
+      responses:
+        '200':
+          description: 'Visit found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Visit'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: 'Not found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        -
+          sessionToken: []
+    delete:
+      tags:
+        - Visits
+      summary: 'Soft-delete a visit record'
+      description: 'DELETE /api/v2/visits/{id}'
+      operationId: deleteVisit
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'Patient visit ID'
+          required: true
+          schema:
+            type: string
+            example: '000000000001202604010101'
+      responses:
+        '200':
+          description: 'Visit deleted'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessMessage'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: 'Not found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        -
+          sessionToken: []
+    patch:
+      tags:
+        - Visits
+      summary: 'Update a visit record'
+      description: 'PATCH /api/v2/visits/{id}'
+      operationId: updateVisit
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'Patient visit ID'
+          required: true
+          schema:
+            type: string
+            example: '000000000001202604010101'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Visit'
+      responses:
+        '200':
+          description: 'Visit updated'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Visit'
+        '400':
+          description: 'Validation error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: 'Not found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        -
+          sessionToken: []
+  /visits:
+    get:
+      tags:
+        - Visits
+      summary: 'Search visits by patient or status'
+      description: 'GET /api/v2/visits?clinicPatientID=...&visitStatus=...'
+      operationId: searchVisits
+      parameters:
+        -
+          name: clinicPatientID
+          in: query
+          description: 'Clinic patient ID'
+          required: true
+          schema:
+            type: string
+            example: PT-001
+        -
+          name: visitStatus
+          in: query
+          description: 'Filter by visit status'
+          schema:
+            type: string
+            enum:
+              - Open
+              - Closed
+              - Deleted
+      responses:
+        '200':
+          description: 'List of visits'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Visit'
+        '400':
+          description: 'clinicPatientID is required'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        -
+          sessionToken: []
+    post:
+      tags:
+        - Visits
+      summary: 'Open a new visit'
+      description: 'POST /api/v2/visits'
+      operationId: createVisit
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - clinicPatientID
+                - visitType
+              properties:
+                clinicPatientID:
+                  type: string
+                  example: PT-001
+                visitType:
+                  type: string
+                  example: Clinic
+                dateTimeIn:
+                  type: string
+                  format: date-time
+                staffUsername:
+                  type: string
+                  example: jsmith
+                primaryComplaint:
+                  type: string
+              type: object
+      responses:
+        '201':
+          description: 'Visit opened'
+          content:
+            application/json:
+              schema:
+                properties:
+                  status: { type: string, example: success }
+                  data: { $ref: '#/components/schemas/Visit' }
+                type: object
+        '400':
+          description: 'Validation error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: 'Patient not found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        -
+          sessionToken: []
+components:
+  schemas:
+    Clinic:
+      required:
+        - clinicID
+        - thisClinic
+      properties:
+        clinicID:
+          type: integer
+          example: 1
+        thisClinic:
+          description: '1 if this is the local clinic record'
+          type: integer
+          example: 1
+        publicID:
+          type: string
+          example: PUB001
+          nullable: true
+        typeCode:
+          type: string
+          nullable: true
+        careLevel:
+          type: string
+          nullable: true
+        longName:
+          type: string
+          example: 'Community Health Clinic'
+          nullable: true
+        shortName:
+          type: string
+          example: CHC
+          nullable: true
+        currency:
+          type: string
+          example: USD
+          nullable: true
+        address1:
+          type: string
+          nullable: true
+        address2:
+          type: string
+          nullable: true
+        clinicNeighborhood:
+          type: string
+          nullable: true
+        clinicCity:
+          type: string
+          nullable: true
+        clinicState:
+          type: string
+          nullable: true
+        clinicRegion:
+          type: string
+          nullable: true
+        clinicDirector:
+          type: string
+          nullable: true
+        clinicService:
+          type: string
+          nullable: true
+        modifiedDate:
+          type: string
+          format: date-time
+          nullable: true
+        createdDate:
+          type: string
+          format: date-time
+          nullable: true
+      type: object
+    IcdCode:
+      required:
+        - language
+        - icd10code
+        - icd10index
+        - useCount
+      properties:
+        language:
+          type: string
+          example: en
+          enum:
+            - en
+            - es
+        icd10code:
+          type: string
+          example: J06.9
+        icd10index:
+          type: string
+          example: J069
+        shortDescription:
+          type: string
+          example: 'Acute upper respiratory infection, unspecified'
+          nullable: true
+        useCount:
+          type: integer
+          example: 12
+        lastUsedDate:
+          type: string
+          format: date
+          example: '2026-04-01'
+          nullable: true
+      type: object
+    Patient:
+      required:
+        - clinicPatientID
+        - lastName
+        - firstName
+        - sex
+      properties:
+        clinicPatientID:
+          type: string
+          example: PT-001
+        patientNationalID:
+          type: string
+          nullable: true
+        familyID:
+          type: string
+          nullable: true
+        lastName:
+          type: string
+          example: Smith
+        lastName2:
+          type: string
+          nullable: true
+        firstName:
+          type: string
+          example: Jane
+        middleInitial:
+          type: string
+          nullable: true
+        sex:
+          type: string
+          example: F
+          enum:
+            - M
+            - F
+            - X
+        birthDate:
+          type: string
+          format: date
+          example: '1985-06-15'
+          nullable: true
+        nextVaccinationDate:
+          type: string
+          format: date
+          nullable: true
+        homeAddress1:
+          type: string
+          nullable: true
+        homeAddress2:
+          type: string
+          nullable: true
+        homeNeighborhood:
+          type: string
+          nullable: true
+        homeCity:
+          type: string
+          nullable: true
+        homeCounty:
+          type: string
+          nullable: true
+        homeState:
+          type: string
+          nullable: true
+        contactPhone:
+          type: string
+          nullable: true
+        contactAltPhone:
+          type: string
+          nullable: true
+        bloodType:
+          type: string
+          nullable: true
+          enum:
+            - A+
+            - A-
+            - B+
+            - B-
+            - AB+
+            - AB-
+            - O+
+            - O-
+            - NA
+        organDonor:
+          type: integer
+          example: 0
+          nullable: true
+        preferredLanguage:
+          type: string
+          nullable: true
+          enum:
+            - en
+            - es
+            - ui
+        knownAllergies:
+          type: string
+          nullable: true
+        currentMedications:
+          type: string
+          nullable: true
+        responsibleParty:
+          type: string
+          nullable: true
+        maritalStatus:
+          type: string
+          nullable: true
+        profession:
+          type: string
+          nullable: true
+      type: object
+    Session:
+      required:
+        - token
+        - username
+        - accessGranted
+        - sessionLanguage
+        - expiresOnDate
+      properties:
+        token:
+          description: "Immutable value object representing the session data returned to clients.\n\nOnly the fields safe to expose are included here; the full session row\n(sessionIP, sessionUA, etc.) is handled internally by the repository."
+          type: string
+          example: abc123def456
+        username:
+          type: string
+          example: jsmith
+        accessGranted:
+          type: string
+          example: ClinicStaff
+          enum:
+            - SystemAdmin
+            - ClinicAdmin
+            - ClinicStaff
+            - ClinicReadOnly
+        sessionLanguage:
+          type: string
+          example: en
+          enum:
+            - en
+            - es
+            - ui
+        sessionClinicPublicID:
+          type: string
+          example: PUB001
+          nullable: true
+        expiresOnDate:
+          type: string
+          format: date-time
+          example: '2026-04-06 12:00:00'
+      type: object
+    Staff:
+      required:
+        - username
+        - lastName
+        - firstName
+        - position
+        - medicalStaff
+        - active
+        - accessGranted
+      properties:
+        memberID:
+          description: 'Staff member — password is never included.'
+          type: string
+          nullable: true
+        username:
+          type: string
+          example: jsmith
+        lastName:
+          type: string
+          example: Smith
+        firstName:
+          type: string
+          example: Jane
+        position:
+          type: string
+          example: Nurse
+          enum:
+            - Nurse
+            - NursesAid
+            - NursingStudent
+            - DoctorGeneral
+            - DoctorSpecialist
+            - MedicalStudent
+            - ClinicStaff
+            - Other
+        medicalStaff:
+          description: '1 if clinical position, 0 if admin/other'
+          type: integer
+          example: 1
+        preferredLanguage:
+          type: string
+          nullable: true
+          enum:
+            - en
+            - es
+            - ui
+        preferredClinicPublicID:
+          type: string
+          nullable: true
+        contactInfo:
+          type: string
+          nullable: true
+        altContactInfo:
+          type: string
+          nullable: true
+        active:
+          type: integer
+          example: 1
+        accessGranted:
+          type: string
+          example: ClinicStaff
+          enum:
+            - SystemAdmin
+            - ClinicAdmin
+            - ClinicStaff
+            - ClinicReadOnly
+        lastLogin:
+          type: string
+          format: date-time
+          nullable: true
+        modifiedDate:
+          type: string
+          format: date-time
+          nullable: true
+        createdDate:
+          type: string
+          format: date-time
+          nullable: true
+      type: object
+    Visit:
+      required:
+        - patientVisitID
+        - clinicPatientID
+        - firstVisit
+        - visitType
+        - visitStatus
+        - patientLastName
+        - patientFirstName
+        - patientSex
+      properties:
+        patientVisitID:
+          type: string
+          example: '000000000001202604010101'
+        clinicPatientID:
+          type: string
+          example: PT-001
+        firstVisit:
+          type: string
+          example: 'NO'
+          enum:
+            - 'YES'
+            - 'NO'
+        patientNationalID:
+          type: string
+          nullable: true
+        patientFamilyID:
+          type: string
+          nullable: true
+        staffName:
+          type: string
+          nullable: true
+        staffUsername:
+          type: string
+          nullable: true
+        staffPosition:
+          type: string
+          nullable: true
+        visitType:
+          type: string
+          example: Clinic
+        visitStatus:
+          type: string
+          example: Open
+          enum:
+            - Open
+            - Closed
+            - Deleted
+        primaryComplaint:
+          type: string
+          nullable: true
+        secondaryComplaint:
+          type: string
+          nullable: true
+        dateTimeIn:
+          type: string
+          format: date-time
+          nullable: true
+        dateTimeOut:
+          type: string
+          format: date-time
+          nullable: true
+        payment:
+          type: string
+          nullable: true
+        patientLastName:
+          type: string
+          example: Smith
+        patientFirstName:
+          type: string
+          example: Jane
+        patientSex:
+          type: string
+          enum:
+            - M
+            - F
+            - X
+        patientBirthDate:
+          type: string
+          format: date
+          nullable: true
+        patientHomeAddress1:
+          type: string
+          nullable: true
+        patientHomeAddress2:
+          type: string
+          nullable: true
+        patientHomeNeighborhood:
+          type: string
+          nullable: true
+        patientHomeCity:
+          type: string
+          nullable: true
+        patientHomeCounty:
+          type: string
+          nullable: true
+        patientHomeState:
+          type: string
+          nullable: true
+        patientContactPhone:
+          type: string
+          nullable: true
+        patientContactAltPhone:
+          type: string
+          nullable: true
+        patientKnownAllergies:
+          type: string
+          nullable: true
+        patientCurrentMedications:
+          type: string
+          nullable: true
+        patientNextVaccinationDate:
+          type: string
+          format: date
+          nullable: true
+        patientResponsibleParty:
+          type: string
+          nullable: true
+        patientMaritalStatus:
+          type: string
+          nullable: true
+        patientProfession:
+          type: string
+          nullable: true
+        height:
+          type: number
+          format: float
+          nullable: true
+        heightUnits:
+          type: string
+          nullable: true
+          enum:
+            - cm
+            - in
+        weight:
+          type: number
+          format: float
+          nullable: true
+        weightUnits:
+          type: string
+          nullable: true
+          enum:
+            - kg
+            - lb
+        temp:
+          type: number
+          format: float
+          nullable: true
+        tempUnits:
+          type: string
+          nullable: true
+          enum:
+            - C
+            - F
+        bpSystolic:
+          type: integer
+          nullable: true
+        bpDiastolic:
+          type: integer
+          nullable: true
+        pulse:
+          type: integer
+          nullable: true
+        glucose:
+          type: integer
+          nullable: true
+        glucoseUnits:
+          type: string
+          nullable: true
+        diagnosis1:
+          type: string
+          nullable: true
+        condition1:
+          type: string
+          nullable: true
+        diagnosis2:
+          type: string
+          nullable: true
+        condition2:
+          type: string
+          nullable: true
+        diagnosis3:
+          type: string
+          nullable: true
+        condition3:
+          type: string
+          nullable: true
+        referredTo:
+          type: string
+          nullable: true
+        referredFrom:
+          type: string
+          nullable: true
+      type: object
+    Error:
+      required:
+        - status
+        - message
+      properties:
+        status:
+          description: "Top-level OpenAPI definition for the piClinic v2 API.\nswagger-php scans this file for the @OA\\Info, @OA\\Server, and"
+          type: string
+          example: error
+        message:
+          type: string
+          example: 'Resource not found'
+      type: object
+    SuccessMessage:
+      required:
+        - status
+        - data
+      properties:
+        status:
+          type: string
+          example: success
+        data:
+          properties:
+            message:
+              type: string
+          type: object
+      type: object
+  securitySchemes:
+    sessionToken:
+      type: apiKey
+      description: 'Session token obtained from POST /auth/login.'
+      name: X-Session-Token
+      in: header
+tags:
+  -
+    name: Auth
+    description: Auth
+  -
+    name: Clinic
+    description: Clinic
+  -
+    name: ICD
+    description: ICD
+  -
+    name: Patients
+    description: Patients
+  -
+    name: Staff
+    description: Staff
+  -
+    name: Visits
+    description: Visits

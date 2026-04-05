@@ -3,9 +3,32 @@ declare(strict_types=1);
 
 namespace PiClinic\Models;
 
+use OpenApi\Attributes as OA;
+
 /**
  * Staff member — password is never included.
  */
+#[OA\Schema(
+    schema: 'Staff',
+    required: ['username', 'lastName', 'firstName', 'position', 'medicalStaff', 'active', 'accessGranted'],
+    properties: [
+        new OA\Property(property: 'memberID',               type: 'string',  nullable: true),
+        new OA\Property(property: 'username',               type: 'string',  example: 'jsmith'),
+        new OA\Property(property: 'lastName',               type: 'string',  example: 'Smith'),
+        new OA\Property(property: 'firstName',              type: 'string',  example: 'Jane'),
+        new OA\Property(property: 'position',               type: 'string',  enum: ['Nurse', 'NursesAid', 'NursingStudent', 'DoctorGeneral', 'DoctorSpecialist', 'MedicalStudent', 'ClinicStaff', 'Other'], example: 'Nurse'),
+        new OA\Property(property: 'medicalStaff',           type: 'integer', example: 1, description: '1 if clinical position, 0 if admin/other'),
+        new OA\Property(property: 'preferredLanguage',      type: 'string',  nullable: true, enum: ['en', 'es', 'ui']),
+        new OA\Property(property: 'preferredClinicPublicID', type: 'string', nullable: true),
+        new OA\Property(property: 'contactInfo',            type: 'string',  nullable: true),
+        new OA\Property(property: 'altContactInfo',         type: 'string',  nullable: true),
+        new OA\Property(property: 'active',                 type: 'integer', example: 1),
+        new OA\Property(property: 'accessGranted',          type: 'string',  enum: ['SystemAdmin', 'ClinicAdmin', 'ClinicStaff', 'ClinicReadOnly'], example: 'ClinicStaff'),
+        new OA\Property(property: 'lastLogin',              type: 'string',  format: 'date-time', nullable: true),
+        new OA\Property(property: 'modifiedDate',           type: 'string',  format: 'date-time', nullable: true),
+        new OA\Property(property: 'createdDate',            type: 'string',  format: 'date-time', nullable: true),
+    ]
+)]
 readonly class Staff
 {
     public function __construct(
