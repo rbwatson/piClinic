@@ -9,5 +9,14 @@
     "require-dev": {
         "phpunit/phpunit": "^12.5",
         "phpstan/phpstan": "^2.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "PiClinic\\": "src/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit --configuration ../../../tests/phpunit.xml",
+        "analyse": "phpstan analyse --configuration phpstan.neon"
     }
 }
