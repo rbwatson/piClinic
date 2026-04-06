@@ -146,7 +146,7 @@ deploy_html() {
   fi
 
   sudo mkdir -p "$dest"
-  sudo rsync -av --delete "${src}/" "${dest}/" \
+  sudo rsync -av --delete --exclude='.env' "${src}/" "${dest}/" \
     || die "rsync failed for html directory"
 
   sudo chown -R www-data:www-data "${dest}"
