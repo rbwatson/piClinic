@@ -170,7 +170,7 @@ deploy_v2_composer() {
   fi
 
   log "Running composer install for v2 API..."
-  sudo composer install \
+  sudo -u www-data composer install \
     --no-dev \
     --optimize-autoloader \
     --working-dir="${api_dest}" \
