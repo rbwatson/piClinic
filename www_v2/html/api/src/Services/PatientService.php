@@ -33,6 +33,10 @@ class PatientService
      */
     public function search(array $params): array
     {
+        if (empty($params)) {
+            throw new HttpException(400, 'At least one search parameter is required.');
+        }
+
         if (!empty($params['q'])) {
             $rows = $this->repo->search($params['q']);
         } else {

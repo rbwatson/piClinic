@@ -2,7 +2,7 @@
 # setup.sh - Create a known visit for visit tests.
 # Sourced by run_tests.sh before visit tests run.
 # Exports TEST_VISIT_ID for use in test files.
-source "$(dirname "$0")/../lib/helpers.sh"
+source "$(dirname "${BASH_SOURCE[0]}")/../lib/helpers.sh"
 
 echo "[setup] visits: creating test visit..."
 response=$(api_post "/visits" '{
