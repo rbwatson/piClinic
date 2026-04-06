@@ -71,10 +71,10 @@ run_test() {
         COVERED_OPERATIONS["$operation"]=1
     fi
 
-    # Run the test as a subprocess; capture output and exit code
-    local output
-    output=$(bash "$test_file" 2>&1)
-    local exit_code=$?
+    # Run the test as a subprocess; capture output and exit code.
+    # The || true prevents set -e from aborting the runner on test failure.
+    local output exit_code=0
+    output=$(bash "$test_file" 2>&1) || exit_code=$?
 
     echo "$output"
 
