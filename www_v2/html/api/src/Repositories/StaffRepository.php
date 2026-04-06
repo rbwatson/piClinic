@@ -51,7 +51,7 @@ class StaffRepository extends BaseRepository
     public function findOneByUsername(string $username): ?array
     {
         $stmt = $this->prepare(
-            'SELECT * FROM `staffGetByUser` WHERE `username` = ? LIMIT 1'
+            'SELECT * FROM `staffGetByUser` WHERE `username` = ? AND `active` = 1 LIMIT 1'
         );
         $stmt->bind_param('s', $username);
         $stmt->execute();

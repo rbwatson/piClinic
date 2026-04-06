@@ -16,13 +16,13 @@ if [ "$(http_status "$setup")" != "201" ]; then
 fi
 
 response=$(api_patch "/staff/http-upd-staff" '{
-    "nameGiven": "Updated"
+    "firstName": "Updated"
 }')
 status=$(http_status "$response")
 body=$(http_body "$response")
 
 assert_status 200 "$status" "$body"
 assert_field ".username" "http-upd-staff" "$body"
-assert_field ".nameGiven" "Updated" "$body"
+assert_field ".firstName" "Updated" "$body"
 
 pass

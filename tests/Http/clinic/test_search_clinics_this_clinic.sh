@@ -3,7 +3,7 @@
 source "$(dirname "$0")/../lib/helpers.sh"
 
 # Search for this clinic using the default clinicID = 1
-response=$(api_get "/clinic?clinicID=1")
+response=$(api_get "/clinic?thisClinic=1")
 status=$(http_status "$response")
 body=$(http_body "$response")
 
