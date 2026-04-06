@@ -8,6 +8,6 @@ status=$(http_status "$response")
 body=$(http_body "$response")
 
 assert_status 200 "$status" "$body"
-assert_array_not_empty ".data" "$body"
+assert_array_not_empty "." "$body"
 
 pass
