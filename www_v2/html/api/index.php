@@ -6,21 +6,27 @@ require_once __DIR__ . '/vendor/autoload.php';
 use Dotenv\Dotenv;
 use PiClinic\Controllers\AuthController;
 use PiClinic\Controllers\ClinicController;
+use PiClinic\Controllers\CommentController;
 use PiClinic\Controllers\IcdController;
+use PiClinic\Controllers\LogController;
 use PiClinic\Controllers\PatientController;
 use PiClinic\Controllers\StaffController;
 use PiClinic\Controllers\VisitController;
 use PiClinic\Middleware\CorsMiddleware;
 use PiClinic\Middleware\LoggerMiddleware;
 use PiClinic\Repositories\ClinicRepository;
+use PiClinic\Repositories\CommentRepository;
 use PiClinic\Repositories\IcdRepository;
+use PiClinic\Repositories\LogRepository;
 use PiClinic\Repositories\PatientRepository;
 use PiClinic\Repositories\SessionRepository;
 use PiClinic\Repositories\StaffRepository;
 use PiClinic\Repositories\VisitRepository;
 use PiClinic\Services\AuthService;
 use PiClinic\Services\ClinicService;
+use PiClinic\Services\CommentService;
 use PiClinic\Services\IcdService;
+use PiClinic\Services\LogService;
 use PiClinic\Services\PatientService;
 use PiClinic\Services\StaffService;
 use PiClinic\Services\VisitService;
@@ -89,9 +95,10 @@ $path = '/' . trim($path, '/');
 //
 // Routes are registered here as sub-phases are implemented:
 //   Phase 1B: /auth/login  /auth/logout  /auth/session  /auth/refresh  ✓
-//   Phase 1C: /patients    /patients/{id}
-//   Phase 1D: /visits      /visits/{id}
-//   Phase 1E: /staff       /clinic       /icd
+//   Phase 1C: /patients    /patients/{id}                               ✓
+//   Phase 1D: /visits      /visits/{id}                                 ✓
+//   Phase 1E: /staff       /clinic       /icd                           ✓
+//   Phase 1F: /comments    /log                                         ✓
 // ---------------------------------------------------------------------------
 
 // Shared repository instances
@@ -110,9 +117,11 @@ $patient = new PatientController(new PatientService($patientRepo));
 $visit = new VisitController(new VisitService($patientRepo, new VisitRepository()));
 
 // Phase 1E: Supporting APIs
-$staff  = new StaffController(new StaffService($staffRepo));
-$clinic = new ClinicController(new ClinicService(new ClinicRepository()));
-$icd    = new IcdController(new IcdService(new IcdRepository()));
+$staff   = new StaffController(new StaffService($staffRepo));
+$clinic  = new ClinicController(new ClinicService(new ClinicRepository()));
+$icd     = new IcdController(new IcdService(new IcdRepository()));
+$comment = new CommentController(new CommentService(new CommentRepository()));
+$log     = new LogController(new LogService(new LogRepository()));
 
 $routes = [
     // Auth
@@ -148,6 +157,14 @@ $routes = [
     // ICD-10 (read-only)
     ['GET',    '/icd',                                       [$icd, 'search']],
     ['GET',    '/icd/(?P<code>[^/]+)',                       [$icd, 'getOne']],
+
+    // Comments
+    ['GET',    '/comments',                                  [$comment, 'search']],
+    ['POST',   '/comments',                                  [$comment, 'create']],
+
+    // Log
+    ['GET',    '/log',                                       [$log, 'search']],
+    ['POST',   '/log',                                       [$log, 'write']],
 ];
 
 // Dispatch

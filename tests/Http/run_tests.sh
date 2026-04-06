@@ -33,7 +33,7 @@ export BASE_URL
 # ---------------------------------------------------------------------------
 # Services to run (all by default, filtered by args)
 # ---------------------------------------------------------------------------
-ALL_SERVICES=(auth patients visits staff clinic icd)
+ALL_SERVICES=(auth patients visits staff clinic icd comments log)
 
 if [ $# -gt 0 ]; then
     SERVICES=("$@")
@@ -56,6 +56,8 @@ ALL_OPERATIONS=(
     getStaffMember listStaff createStaffMember updateStaffMember deleteStaffMember
     searchClinics
     searchIcdCodes getIcdCode
+    searchComments createComment
+    searchLog writeLogEntry
 )
 
 # ---------------------------------------------------------------------------
