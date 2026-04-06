@@ -4,11 +4,12 @@ source "$(dirname "$0")/../lib/helpers.sh"
 
 # Create a dedicated staff member to delete
 setup=$(api_post "/staff" '{
-    "username":   "http-del-staff",
-    "password":   "TestPassword1!",
-    "nameFamily": "HTTPDel",
-    "nameGiven":  "Staff",
-    "position":   "ClinicalStaff"
+    "username":      "http-del-staff",
+    "password":      "TestPassword1!",
+    "lastName":      "HTTPDel",
+    "firstName":     "Staff",
+    "position":      "ClinicStaff",
+    "accessGranted": "ClinicStaff"
 }')
 if [ "$(http_status "$setup")" != "201" ]; then
     fail "Setup failed: could not create staff member for delete test" "$(http_body "$setup")"

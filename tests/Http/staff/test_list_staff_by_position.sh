@@ -7,10 +7,10 @@ status=$(http_status "$response")
 body=$(http_body "$response")
 
 assert_status 200 "$status" "$body"
-assert_array_not_empty ".data" "$body"
+assert_array_not_empty "." "$body"
 
 # Confirm every returned member has the expected position
-count=$(http_body "$response" | jq '[.data[] | select(.position != "Nurse")] | length')
+count=$(http_body "$response" | jq '[.[] | select(.position != "Nurse")] | length')
 if [ "$count" -ne 0 ]; then
     fail "listStaff returned non-Nurse staff when filtering by position=Nurse" "$body"
 fi

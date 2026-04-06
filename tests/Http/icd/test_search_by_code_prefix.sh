@@ -2,11 +2,11 @@
 # OPERATION: searchIcdCodes
 source "$(dirname "$0")/../lib/helpers.sh"
 
-response=$(api_get "/icd?code=A00")
+response=$(api_get "/icd?c=A00")
 status=$(http_status "$response")
 body=$(http_body "$response")
 
 assert_status 200 "$status" "$body"
-assert_array_not_empty ".data" "$body"
+assert_array_not_empty "." "$body"
 
 pass

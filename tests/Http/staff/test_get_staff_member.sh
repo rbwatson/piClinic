@@ -8,6 +8,6 @@ body=$(http_body "$response")
 
 assert_status 200 "$status" "$body"
 assert_field ".username" "TestCS" "$body"
-assert_field ".position" "ClinicalStaff" "$body"
+assert_field ".position" "ClinicStaff" "$body"
 
 pass

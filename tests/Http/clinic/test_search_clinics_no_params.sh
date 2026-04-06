@@ -3,7 +3,7 @@
 source "$(dirname "$0")/../lib/helpers.sh"
 
 # At least one search parameter is required
-response=$(api_get "/clinics")
+response=$(api_get "/clinic")
 status=$(http_status "$response")
 body=$(http_body "$response")
 

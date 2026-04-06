@@ -4,11 +4,12 @@ source "$(dirname "$0")/../lib/helpers.sh"
 
 # Create a dedicated staff member to update
 setup=$(api_post "/staff" '{
-    "username":   "http-upd-staff",
-    "password":   "TestPassword1!",
-    "nameFamily": "HTTPUpd",
-    "nameGiven":  "Staff",
-    "position":   "ClinicalStaff"
+    "username":      "http-upd-staff",
+    "password":      "TestPassword1!",
+    "lastName":      "HTTPUpd",
+    "firstName":     "Staff",
+    "position":      "ClinicStaff",
+    "accessGranted": "ClinicStaff"
 }')
 if [ "$(http_status "$setup")" != "201" ]; then
     fail "Setup failed: could not create staff member for update test" "$(http_body "$setup")"
