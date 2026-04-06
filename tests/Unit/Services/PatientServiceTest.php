@@ -100,13 +100,12 @@ class PatientServiceTest extends TestCase
         $this->assertSame('Smith', $results[0]->lastName);
     }
 
-    public function testSearchWithNoParamsReturnsEmptyArray(): void
+    public function testSearchWithNoParamsThrowsBadRequest(): void
     {
-        $this->repo->method('searchByFields')->willReturn([]);
+        $this->expectException(\PiClinic\Exceptions\HttpException::class);
+        $this->expectExceptionMessage('At least one search parameter is required.');
 
-        $results = $this->service->search([]);
-
-        $this->assertSame([], $results);
+        $this->service->search([]);
     }
 
     // -------------------------------------------------------------------------
