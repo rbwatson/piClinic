@@ -26,6 +26,11 @@ tests/Http/.env.test
 
 # PHPStan cache
 .phpstan/
+**/.phpunit.result.cache
+
+# Benchmark config files and user scripts
+**/benchmark.conf
+benchmarks/results/**
 
 # Test coverage reports
 coverage/
