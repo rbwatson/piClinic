@@ -225,12 +225,20 @@ phpunit --version
 # =============================================================================
 #
 cd ~
-git clone -b react-refactor https://github.com/rbwatson/piClinic piClinic
-cd piClinic
+if [ -d ~/piClinic/.git ]; then
+    echo "Repository already present -- pulling latest changes instead of cloning."
+    cd ~/piClinic
+    git fetch origin
+    git checkout main_v2
+    git pull origin main_v2
+else
+    git clone -b main_v2 https://github.com/rbwatson/piClinic piClinic
+    cd piClinic
+fi
 #
 # Verify you are on the correct branch
 git branch --show-current
-#   Should show: react-refactor
+#   Should show: main_v2
 #
 # =============================================================================
 # STEP 11: Install PHP (backend) dependencies via Composer
@@ -312,12 +320,15 @@ nano ~/create_dbuser_ubuntu.sql
 #
 sudo mysql -u root < ~/create_dbuser_ubuntu.sql
 #
-# Install the application database schema
+# Install the application database schema.
+# The SQL scripts use DROP TABLE/VIEW IF EXISTS before creating, so they are
+# safe to re-run on an existing database -- existing data will be replaced.
 cd ~/piClinic/sql
 mysql -u admin -p piclinic < piclinic.sql
 mysql -u admin -p piclinic < icd10.sql
 #
-# Load test data for development and testing
+# Load test data for development and testing.
+# These scripts also use DROP/INSERT patterns to avoid duplicates.
 mysql -u admin -p piclinic < TestUsers.sql
 mysql -u admin -p piclinic < 100PatientsNum.sql
 #
@@ -332,20 +343,26 @@ mysql -u admin -p piclinic < 100PatientsNum.sql
 cd ~/piClinic
 bash tools/deploy.sh v2
 #
-# The deploy script copies .env.example but does NOT create .env.
-# Create and configure the .env file for the v2 API:
+# Configure the .env file for the v2 API.
+# Only create it if it does not already exist -- if it is present we assume
+# the credentials are correct (or will be updated separately).
 #
-sudo cp /var/www/html/api/.env.example /var/www/html/api/.env
-sudo nano /var/www/html/api/.env
-#
-#   Set DB_PASSWORD to the CTS-user password configured in STEP 6.
-#   For a development system, also consider:
-#       APP_DEBUG=true      (enables stack traces in API error responses)
-#       LOG_LEVEL=debug     (verbose logging)
-#   Save and close.
-#
-sudo chown www-data:www-data /var/www/html/api/.env
-sudo chmod 640 /var/www/html/api/.env
+if ! sudo test -f /var/www/html/api/.env; then
+    sudo cp /var/www/html/api/.env.example /var/www/html/api/.env
+    sudo chown www-data:www-data /var/www/html/api/.env
+    sudo chmod 640 /var/www/html/api/.env
+    echo "ACTION REQUIRED: /var/www/html/api/.env has been created from the example."
+    echo "Edit it now to set DB_PASSWORD and any other environment-specific values:"
+    echo ""
+    echo "  sudo nano /var/www/html/api/.env"
+    echo ""
+    echo "  Set DB_PASSWORD to the CTS-user password configured in STEP 6."
+    echo "  For a development system, also consider:"
+    echo "      APP_DEBUG=true      (enables stack traces in API error responses)"
+    echo "      LOG_LEVEL=debug     (verbose logging)"
+else
+    echo ".env already present -- leaving existing credentials in place."
+fi
 #
 # Note: .env is separate from the v1 pass/ credentials.
 #   v1 credentials:  /var/www/pass/   (PHP include files)
