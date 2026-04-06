@@ -73,6 +73,8 @@ db_reset() {
     );" 2>/dev/null || true
 
     # Reload base test data
+    _mysql < "${sql_dir}/TestClinics.sql" \
+        || { echo "ERROR: Failed to load TestClinics.sql" >&2; exit 1; }
     _mysql < "${sql_dir}/100PatientsNum.sql" \
         || { echo "ERROR: Failed to load 100PatientsNum.sql" >&2; exit 1; }
     _mysql < "${sql_dir}/TestUsers.sql" \
