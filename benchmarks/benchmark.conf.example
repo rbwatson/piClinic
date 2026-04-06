@@ -1,0 +1,65 @@
+# piClinic Benchmark Configuration
+# Copy this file to benchmark.conf and fill in values.
+# benchmark.conf is gitignored and must never be committed to the repo.
+
+# -----------------------------------------------------------------------
+# Target machine
+# -----------------------------------------------------------------------
+
+# Base URL of the target machine (no trailing slash)
+TARGET_BASE_URL=http://192.168.1.x
+
+# Version under test: v1 or v2
+TARGET_VERSION=v1
+
+# Short label used in results directory names and reports
+# Suggested format: <hardware>-<version>  e.g. ubuntu-v1, pi-v2
+TARGET_LABEL=ubuntu-v1
+
+# -----------------------------------------------------------------------
+# SSH access (used for remote database reset)
+# -----------------------------------------------------------------------
+
+TARGET_SSH_USER=piClinic
+TARGET_SSH_HOST=192.168.1.x
+
+# SSH key file (optional; omit to use default ~/.ssh/id_rsa)
+# TARGET_SSH_KEY=~/.ssh/piclinic_bench
+
+# -----------------------------------------------------------------------
+# Benchmark test account
+# Must exist on the target machine's piclinic database.
+# -----------------------------------------------------------------------
+
+BENCHMARK_USERNAME=bmtest
+
+# Path to a file containing the benchmark account password (one line, no newline)
+BENCHMARK_PASSWORD_FILE=~/.piclinic-bench-pass
+
+# -----------------------------------------------------------------------
+# Database credentials (used for remote reset via SSH)
+# -----------------------------------------------------------------------
+
+DB_HOST=localhost
+DB_NAME=piclinic
+DB_USER=CTS-user
+
+# Path to a file containing the database password (one line, no newline)
+DB_PASSWORD_FILE=~/.piclinic-db-pass
+
+# -----------------------------------------------------------------------
+# Test options
+# -----------------------------------------------------------------------
+
+# Which suites to run: A, B, or AB
+SUITES=AB
+
+# Frequency profile for composite scoring: normal, stress, or both
+FREQUENCY_PROFILE=both
+
+# Number of times to repeat each test (results are averaged)
+# Minimum 3 recommended for stable measurements
+REPEAT_COUNT=5
+
+# Pause between requests in milliseconds (0 = no pause)
+REQUEST_DELAY_MS=0
