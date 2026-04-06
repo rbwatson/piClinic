@@ -322,7 +322,44 @@ mysql -u admin -p piclinic < TestUsers.sql
 mysql -u admin -p piclinic < 100PatientsNum.sql
 #
 # =============================================================================
-# STEP 15: Final system update and restart
+# STEP 15: Deploy v2 API and configure environment
+# =============================================================================
+#
+# Run the deploy script to copy the v2 API files and install Composer
+# dependencies. The frontend build is not required yet for API-only testing --
+# the placeholder index.html in www_v2/html/ satisfies the deploy check.
+#
+cd ~/piClinic
+bash tools/deploy.sh v2
+#
+# The deploy script copies .env.example but does NOT create .env.
+# Create and configure the .env file for the v2 API:
+#
+sudo cp /var/www/html/api/.env.example /var/www/html/api/.env
+sudo nano /var/www/html/api/.env
+#
+#   Set DB_PASSWORD to the CTS-user password configured in STEP 6.
+#   For a development system, also consider:
+#       APP_DEBUG=true      (enables stack traces in API error responses)
+#       LOG_LEVEL=debug     (verbose logging)
+#   Save and close.
+#
+sudo chown www-data:www-data /var/www/html/api/.env
+sudo chmod 640 /var/www/html/api/.env
+#
+# Note: .env is separate from the v1 pass/ credentials.
+#   v1 credentials:  /var/www/pass/   (PHP include files)
+#   v2 credentials:  /var/www/html/api/.env   (phpdotenv)
+#
+# Verify the API responds (replace 'localhost' with the VM IP if testing
+# from the host machine):
+#
+#   curl -s -X POST http://localhost/api/v2/auth/login \
+#        -H 'Content-Type: application/json' \
+#        -d '{"username":"testuser","password":"testpass"}' | python3 -m json.tool
+#
+# =============================================================================
+# STEP 16: Final system update and restart
 # =============================================================================
 #
 sudo apt-get update
