@@ -1014,6 +1014,172 @@ paths:
       security:
         -
           sessionToken: []
+  /comments:
+    get:
+      tags:
+        - Comments
+      summary: 'Search comments'
+      operationId: searchComments
+      parameters:
+        -
+          name: username
+          in: query
+          description: 'Filter by username'
+          schema:
+            type: string
+        -
+          name: commentDate
+          in: query
+          description: 'Filter by comment date (YYYY-MM-DD)'
+          schema:
+            type: string
+            format: date
+        -
+          name: referringPage
+          in: query
+          description: 'Filter by referring page name'
+          schema:
+            type: string
+        -
+          name: referringUrl
+          in: query
+          description: 'Filter by referring URL'
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'List of matching comments'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Comment'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        -
+          sessionToken: []
+    post:
+      tags:
+        - Comments
+      summary: 'Submit a new comment'
+      operationId: createComment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Comment'
+      responses:
+        '201':
+          description: 'Comment created'
+          content:
+            application/json:
+              schema:
+                properties:
+                  status: { type: string, example: success }
+                  data: { $ref: '#/components/schemas/Comment' }
+                type: object
+        '400':
+          description: 'Validation error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        -
+          sessionToken: []
+  /log:
+    get:
+      tags:
+        - Log
+      summary: 'Retrieve log entries'
+      operationId: searchLog
+      parameters:
+        -
+          name: logDate
+          in: query
+          description: 'Filter by date (YYYY-MM-DD)'
+          schema:
+            type: string
+            format: date
+        -
+          name: logClass
+          in: query
+          description: 'Filter by log class (e.g. API)'
+          schema:
+            type: string
+        -
+          name: sourceModule
+          in: query
+          description: 'Filter by source module'
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'List of matching log entries'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LogEntry'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        -
+          sessionToken: []
+    post:
+      tags:
+        - Log
+      summary: 'Write a log entry'
+      operationId: writeLogEntry
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LogEntry'
+      responses:
+        '201':
+          description: 'Log entry created'
+          content:
+            application/json:
+              schema:
+                properties:
+                  status: { type: string, example: success }
+                  data: { $ref: '#/components/schemas/LogEntry' }
+                type: object
+        '400':
+          description: 'Validation error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        -
+          sessionToken: []
 components:
   schemas:
     Clinic:
@@ -1562,6 +1728,92 @@ components:
               type: string
           type: object
       type: object
+    Comment:
+      required:
+        - username
+      properties:
+        commentID:
+          type: integer
+          readOnly: true
+          nullable: true
+          example: 1
+        commentDate:
+          type: string
+          format: date-time
+          nullable: true
+          example: '2026-04-06T10:30:00'
+        username:
+          type: string
+          example: jsmith
+        referringUrl:
+          type: string
+          nullable: true
+        referringPage:
+          type: string
+          nullable: true
+        returnUrl:
+          type: string
+          nullable: true
+        commentText:
+          type: string
+          nullable: true
+        createdDate:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+      type: object
+    LogEntry:
+      required:
+        - userToken
+        - logClass
+        - logStatusMessage
+      properties:
+        logId:
+          type: integer
+          readOnly: true
+          nullable: true
+          example: 1
+        sourceModule:
+          type: string
+          nullable: true
+          example: patient
+        userToken:
+          type: string
+          example: abc123
+        logClass:
+          type: string
+          example: API
+        logTable:
+          type: string
+          nullable: true
+          example: patient
+        logAction:
+          type: string
+          nullable: true
+          example: GET
+        logQueryString:
+          type: string
+          nullable: true
+        logBeforeData:
+          type: string
+          nullable: true
+        logAfterData:
+          type: string
+          nullable: true
+        logStatusCode:
+          type: string
+          nullable: true
+          example: '200'
+        logStatusMessage:
+          type: string
+          example: Success
+        logDate:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+      type: object
   securitySchemes:
     sessionToken:
       type: apiKey
@@ -1576,8 +1828,14 @@ tags:
     name: Clinic
     description: Clinic
   -
+    name: Comments
+    description: Comments
+  -
     name: ICD
     description: ICD
+  -
+    name: Log
+    description: Log
   -
     name: Patients
     description: Patients
