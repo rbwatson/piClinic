@@ -142,7 +142,7 @@ class VisitRepository extends BaseRepository
         $patientProfession        = $data['patientProfession']        ?? null;
 
         $stmt->bind_param(
-            'sisssssssssssssssssssssssssssss',
+            'sissssssssssssssssssssssssssss',
             $patientVisitID, $patientID, $clinicPatientID, $patientNationalID,
             $patientFamilyID, $visitType, $visitStatus, $dateTimeIn,
             $staffUsername, $staffName, $staffPosition,

@@ -4,6 +4,9 @@
 *.swp
 *.swo
 
+# Claude Code worktree metadata
+.claude/
+
 # PHP dependencies (reinstall with: composer install)
 vendor/
 
@@ -19,6 +22,7 @@ frontend/build/
 .env
 .env.local
 .env.*.local
+tests/Http/.env.test
 
 # PHPStan cache
 .phpstan/

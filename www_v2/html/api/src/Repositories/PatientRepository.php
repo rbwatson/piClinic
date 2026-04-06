@@ -161,7 +161,7 @@ class PatientRepository extends BaseRepository
         $profession         = $data['profession']         ?? null;
 
         $stmt->bind_param(
-            'ssssssssssssssssssiissssss',
+            'ssssssssssssssssssissssss',
             $clinicPatientID, $patientNationalID, $familyID,
             $lastName, $lastName2, $firstName, $middleInitial,
             $sex, $birthDate, $homeAddress1, $homeAddress2,

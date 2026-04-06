@@ -1542,6 +1542,147 @@ parameters:
 
 ---
 
+## HTTP Integration Testing
+
+HTTP integration tests exercise the full stack through the actual HTTP interface —
+routing, middleware, authentication, JSON serialization, and HTTP status codes.
+They complement the PHPUnit unit tests, which mock the database layer.
+
+### Relationship to Unit Tests
+
+Unit tests and HTTP tests are not duplicates. They test different layers:
+
+| Layer | Unit Tests (PHPUnit) | HTTP Tests (curl) |
+|-------|---------------------|-------------------|
+| What is tested | Service/controller logic | Full HTTP request/response cycle |
+| Dependencies | Mocked (no real DB) | Real database, real Apache |
+| Speed | Fast (< 5s total) | Slower (network + DB) |
+| Catches | Logic bugs | Routing, auth, serialization, config bugs |
+
+### Anchor: OpenAPI Spec
+
+The `openapi.yaml` spec is the source of truth for HTTP test coverage. Every
+endpoint has an `operationId`. Each HTTP test declares which operation it covers:
+
+```bash
+# OPERATION: getPatient
+response=$(api_get "/patients/PT-001")
+```
+
+The test runner reports coverage against the full set of `operationId`s at the
+end of each run:
+
+```
+HTTP Test Coverage: 18/22 operations
+Untested: createVisit, updateVisit, deleteStaffMember, refreshSession
+```
+
+This provides an automated signal when HTTP tests fall behind the spec, without
+requiring manual cross-referencing of unit tests.
+
+### Keeping Tests in Sync
+
+When adding a new endpoint, the workflow is:
+
+1. Add the endpoint and OAS annotation (with `operationId`)
+2. Write PHPUnit unit tests
+3. Write HTTP test(s) declaring the `operationId`
+4. Run the test suite — coverage report confirms the endpoint is covered
+
+### Directory Structure
+
+```
+tests/Http/
+├── run_tests.sh          # master runner
+├── lib/
+│   ├── helpers.sh        # api_*, assert_*, pass, fail functions
+│   └── db.sh             # db_reset, db_exec, db_load functions
+├── fixtures/             # SQL for service-level setup
+│   ├── patients.sql
+│   ├── visits.sql
+│   └── staff.sql
+├── auth/
+├── patients/
+├── visits/
+├── staff/
+├── clinic/
+└── icd/
+```
+
+### Test Runner Behavior
+
+1. Checks server and database connectivity — halts if either fails
+2. Warns that the database will be reset to the known test state; prompts to continue
+3. Reloads base test SQL files (`TestUsers.sql`, `100PatientsNum.sql`, etc.)
+4. Runs a prerequisite login test — halts if it fails (no token means no other tests can pass)
+5. Runs all `test_*.sh` files; never halts on individual test failures
+6. Prints pass/fail summary and OpenAPI coverage report
+
+A filter argument limits the run to one or more services:
+
+```bash
+bash tests/Http/run_tests.sh patients
+bash tests/Http/run_tests.sh auth visits
+```
+
+### Database State
+
+- The database is reset to a known state **once** at the start of each run
+- Data may change during the run as tests create, modify, and delete records
+- **Service-level setup**: each service directory may have a `setup.sh` that loads
+  `fixtures/<service>.sql` before that service's tests run (used for read/write
+  services that need specific records to exist)
+- **Per-test setup**: individual tests may call `db_exec` or `api_post` to create
+  prerequisite data for that test specifically
+- Read-only services (clinic, ICD) require no setup beyond the base reset
+
+### Test File Pattern
+
+Each file tests one behavior. The test name comes from the filename.
+
+```bash
+#!/usr/bin/env bash
+# OPERATION: getPatient
+source "$(dirname "$0")/../../lib/helpers.sh"
+
+# Optional per-test setup
+# db_exec "UPDATE patient SET ..."
+
+response=$(api_get "/patients/PT-001")
+status=$(http_status "$response")
+body=$(http_body "$response")
+
+assert_status 200 "$status" "$body"
+assert_field ".clinicPatientID" "PT-001" "$body"
+
+pass   # exits 0; any failed assert exits 1 and prints the response body
+```
+
+### Output Format
+
+```
+PASS  auth/test_login_success
+PASS  auth/test_login_bad_password
+FAIL  patients/test_create_patient
+      Response: {"status":"error","message":"Validation failed"}
+PASS  patients/test_get_patient
+
+Results: 19 passed, 1 failed
+HTTP Test Coverage: 18/22 operations
+Untested: updateVisit, deleteStaffMember
+```
+
+### Environment
+
+Tests read configuration from environment variables:
+
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `BASE_URL` | `http://localhost` | API host |
+| `ENV_FILE` | `/var/www/html/api/.env` | Source of DB credentials |
+
+---
+
 ## Test Data Management
 
 ### Fixtures and Factories

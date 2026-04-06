@@ -225,12 +225,20 @@ phpunit --version
 # =============================================================================
 #
 cd ~
-git clone -b react-refactor https://github.com/rbwatson/piClinic piClinic
-cd piClinic
+if [ -d ~/piClinic/.git ]; then
+    echo "Repository already present -- pulling latest changes instead of cloning."
+    cd ~/piClinic
+    git fetch origin
+    git checkout main_v2
+    git pull origin main_v2
+else
+    git clone -b main_v2 https://github.com/rbwatson/piClinic piClinic
+    cd piClinic
+fi
 #
 # Verify you are on the correct branch
 git branch --show-current
-#   Should show: react-refactor
+#   Should show: main_v2
 #
 # =============================================================================
 # STEP 11: Install PHP (backend) dependencies via Composer
@@ -312,17 +320,63 @@ nano ~/create_dbuser_ubuntu.sql
 #
 sudo mysql -u root < ~/create_dbuser_ubuntu.sql
 #
-# Install the application database schema
+# Install the application database schema.
+# The SQL scripts use DROP TABLE/VIEW IF EXISTS before creating, so they are
+# safe to re-run on an existing database -- existing data will be replaced.
 cd ~/piClinic/sql
 mysql -u admin -p piclinic < piclinic.sql
 mysql -u admin -p piclinic < icd10.sql
 #
-# Load test data for development and testing
+# Load test data for development and testing.
+# These scripts also use DROP/INSERT patterns to avoid duplicates.
 mysql -u admin -p piclinic < TestUsers.sql
 mysql -u admin -p piclinic < 100PatientsNum.sql
 #
 # =============================================================================
-# STEP 15: Final system update and restart
+# STEP 15: Deploy v2 API and configure environment
+# =============================================================================
+#
+# Run the deploy script to copy the v2 API files and install Composer
+# dependencies. The frontend build is not required yet for API-only testing --
+# the placeholder index.html in www_v2/html/ satisfies the deploy check.
+#
+cd ~/piClinic
+bash tools/deploy.sh v2
+#
+# Configure the .env file for the v2 API.
+# Only create it if it does not already exist -- if it is present we assume
+# the credentials are correct (or will be updated separately).
+#
+if ! sudo test -f /var/www/html/api/.env; then
+    sudo cp /var/www/html/api/.env.example /var/www/html/api/.env
+    sudo chown www-data:www-data /var/www/html/api/.env
+    sudo chmod 640 /var/www/html/api/.env
+    echo "ACTION REQUIRED: /var/www/html/api/.env has been created from the example."
+    echo "Edit it now to set DB_PASSWORD and any other environment-specific values:"
+    echo ""
+    echo "  sudo nano /var/www/html/api/.env"
+    echo ""
+    echo "  Set DB_PASSWORD to the CTS-user password configured in STEP 6."
+    echo "  For a development system, also consider:"
+    echo "      APP_DEBUG=true      (enables stack traces in API error responses)"
+    echo "      LOG_LEVEL=debug     (verbose logging)"
+else
+    echo ".env already present -- leaving existing credentials in place."
+fi
+#
+# Note: .env is separate from the v1 pass/ credentials.
+#   v1 credentials:  /var/www/pass/   (PHP include files)
+#   v2 credentials:  /var/www/html/api/.env   (phpdotenv)
+#
+# Verify the API responds (replace 'localhost' with the VM IP if testing
+# from the host machine):
+#
+#   curl -s -X POST http://localhost/api/v2/auth/login \
+#        -H 'Content-Type: application/json' \
+#        -d '{"username":"testuser","password":"testpass"}' | python3 -m json.tool
+#
+# =============================================================================
+# STEP 16: Final system update and restart
 # =============================================================================
 #
 sudo apt-get update
