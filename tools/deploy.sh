@@ -155,6 +155,45 @@ deploy_html() {
 }
 
 # ---------------------------------------------------------------------------
+# Deploy: v2 .env file (conditional - do not overwrite if already present)
+# ---------------------------------------------------------------------------
+deploy_v2_env() {
+  local api_dest="${WEB_ROOT}/html/api"
+  local src="${api_dest}/.env.example"
+  local dest="${api_dest}/.env"
+
+  if ! sudo test -f "$src" 2>/dev/null; then
+    warn ".env.example not found at ${src} - skipping .env setup"
+    return
+  fi
+
+  if $DRY_RUN; then
+    if sudo test -f "$dest" 2>/dev/null; then
+      info "[dry-run] ${dest} already present - would leave existing credentials in place"
+    else
+      info "[dry-run] ${dest} not present - would copy from ${src}"
+    fi
+    return
+  fi
+
+  if sudo test -f "$dest" 2>/dev/null; then
+    info ".env already present at ${dest} - leaving existing credentials in place"
+    return
+  fi
+
+  log "Copying .env.example to .env..."
+  sudo cp "$src" "$dest" || die "Failed to copy .env.example to .env"
+  sudo chown www-data:www-data "$dest"
+  sudo chmod 640 "$dest"
+
+  warn "================================================================"
+  warn "ACTION REQUIRED: A default .env has been created at ${dest}"
+  warn "Edit it to set the correct database credentials before use:"
+  warn "  sudo nano ${dest}"
+  warn "================================================================"
+}
+
+# ---------------------------------------------------------------------------
 # Run composer install for v2 API (called after deploy_html for v2)
 # ---------------------------------------------------------------------------
 deploy_v2_composer() {
@@ -338,6 +377,7 @@ deploy_v2() {
 
   deploy_html "${frontend_src}"
   deploy_v2_composer
+  deploy_v2_env
   deploy_pass
   deploy_scripts
 
