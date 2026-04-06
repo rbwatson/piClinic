@@ -36,7 +36,7 @@ SET time_zone = "+00:00";
 -- Database: `piclinic`
 --
 USE `piclinic`;
-
+TRUNCATE TABLE `clinic`;
 --
 -- UniValle clinic data
 --
