@@ -183,6 +183,18 @@ read -r V_PATIENTS V_VISITS V_STAFF <<< "${VERIFY_OUT}"
 [[ "${V_STAFF}"    == "1" ]] || die "Seed verification failed: expected 1 bmtest staff, got ${V_STAFF}"
 echo "  Baseline verified: ${V_PATIENTS} patients, ${V_VISITS} visits, bmtest account present."
 
+# ICD-10 data check — icd.js requires A00.x and Z00.x codes.
+# The icd10 table must be pre-loaded on the target (it is not part of the benchmark reset).
+ICD_SQL="SELECT
+  (SELECT COUNT(*) FROM icd10 WHERE icd10index LIKE 'A00%') AS a00x,
+  (SELECT COUNT(*) FROM icd10 WHERE icd10index LIKE 'Z00%') AS z00x;"
+ICD_OUT="$(mysql_target "${ICD_SQL}" | tail -1)"
+read -r V_A00 V_Z00 <<< "${ICD_OUT}"
+if [[ "${V_A00}" == "0" || "${V_Z00}" == "0" ]]; then
+  die "ICD-10 data missing on target (A00.x=${V_A00}, Z00.x=${V_Z00}). Load sql/icd10.sql on the target before running benchmarks."
+fi
+echo "  ICD-10 verified: A00.x present, Z00.x codes present."
+
 # ---------------------------------------------------------------------------
 # Step 3: Login and capture token
 # ---------------------------------------------------------------------------
@@ -218,13 +230,15 @@ export BENCHMARK_TOKEN
 logout_benchmark() {
   if [[ "${TARGET_VERSION}" == "v1" ]]; then
     curl -sf -X DELETE "${TARGET_BASE_URL}/api/session.php" \
-      -H "X-Session-Token: ${BENCHMARK_TOKEN}" \
+      -H "X-Piclinic-Token: ${BENCHMARK_TOKEN}" \
       -H 'Content-Type: application/json' \
+      -A "${BM_USER_AGENT}" \
       -d "{\"token\":\"${BENCHMARK_TOKEN}\"}" >/dev/null 2>&1 || true
   else
     curl -sf -X POST "${TARGET_BASE_URL}/api/v2/auth/logout" \
       -H "X-Session-Token: ${BENCHMARK_TOKEN}" \
       -H 'Content-Type: application/json' \
+      -A "${BM_USER_AGENT}" \
       -d "{\"token\":\"${BENCHMARK_TOKEN}\"}" >/dev/null 2>&1 || true
   fi
 }

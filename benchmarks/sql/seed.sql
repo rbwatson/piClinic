@@ -27,9 +27,11 @@ INSERT INTO `staff`
   (`memberID`, `username`, `lastName`, `firstName`, `position`,
    `password`, `active`, `accessGranted`, `modifiedDate`, `createdDate`)
 VALUES
+  -- accessGranted = SystemAdmin so all v1 API endpoints (including log POST) are accessible.
+  -- v2 uses requireToken() only; access level does not affect v2 results.
   ('BM-STAFF', 'bmtest', 'Test', 'Benchmark', 'ClinicStaff',
    '$2y$12$XgB7Mo4j7TqLd3sKLpva1OP/pXljsa58U3rIRtuLPOrcxmKOiyDsG',
-   1, 'ClinicStaff', NOW(), NOW());
+   1, 'SystemAdmin', NOW(), NOW());
 
 -- ---------------------------------------------------------------------------
 -- Benchmark patients
@@ -95,10 +97,10 @@ VALUES
 
 -- ---------------------------------------------------------------------------
 -- Sanity check: verify ICD-10 codes needed by the benchmark are present.
--- A00.0 is used for the "by diagnosis code" test.
+-- A00.x is used for the "by diagnosis code" test.
 -- Z00.x is used for the "by index prefix" test.
 -- The icd10 table is NOT truncated or modified by this script.
 -- ---------------------------------------------------------------------------
 SELECT
-  (SELECT COUNT(*) FROM `icd10` WHERE `icd10index` = 'A00.0')   AS `A00_0_exists`,
-  (SELECT COUNT(*) FROM `icd10` WHERE `icd10index` LIKE 'Z00%') AS `Z00x_exists`;
+  (SELECT COUNT(*) FROM icd10 WHERE `icd10index` LIKE 'A00%') AS `A00_0_exists`,
+  (SELECT COUNT(*) FROM icd10 WHERE `icd10index` LIKE 'Z00%') AS `Z00x_exists`;

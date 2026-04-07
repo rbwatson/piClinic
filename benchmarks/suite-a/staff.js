@@ -20,8 +20,10 @@ import { Trend } from 'k6/metrics';
 const BASE   = __ENV.TARGET_BASE_URL || 'http://localhost';
 const VER    = __ENV.TARGET_VERSION  || 'v2';
 const TOKEN  = __ENV.BENCHMARK_TOKEN       || '';
-const UA     = __ENV.BENCHMARK_USER_AGENT  || 'k6-benchmark/1.0';
-const REPEAT = parseInt(__ENV.REPEAT_COUNT || '5');
+const UA          = __ENV.BENCHMARK_USER_AGENT  || 'k6-benchmark/1.0';
+const AUTH_HEADER = VER === 'v1' ? 'X-Piclinic-Token' : 'X-Session-Token';
+const REPEAT  = parseInt(__ENV.REPEAT_COUNT || '5');
+const POST_OK = 201;
 
 const CASES = [
   { id: 'staff_by_username', resource: 'staff', method: 'GET',    variant: 'By username',          normal: 'rare', stress: 'rare' },
@@ -41,7 +43,7 @@ export const options = {
 };
 
 const auth = {
-  'X-Session-Token': TOKEN,
+  [AUTH_HEADER]: TOKEN,
   'Accept': 'application/json',
   'User-Agent': UA,
 };
@@ -83,6 +85,7 @@ export default function () {
   {
     const body = JSON.stringify({
       username:      newUsername,
+      memberID:      newUsername,
       lastName:      'BenchmarkTmp',
       firstName:     'Temp',
       position:      'ClinicStaff',
@@ -91,15 +94,17 @@ export default function () {
     });
     const url = VER === 'v1' ? v1(`/staff.php`) : v2(`/staff`);
     const r = http.post(url, body, { headers: authJson });
-    check(r, { 'staff create 201': (r) => r.status === 201 });
+    check(r, { 'staff create 201': (r) => r.status === POST_OK });
     timing.staff_create.add(r.timings.duration);
   }
 
   // PATCH update staff record
   {
-    const body = JSON.stringify({ contactInfo: 'benchmark-test@example.com' });
+    const body = VER === 'v1'
+      ? JSON.stringify({ username: newUsername, contactInfo: 'benchmark-test@example.com' })
+      : JSON.stringify({ contactInfo: 'benchmark-test@example.com' });
     const url = VER === 'v1'
-      ? v1(`/staff.php?username=${newUsername}`)
+      ? v1(`/staff.php`)
       : v2(`/staff/${newUsername}`);
     const r = http.patch(url, body, { headers: authJson });
     check(r, { 'staff update 200': (r) => r.status === 200 });

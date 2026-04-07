@@ -20,8 +20,10 @@ import { Trend } from 'k6/metrics';
 const BASE   = __ENV.TARGET_BASE_URL       || 'http://localhost';
 const VER    = __ENV.TARGET_VERSION        || 'v2';
 const TOKEN  = __ENV.BENCHMARK_TOKEN       || '';
-const UA     = __ENV.BENCHMARK_USER_AGENT  || 'k6-benchmark/1.0';
-const REPEAT = parseInt(__ENV.REPEAT_COUNT || '5');
+const UA          = __ENV.BENCHMARK_USER_AGENT  || 'k6-benchmark/1.0';
+const AUTH_HEADER = VER === 'v1' ? 'X-Piclinic-Token' : 'X-Session-Token';
+const REPEAT   = parseInt(__ENV.REPEAT_COUNT || '5');
+const POST_OK  = 201;
 
 const v1Url = `${BASE}/api/log.php`;
 const v2Url = `${BASE}/api/v2/log`;
@@ -36,7 +38,7 @@ export const options = {
 };
 
 const headers = {
-  'X-Session-Token': TOKEN,
+  [AUTH_HEADER]: TOKEN,
   'Content-Type': 'application/json',
   'Accept': 'application/json',
   'User-Agent': UA,
@@ -54,7 +56,7 @@ const payload = JSON.stringify({
 
 export default function () {
   const res = http.post(testUrl, payload, { headers });
-  check(res, { 'status 201': (r) => r.status === 201 });
+  check(res, { 'status 201': (r) => r.status === POST_OK });
   timing.add(res.timings.duration);
 }
 

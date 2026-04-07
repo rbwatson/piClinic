@@ -24,8 +24,10 @@ import { Trend } from 'k6/metrics';
 const BASE   = __ENV.TARGET_BASE_URL || 'http://localhost';
 const VER    = __ENV.TARGET_VERSION  || 'v2';
 const TOKEN  = __ENV.BENCHMARK_TOKEN       || '';
-const UA     = __ENV.BENCHMARK_USER_AGENT  || 'k6-benchmark/1.0';
-const REPEAT = parseInt(__ENV.REPEAT_COUNT || '5');
+const UA          = __ENV.BENCHMARK_USER_AGENT  || 'k6-benchmark/1.0';
+const AUTH_HEADER = VER === 'v1' ? 'X-Piclinic-Token' : 'X-Session-Token';
+const REPEAT  = parseInt(__ENV.REPEAT_COUNT || '5');
+const POST_OK = 201;
 
 const CASES = [
   { id: 'patient_by_id',       resource: 'patient', method: 'GET',    variant: 'By clinic patient ID', normal: 'high', stress: 'high' },
@@ -47,7 +49,7 @@ export const options = {
 };
 
 const auth = {
-  'X-Session-Token': TOKEN,
+  [AUTH_HEADER]: TOKEN,
   'Accept': 'application/json',
   'User-Agent': UA,
 };
@@ -96,7 +98,7 @@ export default function () {
   // GET by city
   {
     const url = VER === 'v1'
-      ? v1(`/patient.php?homeCity=OtherCity`)
+      ? v1(`/patient.php?HomeCity=OtherCity`)
       : v2(`/patients?homeCity=OtherCity`);
     const r = http.get(url, { headers: auth });
     check(r, { 'patient by city 200': (r) => r.status === 200 });
@@ -114,15 +116,17 @@ export default function () {
     });
     const url = VER === 'v1' ? v1(`/patient.php`) : v2(`/patients`);
     const r = http.post(url, body, { headers: authJson });
-    check(r, { 'patient create 201': (r) => r.status === 201 });
+    check(r, { 'patient create 201': (r) => r.status === POST_OK });
     timing.patient_create.add(r.timings.duration);
   }
 
   // PATCH update (update the record just created)
   {
-    const body = JSON.stringify({ homeCity: 'BenchmarkCity' });
+    const body = VER === 'v1'
+      ? JSON.stringify({ clinicPatientID: createId, homeCity: 'BenchmarkCity' })
+      : JSON.stringify({ homeCity: 'BenchmarkCity' });
     const url = VER === 'v1'
-      ? v1(`/patient.php?clinicPatientID=${createId}`)
+      ? v1(`/patient.php`)
       : v2(`/patients/${createId}`);
     const r = VER === 'v1'
       ? http.patch(url, body, { headers: authJson })

@@ -20,8 +20,10 @@ import { Trend } from 'k6/metrics';
 const BASE   = __ENV.TARGET_BASE_URL || 'http://localhost';
 const VER    = __ENV.TARGET_VERSION  || 'v2';
 const TOKEN  = __ENV.BENCHMARK_TOKEN       || '';
-const UA     = __ENV.BENCHMARK_USER_AGENT  || 'k6-benchmark/1.0';
-const REPEAT = parseInt(__ENV.REPEAT_COUNT || '5');
+const UA          = __ENV.BENCHMARK_USER_AGENT  || 'k6-benchmark/1.0';
+const AUTH_HEADER = VER === 'v1' ? 'X-Piclinic-Token' : 'X-Session-Token';
+const REPEAT  = parseInt(__ENV.REPEAT_COUNT || '5');
+const POST_OK = 201;
 
 const CASES = [
   { id: 'log_by_date',    resource: 'log', method: 'GET',  variant: 'By log date',     normal: 'rare', stress: 'rare' },
@@ -40,7 +42,7 @@ export const options = {
 };
 
 const auth = {
-  'X-Session-Token': TOKEN,
+  [AUTH_HEADER]: TOKEN,
   'Accept': 'application/json',
   'User-Agent': UA,
 };
@@ -89,12 +91,14 @@ export default function () {
       userToken:        TOKEN,
       logClass:         'info',
       sourceModule:     'benchmark',
+      logTable:         'log',
+      logAction:        'POST',
       logStatusCode:    200,
       logStatusMessage: 'Benchmark log entry',
     });
     const url = VER === 'v1' ? v1(`/log.php`) : v2(`/log`);
     const r = http.post(url, body, { headers: authJson });
-    check(r, { 'log write 201': (r) => r.status === 201 });
+    check(r, { 'log write 201': (r) => r.status === POST_OK });
     timing.log_write.add(r.timings.duration);
   }
 }

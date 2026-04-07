@@ -17,7 +17,8 @@ import { Trend } from 'k6/metrics';
 const BASE   = __ENV.TARGET_BASE_URL || 'http://localhost';
 const VER    = __ENV.TARGET_VERSION  || 'v2';
 const TOKEN  = __ENV.BENCHMARK_TOKEN       || '';
-const UA     = __ENV.BENCHMARK_USER_AGENT  || 'k6-benchmark/1.0';
+const UA          = __ENV.BENCHMARK_USER_AGENT  || 'k6-benchmark/1.0';
+const AUTH_HEADER = VER === 'v1' ? 'X-Piclinic-Token' : 'X-Session-Token';
 const REPEAT = parseInt(__ENV.REPEAT_COUNT || '5');
 
 const CASES = [
@@ -35,7 +36,7 @@ export const options = {
 };
 
 const auth = {
-  'X-Session-Token': TOKEN,
+  [AUTH_HEADER]: TOKEN,
   'Accept': 'application/json',
   'User-Agent': UA,
 };
@@ -47,7 +48,7 @@ export default function () {
   // GET this clinic info
   {
     const url = VER === 'v1'
-      ? v1(`/clinic.php`)
+      ? v1(`/clinic.php?thisClinic=1`)
       : v2(`/clinic?thisClinic=1`);
     const r = http.get(url, { headers: auth });
     check(r, { 'clinic this 200': (r) => r.status === 200 });
@@ -57,7 +58,7 @@ export default function () {
   // GET clinic info by publicID (205 = SANTA ELENA, set as ThisClinic in TestClinics.sql)
   {
     const url = VER === 'v1'
-      ? v1(`/clinic.php?clinicPublicID=205`)
+      ? v1(`/clinic.php?publicID=205`)
       : v2(`/clinic?publicID=205`);
     const r = http.get(url, { headers: auth });
     check(r, { 'clinic by id 200': (r) => r.status === 200 });

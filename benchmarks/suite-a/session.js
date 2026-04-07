@@ -27,8 +27,10 @@ const BASE     = __ENV.TARGET_BASE_URL      || 'http://localhost';
 const VER      = __ENV.TARGET_VERSION       || 'v2';
 const USERNAME = __ENV.BENCHMARK_USERNAME   || 'bmtest';
 const PASSWORD = __ENV.BENCHMARK_PASSWORD   || '';
-const UA       = __ENV.BENCHMARK_USER_AGENT || 'k6-benchmark/1.0';
-const REPEAT   = parseInt(__ENV.REPEAT_COUNT || '5');
+const UA          = __ENV.BENCHMARK_USER_AGENT || 'k6-benchmark/1.0';
+const AUTH_HEADER = VER === 'v1' ? 'X-Piclinic-Token' : 'X-Session-Token';
+const REPEAT      = parseInt(__ENV.REPEAT_COUNT || '5');
+const POST_OK     = 201;
 
 const CASES = [
   { id: 'session_login',  resource: 'session', method: 'POST',   variant: 'Login',  normal: 'low', stress: 'med' },
@@ -66,14 +68,14 @@ export default function () {
   // Login
   const loginBody = JSON.stringify({ username: USERNAME, password: PASSWORD });
   const loginRes  = http.post(loginUrl(), loginBody, { headers: jsonHeaders });
-  const loginOk   = check(loginRes, { 'login status 201': (r) => r.status === 201 });
+  const loginOk   = check(loginRes, { 'login status 201': (r) => r.status === POST_OK });
   timing.session_login.add(loginRes.timings.duration);
 
   if (!loginOk) { return; }
 
   const token = loginRes.json('data.token');
   const authHeaders = {
-    'X-Session-Token': token,
+    [AUTH_HEADER]: token,
     'Content-Type': 'application/json',
     'Accept': 'application/json',
   };

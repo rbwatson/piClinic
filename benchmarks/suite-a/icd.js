@@ -22,7 +22,8 @@ import { Trend } from 'k6/metrics';
 const BASE   = __ENV.TARGET_BASE_URL || 'http://localhost';
 const VER    = __ENV.TARGET_VERSION  || 'v2';
 const TOKEN  = __ENV.BENCHMARK_TOKEN       || '';
-const UA     = __ENV.BENCHMARK_USER_AGENT  || 'k6-benchmark/1.0';
+const UA          = __ENV.BENCHMARK_USER_AGENT  || 'k6-benchmark/1.0';
+const AUTH_HEADER = VER === 'v1' ? 'X-Piclinic-Token' : 'X-Session-Token';
 const REPEAT = parseInt(__ENV.REPEAT_COUNT || '5');
 
 const CASES = [
@@ -42,7 +43,7 @@ export const options = {
 };
 
 const auth = {
-  'X-Session-Token': TOKEN,
+  [AUTH_HEADER]: TOKEN,
   'Accept': 'application/json',
   'User-Agent': UA,
 };
@@ -55,7 +56,7 @@ export default function () {
   // GET by diagnosis code (exact match)
   {
     const url = VER === 'v1'
-      ? v1(`/icd.php?icd10index=A00.0`)
+      ? v1(`/icd.php?q=A00.0`)
       : v2(`/icd/A00.0`);
     const r = http.get(url, { headers: auth });
     check(r, { 'icd by code 200': (r) => r.status === 200 });
@@ -85,7 +86,7 @@ export default function () {
   // PATCH update ICD record — v1 only; not implemented in v2
   if (VER === 'v1') {
     const body = JSON.stringify({ shortDescription: 'Cholera due to Vibrio cholerae 01 biovar cholerae' });
-    const url = v1(`/icd.php?icd10index=A00.0`);
+    const url = v1(`/icd.php?icd10index=A000&language=en`);
     const r = http.patch(url, body, { headers: authJson });
     check(r, { 'icd update 200': (r) => r.status === 200 });
     timing.icd_update.add(r.timings.duration);

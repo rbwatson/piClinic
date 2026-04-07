@@ -25,8 +25,10 @@ import { Trend } from 'k6/metrics';
 const BASE   = __ENV.TARGET_BASE_URL || 'http://localhost';
 const VER    = __ENV.TARGET_VERSION  || 'v2';
 const TOKEN  = __ENV.BENCHMARK_TOKEN       || '';
-const UA     = __ENV.BENCHMARK_USER_AGENT  || 'k6-benchmark/1.0';
-const REPEAT = parseInt(__ENV.REPEAT_COUNT || '5');
+const UA          = __ENV.BENCHMARK_USER_AGENT  || 'k6-benchmark/1.0';
+const AUTH_HEADER = VER === 'v1' ? 'X-Piclinic-Token' : 'X-Session-Token';
+const REPEAT  = parseInt(__ENV.REPEAT_COUNT || '5');
+const POST_OK = 201;
 
 const CASES = [
   { id: 'visit_open_list',   resource: 'visit', method: 'GET',   variant: 'Open visits list (dashboard)', normal: 'high', stress: 'high' },
@@ -47,7 +49,7 @@ export const options = {
 };
 
 const auth = {
-  'X-Session-Token': TOKEN,
+  [AUTH_HEADER]: TOKEN,
   'Accept': 'application/json',
   'User-Agent': UA,
 };
@@ -56,7 +58,15 @@ const authJson = Object.assign({}, auth, { 'Content-Type': 'application/json' })
 function v1(path) { return `${BASE}/api${path}`; }
 function v2(path) { return `${BASE}/api/v2${path}`; }
 
+// Per-iteration counter used to give each v1 POST a unique dateTimeIn.
+// v1 generates patientVisitID from (patientID + date + daily index). Using a
+// distinct past date per iteration guarantees index=1 for each, avoiding the
+// 409 duplicate that occurs when getDbRecords() returns the seeded BMV-0001
+// record first and the code re-uses index=1 every iteration.
+let runSeq = 0;
+
 export default function () {
+  runSeq++;
   // GET open visits list (dashboard)
   {
     const url = VER === 'v1'
@@ -98,15 +108,18 @@ export default function () {
   }
 
   // POST open visit (creates a new visit for BM-0001; captured for update)
+  // v1 note: patientVisitID is derived from (patientID + dateIn + daily index).
+  // A distinct past dateTimeIn per iteration ensures index=1 each time,
+  // avoiding 409 duplicates caused by unreliable sort order in the index check.
   let newVisitId = null;
   {
-    const body = JSON.stringify({
-      clinicPatientID: 'BM-0001',
-      visitType:       'Clinic',
-    });
+    const body = VER === 'v1'
+      ? JSON.stringify({ clinicPatientID: 'BM-0001', visitType: 'Clinic',
+          dateTimeIn: `2020-01-${String(runSeq).padStart(2,'0')} 12:00:00` })
+      : JSON.stringify({ clinicPatientID: 'BM-0001', visitType: 'Clinic' });
     const url = VER === 'v1' ? v1(`/visit.php`) : v2(`/visits`);
     const r = http.post(url, body, { headers: authJson });
-    check(r, { 'visit open 201': (r) => r.status === 201 });
+    check(r, { 'visit open 201': (r) => r.status === POST_OK });
     timing.visit_open.add(r.timings.duration);
     // Capture created visit ID for the update step
     newVisitId = VER === 'v1'
@@ -116,9 +129,11 @@ export default function () {
 
   // PATCH update visit (update the visit just opened)
   if (newVisitId) {
-    const body = JSON.stringify({ primaryComplaint: 'Benchmark test complaint' });
+    const body = VER === 'v1'
+      ? JSON.stringify({ patientVisitID: newVisitId, primaryComplaint: 'Benchmark test complaint' })
+      : JSON.stringify({ primaryComplaint: 'Benchmark test complaint' });
     const url = VER === 'v1'
-      ? v1(`/visit.php?patientVisitID=${newVisitId}`)
+      ? v1(`/visit.php`)
       : v2(`/visits/${newVisitId}`);
     const r = http.patch(url, body, { headers: authJson });
     check(r, { 'visit update 200': (r) => r.status === 200 });

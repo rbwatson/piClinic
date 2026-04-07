@@ -19,8 +19,10 @@ import { Trend } from 'k6/metrics';
 const BASE   = __ENV.TARGET_BASE_URL || 'http://localhost';
 const VER    = __ENV.TARGET_VERSION  || 'v2';
 const TOKEN  = __ENV.BENCHMARK_TOKEN       || '';
-const UA     = __ENV.BENCHMARK_USER_AGENT  || 'k6-benchmark/1.0';
-const REPEAT = parseInt(__ENV.REPEAT_COUNT || '5');
+const UA          = __ENV.BENCHMARK_USER_AGENT  || 'k6-benchmark/1.0';
+const AUTH_HEADER = VER === 'v1' ? 'X-Piclinic-Token' : 'X-Session-Token';
+const REPEAT  = parseInt(__ENV.REPEAT_COUNT || '5');
+const POST_OK = 201;
 
 const CASES = [
   { id: 'comment_by_username', resource: 'comment', method: 'GET',  variant: 'By username', normal: 'low',  stress: 'low'  },
@@ -38,7 +40,7 @@ export const options = {
 };
 
 const auth = {
-  'X-Session-Token': TOKEN,
+  [AUTH_HEADER]: TOKEN,
   'Accept': 'application/json',
   'User-Agent': UA,
 };
@@ -79,7 +81,7 @@ export default function () {
     });
     const url = VER === 'v1' ? v1(`/comment.php`) : v2(`/comments`);
     const r = http.post(url, body, { headers: authJson });
-    check(r, { 'comment create 201': (r) => r.status === 201 });
+    check(r, { 'comment create 201': (r) => r.status === POST_OK });
     timing.comment_create.add(r.timings.duration);
   }
 }

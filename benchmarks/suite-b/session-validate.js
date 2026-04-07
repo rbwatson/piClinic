@@ -20,8 +20,9 @@ import { Trend } from 'k6/metrics';
 const BASE    = __ENV.TARGET_BASE_URL       || 'http://localhost';
 const VER     = __ENV.TARGET_VERSION        || 'v2';
 const TOKEN   = __ENV.BENCHMARK_TOKEN       || '';
-const UA      = __ENV.BENCHMARK_USER_AGENT  || 'k6-benchmark/1.0';
-const REPEAT  = parseInt(__ENV.REPEAT_COUNT || '5');
+const UA          = __ENV.BENCHMARK_USER_AGENT  || 'k6-benchmark/1.0';
+const AUTH_HEADER = VER === 'v1' ? 'X-Piclinic-Token' : 'X-Session-Token';
+const REPEAT      = parseInt(__ENV.REPEAT_COUNT || '5');
 
 const v1Url = `${BASE}/api/session.php`;
 const v2Url = `${BASE}/api/v2/auth/session`;
@@ -36,7 +37,7 @@ export const options = {
 };
 
 const headers = {
-  'X-Session-Token': TOKEN,
+  [AUTH_HEADER]: TOKEN,
   'Accept': 'application/json',
   'User-Agent': UA,
 };
