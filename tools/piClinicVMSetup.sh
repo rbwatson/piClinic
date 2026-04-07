@@ -140,6 +140,26 @@ sudo nano /etc/apache2/apache2.conf
 # </Directory>
 #
 sudo systemctl restart apache2
+# =============================================================================
+# STEP 5.1: Configure user accounts and permissions
+# =============================================================================
+#
+#	add users
+#
+#   add the clinic user and group
+sudo groupadd clinic
+sudo useradd clinic -g clinic
+sudo usermod -a -G audio clinic
+sudo usermod -a -G video clinic
+#
+#   set an initial password (to change during clinic installation)
+# sudo passwd clinic
+#
+# 	create the home directory for the clinic account
+#
+sudo mkdir /home/clinic
+sudo chown clinic /home/clinic
+#
 #
 # =============================================================================
 # STEP 6: MySQL 8
@@ -198,6 +218,7 @@ composer --version
 # Install Node.js 20 LTS via NodeSource. The v2 plan requires Node 18+;
 # Node 20 LTS is the current stable release.
 #
+cd ~
 curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
 sudo apt-get install -y nodejs
 #
@@ -250,9 +271,7 @@ git branch --show-current
 #
 # Example (run from the directory containing composer.json once it exists):
 #
-#   cd ~/piClinic/www/html/api
-#   mkdir v2
-#   cd v2
+#   cd ~/piClinic/www_v2/html/api/
 #   composer require firebase/php-jwt
 #   composer require monolog/monolog
 #   composer require respect/validation:^2.3

@@ -1,19 +1,36 @@
 #/bin/bash
 #
-#	Instructions updated for 2020-05-27 release of Raspberry Pi OS (32-bit)
-#   with desktop
+#	Instructions updated for 2025-12-04 release of Raspberry Pi OS (64-bit)
+#   with desktop (https://www.raspberrypi.com/software/operating-systems/)
 #
 #   This process can take from 60-90 minutes to complete.
 #
+#       This process is divided into two parts:
+#           1) Configure the base OS for the piClinic hardware and application software
+#           2) Install the piClinic application software
+#           3) Save the SD card image for use in copying to other SD cards for production use
+#           4) Configure the piClinic application software for use in the specific clinic environment
+#
 # For ease of copying the base image:
-#   1. Install and configure this software as described below
-#       on an 8-GB MicroSD card.
-#   2. Save the image of the MicroSD card as an .img file.
-#   3. Load the image on to a high-speed 32GB (or larger) microSD card.
-#   4. After booting from the new MicroSD card, run raspi-config and
-#       in Advanced Options, select option A1 to make the entire SD card
-#       available to the OS.
-#   5. The system should be ready to run normally after that
+#   1. Download a current version of the Raspberry Pi OS (64-bit)
+#               with desktop from https://www.raspberrypi.com/software/operating-systems/
+#       If necessary, download the Raspberry Pi Imager from https://www.raspberrypi.com/software/
+#               and use it to load the OS on to a 32-GB (or larger) microSD card.
+#   2. Run the imager and configure the OS location, username, and network information as desired
+#               using the advanced options in the imager.
+#	Set Country
+#		For a dev system:
+#			Country: United States
+#			Language: American English
+#			Timezone: (as appropriate)
+#		For a customer system:
+#			Country: (as appropriate)
+#			Language: (as appropriate: English, Spanish, are the only options currently supported)
+#			Timezone: (as appropriate)
+#       After the OS is loaded on to the SD Card, install the card into the raspberry pi and boot
+#               from the microSD card.
+#   3. Log into the pi and run the update command from the GUI header.
+#   4. The system should be ready to run normally after that
 #
 #*****************************************************************************
 #
@@ -26,89 +43,19 @@
 #
 #*****************************************************************************
 #
-#	Start here if your installing a clean OS as downloaded from raspberrypi.org.
+#	Start here if your installing a clean OS as downloaded from raspberrypi.com.
 #   Install the version that HAS the GUI desktop but DOES NOT HAVE the apps
 #   The required apps will be installed by this procedure
 #	If you are starting from a pre-configured piClinic OS image, start futher down the page
 #
 #	Power up system with fresh OS on SD card.
-#	Walk through initialization wizard
-#
-#	Set Country
-#		For a dev system:
-#			Country: United States
-#			Language: American English
-#			Timezone: (as appropriate)
-#		For a customer system:
-#			Country: Honduras
-#			Language: Spanish
-#			Timezone: Tegucigalpa
-#
-#	Change Password
-#		Set default pi account password
-#
-#	Select WiFi Network
-#		Select as appropriate for DEV system
-#		Skip (don't connect) on a customer system and use a wired network for updates
-#
-#	Check for Updates
-#		Click skip (or you'll be sorry...)
-#   We'll run the update shortly
-#
-#	After this, the pi will reboot to the desktop.
-#
 #	In a terminal window. Remove some unused software before continuing.
-sudo apt-get purge dillo
+sudo apt-get purge
 sudo apt-get clean
 sudo apt-get autoremove
 sudo shutdown -r 0
 #
-# 	In a terminal window update the OS.
-sudo apt-get update
-sudo apt-get upgrade
-sudo apt-get clean
-sudo apt-get autoremove
-sudo shutdown -r 0
-#
-#	Update the system config file for the piClinic configuration.
-#	Open config.txt and change/uncomment, or add if not present, these config parameters
-sudo nano /boot/config.txt
-#			disable_overscan=1
-#			hdmi_group=1
-#			hdmi_mode=16
-#     hdmi_blanking=1
-#     hdmi_drive=2
-#
-sudo shutdown -r 0
-#
-# configure the basic PI settings
-#   open Raspberry Pi Configuration from the Preferences menu
-#     SYSTEM page
-#		Hostname: piclinic
-#       Auto Login: uncheck Login as user 'pi'
-#     INTERFACES page
-#       enable these and leave the others disabled unless needed for your configuration
-#         SPI
-#         I2C
-#     PERFORMANCE page
-#       leave as default
-#     LOCALISATION
-#	      (confirm, these should be configured at initial boot)
-#     LOCALE: en-US, UTF-8
-#	     TIMEZONE
-#			  (confirm, these should be configured at initial boot)
-#	       your local timezone (e.g. AMERICA/New_York for Eastern time
-#	     KEYBOARD
-#			  (confirm, these should be configured at initial boot)
-#	       as desired: (e.g. United States, English)
-#		  WiFi COUNTRY:
-#			  (confirm, these should be configured at initial boot)
-#
-#	Turn off bluetooth from the icon in the system menu bar.
-#
-#   Save changes and restart.
-sudo shutdown -r 0
-#
+#       If your pi has been configured with an add-on RTC, configure it now before installing the software.
 #	Configure the RealTime clock (make sure that it's been installed on the Pi board.)
 # 	This is easiest if done while connected to the Internet
 #
@@ -131,7 +78,7 @@ sudo shutdown -r 0
 #     this command displays the realtime clock's time
 #       sudo hwclock -r
 #
-#			if not, refer to https://thepihut.com/blogs/raspberry-pi-tutorials/17209332-adding-a-real-time-clock-to-your-raspberry-pi from where these instructions were found
+#	if not, refer to https://thepihut.com/blogs/raspberry-pi-tutorials/17209332-adding-a-real-time-clock-to-your-raspberry-pi from where these instructions were found
 #
 # *************************************************************************
 #		At this point the basic OS has been configured for the piClinic hardware
@@ -142,20 +89,110 @@ sudo shutdown -r 0
 #
 # install basic system software
 sudo apt-get -y install nload
-sudo apt-get -y install exfat-fuse exfat-utils
-sudo apt-get -y install apache2 apache2-doc libapache2-mod-php
-sudo apt-get -y install libapache2-mod-php7.3 php7.3-common php7.3-fpm php7.3-mysql php7.3
+# *************************************************************************
+#		Install Apache, PHP, and MySQL (MariaDB) for the web server and database
+# *************************************************************************
 #
-#	create a php info page
-#   (note, these commands might need to be run from the su account by
-#     entering sudo su before running these commands)
-sudo echo '<?php phpinfo(); ?>' > /var/www/html/phpinfo.php
-# 	set file permissions to let apache show the file.
+sudo apt-get install -y apache2 apache2-doc
+#
+# Enable required Apache modules
+sudo a2enmod rewrite
+sudo a2enmod headers
+#
+sudo systemctl enable apache2
+sudo systemctl start apache2
+#
+# Verify: open http://localhost in a browser -- should show the Apache default page.
+#
+# =============================================================================
+# STEP 3: PHP 8.2+
+# =============================================================================
+#
+# Ubuntu 24.04 ships with PHP 8.3. The v2 target is PHP 8.2+, so either
+# version works. These commands install the default PHP version from the
+# Ubuntu 24.04 repos (8.3). To pin to 8.2 instead, use the ondrej/php PPA:
+#   sudo add-apt-repository ppa:ondrej/php
+#   sudo apt-get update
+#   sudo apt-get install -y php8.2 php8.2-common php8.2-fpm php8.2-mysql ...
+#
+sudo apt-get install -y \
+    libapache2-mod-php \
+    php-common \
+    php-fpm \
+    php-mysql \
+    php-mbstring \
+    php-xml \
+    php-curl \
+    php-zip \
+    php-intl \
+    php-bcmath
+#
+# Verify the installed PHP version
+php -v
+#
+# Create a PHP info page for browser verification
+sudo bash -c 'echo "<?php phpinfo(); ?>" > /var/www/html/phpinfo.php'
 sudo chown www-data:www-data /var/www/html/phpinfo.php
 sudo chmod 750 /var/www/html/phpinfo.php
 #
-#	check web server by opening http://localhost in the browser
-#   These commands install the Raspian version of mysql, a.k.a. mariadb
+# Verify: open http://localhost/phpinfo.php -- should show PHP info page.
+#
+# Install Composer for PHP dependency management
+#
+# =============================================================================
+# STEP 7: Composer (PHP dependency manager)
+# =============================================================================
+#
+cd ~
+# get current setup instructions from https://getcomposer.org/download/
+php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+# curl -sS https://getcomposer.org/installer -o composer-setup.php
+#
+# Get the expected installer signature from the Composer website
+HASH="$(curl -sS https://composer.github.io/installer.sig)"
+# Verify the installer matches the expected signature to ensure it's not corrupted or tampered with.
+php -r "if (hash_file('SHA384', 'composer-setup.php') === '$HASH') { echo 'Installer verified'; } else { echo 'Installer INVALID - do not run'; exit(1); } echo PHP_EOL;"
+#
+# If verified:
+sudo php composer-setup.php --install-dir=/usr/local/bin --filename=composer
+rm composer-setup.php
+#
+# Verify
+composer --version
+#
+#
+# =============================================================================
+# STEP 8: Node.js 20 LTS (for React frontend development)
+# =============================================================================
+#
+# Install Node.js 20 LTS via NodeSource. The v2 plan requires Node 18+;
+# Node 20 LTS is the current stable release.
+#
+cd ~
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt-get install -y nodejs
+#
+# Verify
+node -v
+npm -v
+#
+# =============================================================================
+# STEP 9: PHP development tools (PHPUnit and PHPStan)
+# =============================================================================
+#
+# These are installed per-project via Composer (see STEP 11), but you can
+# also install PHPUnit globally for convenience.
+#
+# Install PHPUnit 12.x globally (last version supporting PHP 8.3).
+# PHPUnit 13.x requires PHP 8.4+. Revisit when PHP 8.4 is available.
+sudo wget -O /usr/local/bin/phpunit https://phar.phpunit.de/phpunit-12.phar
+sudo chmod +x /usr/local/bin/phpunit
+phpunit --version
+#
+# PHPStan is installed per-project via Composer (see STEP 11).
+# =============================================================================
+# STEP 10: MariaDB (MySQL-compatible database)
+# =============================================================================
 #
 sudo apt-get -y install mariadb-server-10.0
 sudo apt-get -y install mariadb-client-10.0
@@ -169,9 +206,9 @@ sudo mysqld_safe --skip-grant-tables --skip-networking &
 mysql -u root
 # in mysql
 #	change new_password to your new root password.
-#	  	FLUSH PRIVILEGES;
-#     CREATE USER 'root'@'localhost' IDENTIFIED BY 'new_password';
-#     GRANT ALL PRIVILEGES ON *.* TO 'root'@'localhost';
+#       FLUSH PRIVILEGES;
+#       CREATE USER 'root'@'localhost' IDENTIFIED BY 'new_password';
+#       GRANT ALL PRIVILEGES ON *.* TO 'root'@'localhost';
 #   If root@localhost exists, just change its new_password
 #     SET PASSWORD FOR 'root'@'localhost' = PASSWORD('new_password');
 #
@@ -181,7 +218,8 @@ mysql -u root
 #     GRANT ALL PRIVILEGES ON *.* TO 'admin'@'localhost';
 #
 # 		exit
-# kill mysqld_safe process, first	list running processes:
+# kill mysqld_safe process, first
+#	list running processes:
 #		 ps
 #	find id of mysqld_safe process and use it in the following command
 #		sudo kill <id>
@@ -201,22 +239,12 @@ mysql -u admin -p
 # run this command on a production systems
 sudo mysql_secure_installation
 #
-# comment the next line for a production system
-#   Let phpmyadmin create a random password for its mysql access
-#   You'll use the admin account created earlier to log in to PhpMyAdmin
-sudo apt-get -y install phpmyadmin
-#
-# Verify the phpmyadmin installation by opening
-#   http://localhost/phpmyadmin
-#   and log in with the admin password created earlier
-#
 #	restart the system
 sudo shutdown -r 0
 #
 #	After it restarts:
 #		Check Apache: 	open http://localhost in a browser and make sure it displays the default page
 #		Check PHP: 		open http://localhost/phpinfo.php to make sure it displays info about PHP
-#		Check PhpMyAdmin (if installed) open and log into: http://localhost/phpmyadmin
 #
 # update the packages & restart
 sudo apt-get update
@@ -227,11 +255,12 @@ sudo apt-get autoremove
 sudo shutdown -r 0
 #
 # Configure PHP
+sudo nano /etc/php/8.4/apache2/php.ini
 #
 #   review timezone strings from https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
 #		and pick the correct one for the system's location
 #   edit the PHP ini file and change these settings on all configurations
-sudo nano /etc/php/7.3/apache2/php.ini
+#
 #     		memory_limit = 512M
 #     		date.timezone = <insert a standard UNIX timezone string>
 #                           see the wikipedia link above, such as
@@ -278,7 +307,7 @@ sudo systemctl restart apache2
 # *****  Checkpoint CP1 *****
 #
 # *************************************************************************
-#	The script has not been tested for the 2020-05-27 version of the OS
+#	The script has not been tested for the 2025-12-04 version of the OS
 #			past this point.
 #
 #		REMOVE THIS MESSAGE AFTER THE SCRIPT HAS BEEN TESTED WITH THE NEW OS
@@ -323,25 +352,11 @@ sudo chown clinic /home/clinic
 #	From a terminal window, run
 #		df -h
 #
-#	if the size of the /dev/root partition doesn't match the size of the SD card,
-#		from a terminal window, run
-#			sudo raspi-config
-#
-#		Select:
-#			7. Advanced options
-#			A1 Expand Filesystem
-#
-#		Click OK to exit
-#		Select the reboot option to restart the system
-#
-#	The system will restart a couple of times. When it shows the login prompt
-#		log in and check the new size of /dev/root.
-#			df -h
-#
 #	Install the software from GitHub
 #
 cd ~
-git clone https://github.com/docsbydesign/piClinic piClinic
+git clone https://github.com/rbwatson/piClinic piClinic
+
 #
 # create app folders
 sudo mkdir /var/local
@@ -361,7 +376,72 @@ echo 'Test your web server now by opening http://localhost in a browser.'
 echo 'Update the password in the ~/create_dbuser.sql file before installing the databases'
 echo 'After editing the password file, follow the commands that follow and enter them manually as directed.'
 #
-exit
+# =============================================================================
+# STEP 11: Install PHP (backend) dependencies via Composer
+# =============================================================================
+#
+# This step requires a composer.json in the backend directory.
+# When the v2 backend directory structure is created, run Composer from that
+# directory. The dependencies below are defined in CLAUDE.md as required for v2.
+#
+# Example (run from the directory containing composer.json once it exists):
+#
+#   cd ~/piClinic/www_v2/html/api/
+#   composer require firebase/php-jwt
+#   composer require monolog/monolog
+#   composer require respect/validation:^2.3
+#       Note: respect/validation v3.x requires PHP 8.5+. Pin to v2.x for
+#       compatibility with PHP 8.2/8.3. Revisit when PHP 8.5 is available.
+#   composer require zircote/swagger-php
+#   composer require vlucas/phpdotenv
+#
+#   composer require --dev phpunit/phpunit:^12
+#       Note: PHPUnit 13.x requires PHP 8.4+. Pin to v12.x for compatibility
+#       with PHP 8.2/8.3. Revisit when PHP 8.4 is available.
+#   composer require --dev phpstan/phpstan
+#
+# =============================================================================
+# STEP 12: Initialize the React frontend project
+# =============================================================================
+#
+# This step creates the frontend/ directory with Vite + React + TypeScript.
+# Run this once when ready to begin Phase 3 frontend work.
+#
+#   cd ~/piClinic
+#   npm create vite@latest frontend -- --template react-ts
+#   cd frontend
+#   npm install
+#
+#   Install core frontend dependencies (from CLAUDE.md):
+#   npm install react-router-dom @tanstack/react-query axios
+#   npm install react-hook-form yup
+#   npm install react-i18next i18next
+#
+#   Install dev dependencies:
+#   npm install -D vitest @vitest/coverage-v8 @testing-library/react \
+              @testing-library/user-event @testing-library/jest-dom \
+              msw playwright @playwright/test
+#
+# =============================================================================
+# STEP 13: Create application directories
+# =============================================================================
+#
+sudo mkdir -p /var/local/piclinic/image
+sudo mkdir -p /var/local/piclinic/deleted
+sudo mkdir -p /var/local/piclinic/downloads
+sudo chown -R www-data:www-data /var/local/piclinic
+sudo chmod -R 750 /var/local/piclinic
+#
+sudo mkdir -p /var/log/piclinic
+sudo chown www-data:www-data /var/log/piclinic
+sudo chmod 770 /var/log/piclinic
+#
+# Developer accounts that run tests interactively need write access to the log
+# directory. Add each developer's username to the www-data group, then log out
+# and back in (or run: newgrp www-data) for the change to take effect.
+#
+#   sudo usermod -aG www-data <username>
+# =============================================================================
 #
 # copy this file and edit the password before running it
 cp ~/piClinic/sql/create_dbuser.sql ~/.
@@ -372,19 +452,21 @@ sudo mysql -uroot -pYOURPASSWORD  < ~/create_dbuser.sql
 ##
 # install app database and database user account
 cd ~/piClinic/sql
-sudo mysql -uroot -pYOURPASSWORD < piclinc.sql
+sudo mysql -uroot -pYOURPASSWORD < piclinic.sql
 # sudo mysql -uroot -pYOURPASSWORD < HondurasClinics.sql
 sudo mysql -uroot -pYOURPASSWORD < TestUsers.sql
+sudo mysql -uroot -pYOURPASSWORD < icd10.sql
 #
-# copy the app files to create the web site
-sudo cp -R ~/piClinic/www/* /var/www/.
-sudo chown -R www-data:www-data /var/www/*
-sudo chmod -R 750 /var/www/*
-sudo chmod -R 755 /var/www/scripts/*
+#       Deploy software to the web server
+#
+cd ~/piClinic/tools
+./deploy.sh v2
 #
 # edit password(s) in /var/www/pass/dbPass.php to match the password you
 #   put in in the create_dbuser.sql script
 #
+echo 'For v2 deployments, edit the credentials in /var/www/html/api/.env before running the app.'
+echo 'Edit the clinic-specific configuration in /var/www/pass/clinicSpecific.php before running the app.'
 echo 'Edit the database password in /var/www/html/dbPass.php before running app.'
 exit
 #

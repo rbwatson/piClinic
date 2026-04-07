@@ -89,6 +89,9 @@ fi
 BENCHMARK_PASSWORD="$(cat "${BENCHMARK_PASSWORD_FILE}")"
 DB_PASSWORD="$(cat "${DB_PASSWORD_FILE}")"
 
+# Expand ~ in SSH key path (optional)
+TARGET_SSH_KEY="${TARGET_SSH_KEY/#\~/$HOME}"
+
 # ---------------------------------------------------------------------------
 # Dependency checks
 # ---------------------------------------------------------------------------
