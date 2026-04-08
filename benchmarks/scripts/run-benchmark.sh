@@ -12,7 +12,7 @@
 #   --report   not run unless flag present
 #
 # Requirements:
-#   k6, curl, jq, ssh on the PATH (mysql runs on the target via SSH)
+#   k6, curl, jq, ssh, scp on the PATH (mysql runs on the target via SSH)
 #   SSH key-based auth to TARGET_SSH_HOST
 
 set -euo pipefail
@@ -75,6 +75,10 @@ FREQUENCY_PROFILE="${FREQUENCY_PROFILE:-both}"
 BENCHMARK_PASSWORD_FILE="${BENCHMARK_PASSWORD_FILE/#\~/$HOME}"
 DB_PASSWORD_FILE="${DB_PASSWORD_FILE/#\~/$HOME}"
 
+# Expand ~ in SSH key path (optional)
+TARGET_SSH_KEY="${TARGET_SSH_KEY:-}"
+[[ -n "${TARGET_SSH_KEY}" ]] && TARGET_SSH_KEY="${TARGET_SSH_KEY/#\~/$HOME}"
+
 if [[ ! -f "${BENCHMARK_PASSWORD_FILE}" ]]; then
   echo "ERROR: BENCHMARK_PASSWORD_FILE not found: ${BENCHMARK_PASSWORD_FILE}" >&2; exit 1
 fi
@@ -88,7 +92,7 @@ DB_PASSWORD="$(cat "${DB_PASSWORD_FILE}")"
 # ---------------------------------------------------------------------------
 # Dependency checks
 # ---------------------------------------------------------------------------
-for cmd in k6 curl jq ssh; do
+for cmd in k6 curl jq ssh scp; do
   if ! command -v "${cmd}" &>/dev/null; then
     echo "ERROR: '${cmd}' is required but not found on PATH" >&2; exit 1
   fi
@@ -116,8 +120,19 @@ echo ""
 # Helpers
 # ---------------------------------------------------------------------------
 ssh_target() {
+  local ssh_key_arg=()
+  [[ -n "${TARGET_SSH_KEY:-}" ]] && ssh_key_arg=(-i "${TARGET_SSH_KEY}")
   ssh -o BatchMode=yes -o ConnectTimeout=10 \
+      "${ssh_key_arg[@]}" \
       "${TARGET_SSH_USER}@${TARGET_SSH_HOST}" "$@"
+}
+
+scp_to_target() {
+  local ssh_key_arg=()
+  [[ -n "${TARGET_SSH_KEY:-}" ]] && ssh_key_arg=(-i "${TARGET_SSH_KEY}")
+  scp -o BatchMode=yes -o ConnectTimeout=10 \
+      "${ssh_key_arg[@]}" \
+      "$@" "${TARGET_SSH_USER}@${TARGET_SSH_HOST}:"
 }
 
 mysql_target() {
@@ -139,6 +154,32 @@ die() {
   fi
   exit 1
 }
+
+# ---------------------------------------------------------------------------
+# Step 0: Collect hardware profile from target
+# ---------------------------------------------------------------------------
+echo "--- Step 0: Hardware profile ---"
+
+HW_PROFILE_SCRIPT="${SCRIPT_DIR}/collect-hw-profile.sh"
+HW_PROFILE_OUT="${RESULTS_DIR}/hw-profile.md"
+
+if [[ ! -f "${HW_PROFILE_SCRIPT}" ]]; then
+  echo "  WARNING: collect-hw-profile.sh not found — skipping hardware profile." >&2
+else
+  # Copy script to target home directory and run it there
+  REMOTE_SCRIPT="/tmp/collect-hw-profile-$$.sh"
+  if scp_to_target "${HW_PROFILE_SCRIPT}" 2>/dev/null && \
+     ssh_target "mv ~/collect-hw-profile-$$.sh ${REMOTE_SCRIPT} 2>/dev/null; chmod +x ${REMOTE_SCRIPT} && bash ${REMOTE_SCRIPT} --label '${TARGET_LABEL}'" \
+       > "${HW_PROFILE_OUT}" 2>/dev/null; then
+    echo "  Hardware profile saved to: ${HW_PROFILE_OUT}"
+    ssh_target "rm -f ${REMOTE_SCRIPT}" 2>/dev/null || true
+  else
+    echo "  WARNING: Hardware profile collection failed — continuing without it." >&2
+    ssh_target "rm -f ${REMOTE_SCRIPT}" 2>/dev/null || true
+  fi
+fi
+
+echo ""
 
 # ---------------------------------------------------------------------------
 # Step 1: Reset database and load seed data
@@ -214,7 +255,7 @@ LOGIN_RESPONSE="$(curl -sf -X POST "${LOGIN_URL}" \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
   -A "${BM_USER_AGENT}" \
-  -d "{\"username\":\"${BENCHMARK_USERNAME}\",\"password\":\"${BENCHMARK_PASSWORD}\"}")" \
+  -d "{\"username\":\"${BENCHMARK_USERNAME}\",\"password\":\"${BENCHMARK_PASSWORD}\"}")"\
   || die "Login request failed"
 
 HTTP_STATUS="$(echo "${LOGIN_RESPONSE}" | jq -r '.status // empty')"
