@@ -1,0 +1,83 @@
+#
+# piclinic_setup.conf.example
+#
+# Installation configuration for piClinic v2 setup scripts.
+#
+# BEFORE RUNNING THE SETUP SCRIPT:
+#   1. Copy this file to tools/piclinic_setup.conf
+#          cp tools/piclinic_setup.conf.example tools/piclinic_setup.conf
+#   2. Fill in every value below.
+#   3. Keep tools/piclinic_setup.conf private -- it contains passwords.
+#      It is listed in .gitignore and must never be committed to the repo.
+#
+# This file uses standard shell variable syntax. The setup scripts source
+# it directly, so values must not be quoted unless the value contains
+# spaces. Passwords should not contain single quotes (') or backslashes (\).
+#
+
+# =============================================================================
+# Linux accounts
+# =============================================================================
+
+# INSTALL_USER_NAME
+#   The Linux username of the account used to run this setup script.
+#   This account must have sudo privileges.
+#   Used for documentation and log messages only -- the script runs as
+#   whoever invokes it.
+#   Example: piClinic
+INSTALL_USER_NAME=
+
+# CLINIC_ACCOUNT_PASSWORD
+#   Password for the 'clinic' Linux account created by the setup script.
+#   This account is used for kiosk/browser access on single-workstation
+#   deployments. Leave blank to skip setting the password (the account
+#   will be created but locked until a password is assigned manually).
+#   Example: ChangeMe123
+CLINIC_ACCOUNT_PASSWORD=
+
+# =============================================================================
+# MariaDB accounts
+# =============================================================================
+
+# DB_ADMIN_PASSWORD
+#   Password for the MariaDB 'admin' account.
+#   This account is used for database administration and schema installation.
+#   It is not used by the running application.
+#   Example: AdminPass456
+DB_ADMIN_PASSWORD=
+
+# DB_APP_PASSWORD
+#   Password for the MariaDB 'CTS-user' account.
+#   This is the application runtime credential -- used by both the v1 PHP
+#   backend (www/pass/dbPass.php) and the v2 PHP backend (.env DB_PASSWORD).
+#   All three locations must contain the same value.
+#   Example: AppPass789
+DB_APP_PASSWORD=
+
+# =============================================================================
+# piClinic application accounts
+# =============================================================================
+
+# PICLINIC_SYSADMIN_PASSWORD
+#   Password for the piClinic SystemAdmin application account.
+#   This account is the super-user for piClinic application administration
+#   (managing staff accounts, clinic settings, etc.).
+#   Stored as a bcrypt hash in the staff table -- the plaintext is only
+#   needed here at install time.
+#   Example: SysAdmin012
+PICLINIC_SYSADMIN_PASSWORD=
+
+# =============================================================================
+# System configuration
+# =============================================================================
+
+# TIMEZONE
+#   IANA timezone string for php.ini date.timezone.
+#   See https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+#   Examples:
+#       America/Los_Angeles   (US Pacific)
+#       America/New_York      (US Eastern)
+#       America/Tegucigalpa   (Honduras)
+#       America/Bogota        (Colombia)
+#       UTC
+TIMEZONE=America/Los_Angeles
