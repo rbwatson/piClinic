@@ -3,7 +3,7 @@
 # Collects hardware and software environment details for benchmark documentation.
 #
 # Usage:
-#   ./collect-hw-profile.sh [--label <n>] [--out <file>]
+#   ./collect-hw-profile.sh [--label <name>] [--out <file>]
 #
 # Output: markdown file (stdout or --out path)
 # Requires: bash, standard Linux utilities (no extra packages needed)
@@ -124,10 +124,11 @@ if [[ -n "${SD_SPEED_FILE}" && -f "${SD_SPEED_FILE}" ]]; then
 fi
 
 # Disk read speed — read from a large file on the root filesystem (non-destructive)
-# Prefers a tmpfs write+read cycle to test actual storage read path
+# Uses /proc/kmsg as a fallback-free readable source; prefers a tmpfs write+read cycle
 DISK_READ="n/a"
 if command -v dd &>/dev/null && command -v sync &>/dev/null; then
   TMP_FILE="$(mktemp)"
+  # Write 64MB to tmp, sync, then read back — tests actual storage read path
   if dd if=/dev/zero of="${TMP_FILE}" bs=1M count=64 2>/dev/null && sync; then
     DISK_READ="$(dd if="${TMP_FILE}" of=/dev/null bs=1M 2>&1 | sed -n 's/.*\([0-9.]*  *[MGk]B\/s\).*/\1/p' | tail -1 || echo "n/a")"
   fi

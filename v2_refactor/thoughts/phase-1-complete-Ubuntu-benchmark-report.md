@@ -1,5 +1,117 @@
 # piClinic Benchmark Comparison
 
+## Test systems: 
+
+### Ubuntu VM
+
+#### CPU
+
+| Property | Value |
+|---|---|
+| Model | Intel(R) Core(TM) i7-8700 CPU @ 3.20GHz |
+| Architecture | x86_64 (64-bit OS) |
+| Cores | 2 |
+| Max clock | 3191.996 MHz |
+| Current clock | n/a |
+| L1 data cache | 32K |
+| L1 instruction cache | 32K |
+| L2 cache | 256K |
+| L3 cache | 12288K |
+| Temperature at test time | n/a |
+| Throttle flags (Pi only) | n/a |
+
+#### Memory
+
+| Property | Value |
+|---|---|
+| Total RAM | 7845 MB |
+| Available at test time | 6277 MB |
+| Memory type | n/a |
+
+#### Storage
+
+| Property | Value |
+|---|---|
+| Root device | sda |
+| Storage type | HDD (rotational) |
+| SD speed class | n/a |
+| Sequential read (approx) |  GB/s |
+
+#### System
+
+| Property | Value |
+|---|---|
+| Hostname | piClinicV2 |
+| OS | Ubuntu 24.04.4 LTS |
+| Kernel | 6.17.0-20-generic |
+| Virtualization | oracle |
+
+#### Software Stack
+
+| Component | Value |
+|---|---|
+| PHP version | 8.3.6 |
+| PHP SAPI | cli |
+| PHP opcache | enabled |
+| Apache version | Apache/2.4.58 |
+| MySQL/MariaDB version | 8.0.45 |
+
+### Raspberry Pi
+
+#### CPU
+
+| Property | Value |
+|---|---|
+| Model | 
+n/a |
+| Architecture | aarch64 (64-bit OS) |
+| Cores | 4 |
+| Max clock | 1400 MHz |
+| Current clock | 700 MHz |
+| L1 data cache | 32K |
+| L1 instruction cache | 32K |
+| L2 cache | 512K |
+| L3 cache | n/a |
+| Temperature at test time | 53.6°C |
+| Throttle flags (Pi only) | throttled=0x50000 |
+
+#### Memory
+
+| Property | Value |
+|---|---|
+| Total RAM | 906 MB |
+| Available at test time | 455 MB |
+| Memory type | n/a |
+
+#### Storage
+
+| Property | Value |
+|---|---|
+| Root device | mmcblk0 |
+| Storage type | SD card (eMMC/microSD) |
+| SD speed class | n/a |
+| Sequential read (approx) |  MB/s |
+
+#### System
+
+| Property | Value |
+|---|---|
+| Hostname | piClinic |
+| OS | Debian GNU/Linux 13 (trixie) |
+| Kernel | 6.12.75+rpt-rpi-v8 |
+| Virtualization | none
+none |
+
+#### Software Stack
+
+| Component | Value |
+|---|---|
+| PHP version | 8.4.16 |
+| PHP SAPI | cli |
+| PHP opcache | enabled |
+| Apache version | Apache/2.4.66 |
+| MySQL/MariaDB version | 11.8.6 |
+
 ## File 1: ubuntu-v1
 
 | Field | Value |

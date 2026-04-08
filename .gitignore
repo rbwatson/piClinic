@@ -29,7 +29,7 @@ tests/Http/.env.test
 **/.phpunit.result.cache
 
 # Benchmark config files and user scripts
-**/benchmark.conf
+benchmarks/benchmark_*.conf
 benchmarks/results/**
 
 # Test coverage reports
