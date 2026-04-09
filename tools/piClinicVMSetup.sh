@@ -35,7 +35,7 @@
 #     3. Fill in all values in tools/piclinic_setup.conf
 #
 #   Then run:
-#       bash ~/piClinic/tools/piClinicVMSetup.sh
+#       bash ~/piClinic/tools/piClinicVMSetup.sh 2>&1 | tee ~/piclinic_setup.log
 #
 #   The script saves progress after each step. If a step fails or the system
 #   restarts, run the same command again -- completed steps are skipped.
@@ -47,12 +47,14 @@
 #       rm ~/piClinic/tools/piclinic_setup.progress
 #
 #*****************************************************************************
-
+echo "PICLINIC: Starting VM setup script: $(readlink -f "$0")"
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 CONF_FILE="$SCRIPT_DIR/piclinic_setup.conf"
 PROGRESS_FILE="$SCRIPT_DIR/piclinic_setup.progress"
+ACTION_REQUIRED_FILE="/tmp/piclinic_action_required.txt"
+INSTALL_BRANCH="main_v2"
 
 # =============================================================================
 # Progress tracking helpers
@@ -64,16 +66,16 @@ ALL_STEPS=(
     step3_php
     step4_php_config
     step5_apache_config
-    step5_1_users
-    step6_mariadb
-    step7_composer
-    step8_nodejs
-    step9_phpunit
-    step10_clone
-    step13_directories
-    step14_database
-    step15_deploy
-    step16_final_update
+    step6_users
+    step7_mariadb
+    step8_composer
+    step9_nodejs
+    step10_phpunit
+    step11_clone
+    step12_directories
+    step13_database
+    step14_deploy
+    step15_final_update
 )
 
 STEP_LABELS=(
@@ -82,16 +84,16 @@ STEP_LABELS=(
     "STEP 3:  PHP 8.4"
     "STEP 4:  Configure PHP"
     "STEP 5:  Configure Apache"
-    "STEP 5.1 User accounts and permissions"
-    "STEP 6:  MariaDB"
-    "STEP 7:  Composer"
-    "STEP 8:  Node.js 20 LTS"
-    "STEP 9:  PHPUnit"
-    "STEP 10: Clone piClinic repository"
-    "STEP 13: Create application directories"
-    "STEP 14: Database setup"
-    "STEP 15: Deploy v2 API"
-    "STEP 16: Final system update"
+    "STEP 6:  User accounts and permissions"
+    "STEP 7:  MariaDB"
+    "STEP 8:  Composer"
+    "STEP 9:  Node.js 20 LTS"
+    "STEP 10: PHPUnit"
+    "STEP 11: Clone piClinic repository"
+    "STEP 12: Create application directories"
+    "STEP 13: Database setup"
+    "STEP 14: Composer update + Deploy v2 API"
+    "STEP 15: Final system update"
 )
 
 get_last_completed_step() {
@@ -106,6 +108,7 @@ mark_step_complete() {
     local step="$1"
     local timestamp
     timestamp=$(date '+%Y-%m-%d %H:%M:%S')
+    echo "PICLINIC: [$timestamp] Marking complete: $step" 
     echo "$step" > "$PROGRESS_FILE"
     echo "  [$timestamp] Completed: $step"
 }
@@ -115,13 +118,13 @@ step_is_done() {
     local last
     last=$(get_last_completed_step)
     [ -z "$last" ] && return 1
-    local found_last=0
+    local found_step=0
     for s in "${ALL_STEPS[@]}"; do
-        if [ "$s" = "$last" ]; then
-            found_last=1
-        fi
         if [ "$s" = "$step" ]; then
-            [ $found_last -eq 1 ] && return 0
+            found_step=1
+        fi
+        if [ "$s" = "$last" ]; then
+            [ $found_step -eq 1 ] && return 0
             return 1
         fi
     done
@@ -154,6 +157,27 @@ print_status() {
     echo ""
 }
 
+# Append a message to the action-required file for display before reboot
+queue_action_required() {
+    echo "$1" >> "$ACTION_REQUIRED_FILE"
+}
+
+# Display any queued action-required messages and require acknowledgment
+show_action_required_and_confirm() {
+    if [ ! -f "$ACTION_REQUIRED_FILE" ] || [ ! -s "$ACTION_REQUIRED_FILE" ]; then
+        return 0
+    fi
+    echo ""
+    echo "=============================================================================="
+    echo " ACTION REQUIRED before reboot"
+    echo "=============================================================================="
+    cat "$ACTION_REQUIRED_FILE"
+    echo "=============================================================================="
+    echo ""
+    read -r -p "Press Enter to confirm you have read the above and continue to reboot... "
+    rm -f "$ACTION_REQUIRED_FILE"
+}
+
 # Handle --status flag
 if [ "${1:-}" = "--status" ]; then
     print_status
@@ -163,6 +187,7 @@ fi
 # =============================================================================
 # Load installation configuration
 # =============================================================================
+echo "PICLINIC: Reading installation configuration: $(readlink -f "$CONF_FILE")"
 
 if [ ! -f "$CONF_FILE" ]; then
     echo "ERROR: Configuration file not found: $CONF_FILE"
@@ -177,7 +202,7 @@ fi
 # shellcheck source=piclinic_setup.conf
 source "$CONF_FILE"
 
-REQUIRED_VARS=(DB_ADMIN_PASSWORD DB_APP_PASSWORD PICLINIC_SYSADMIN_PASSWORD TIMEZONE)
+REQUIRED_VARS=(INSTALL_BRANCH DB_ADMIN_PASSWORD DB_APP_PASSWORD PICLINIC_SYSADMIN_PASSWORD TIMEZONE)
 for VAR in "${REQUIRED_VARS[@]}"; do
     if [ -z "${!VAR:-}" ]; then
         echo "ERROR: Required variable '$VAR' is not set in $CONF_FILE"
@@ -185,14 +210,14 @@ for VAR in "${REQUIRED_VARS[@]}"; do
     fi
 done
 
-echo "Configuration loaded from $CONF_FILE"
+echo "PICLINIC: Configuration loaded from $CONF_FILE"
 
 # =============================================================================
 # Pre-flight checks
 # =============================================================================
 
 echo ""
-echo "Running pre-flight checks..."
+echo "PICLINIC: Running pre-flight checks..."
 
 # Internet connectivity
 if ! curl -fsS --max-time 10 https://ubuntu.com > /dev/null 2>&1; then
@@ -227,12 +252,16 @@ else
 fi
 echo ""
 
+# Clear any leftover action-required file from a previous run
+echo "PICLINIC: removing any leftover action-required file: $ACTION_REQUIRED_FILE"
+rm -f "$ACTION_REQUIRED_FILE"
+
 # =============================================================================
 # STEP 1: System update and base utilities
 # =============================================================================
 
 if ! step_is_done step1_update; then
-    echo "--- STEP 1: System update and base utilities ---"
+    echo "PICLINIC: --- STEP 1: System update and base utilities ---"
     sudo apt-get update
     sudo apt-get upgrade -y
     sudo apt-get install -y git net-tools nload curl wget gnupg2 ca-certificates \
@@ -243,9 +272,10 @@ if ! step_is_done step1_update; then
     echo ""
     echo "STEP 1 complete. The system will now restart."
     echo "After restart, run this script again to continue:"
-    echo "    bash ~/piClinic/tools/piClinicVMSetup.sh"
+    echo "    bash ~/piClinic/tools/piClinicVMSetup.sh 2>&1 | tee ~/piclinic_setup.log"
     echo ""
     sudo shutdown -r now
+    exit 0
 fi
 
 # =============================================================================
@@ -253,7 +283,7 @@ fi
 # =============================================================================
 
 if ! step_is_done step2_apache; then
-    echo "--- STEP 2: Apache web server ---"
+    echo "PICLINIC: --- STEP 2: Apache web server ---"
     sudo apt-get install -y apache2 apache2-doc
     sudo a2enmod rewrite
     sudo a2enmod headers
@@ -267,7 +297,7 @@ fi
 # =============================================================================
 
 if ! step_is_done step3_php; then
-    echo "--- STEP 3: PHP 8.4 ---"
+    echo "PICLINIC: --- STEP 3: PHP 8.4 ---"
     # Ubuntu 24.04 ships PHP 8.3 by default. PHP 8.4 requires the ondrej/php PPA.
     sudo add-apt-repository -y ppa:ondrej/php
     sudo apt-get update
@@ -294,7 +324,7 @@ fi
 # =============================================================================
 
 if ! step_is_done step4_php_config; then
-    echo "--- STEP 4: Configure PHP ---"
+    echo "PICLINIC: --- STEP 4: Configure PHP ---"
     PHP_INI=$(php --ini | grep 'Loaded Configuration' | awk '{print $NF}')
     PHP_INI_APACHE=$(echo "$PHP_INI" | sed 's|/cli/|/apache2/|')
     echo "Configuring: $PHP_INI_APACHE"
@@ -313,7 +343,7 @@ fi
 # =============================================================================
 
 if ! step_is_done step5_apache_config; then
-    echo "--- STEP 5: Configure Apache ---"
+    echo "PICLINIC: --- STEP 5: Configure Apache ---"
     sudo sed -i '/<Directory \/var\/www\/>/,/<\/Directory>/ {
         s/Options Indexes FollowSymLinks/Options FollowSymLinks/
         s/AllowOverride None/AllowOverride All/
@@ -324,11 +354,11 @@ if ! step_is_done step5_apache_config; then
 fi
 
 # =============================================================================
-# STEP 5.1: Configure user accounts and permissions
+# STEP 6: Configure user accounts and permissions
 # =============================================================================
 
-if ! step_is_done step5_1_users; then
-    echo "--- STEP 5.1: User accounts and permissions ---"
+if ! step_is_done step6_users; then
+    echo "PICLINIC: --- STEP 6: User accounts and permissions ---"
     sudo groupadd --force clinic
     if ! id clinic &>/dev/null; then
         sudo useradd clinic -g clinic
@@ -340,15 +370,15 @@ if ! step_is_done step5_1_users; then
     if [ -n "${CLINIC_ACCOUNT_PASSWORD:-}" ]; then
         echo "clinic:${CLINIC_ACCOUNT_PASSWORD}" | sudo chpasswd
     fi
-    mark_step_complete step5_1_users
+    mark_step_complete step6_users
 fi
 
 # =============================================================================
-# STEP 6: MariaDB 10.11
+# STEP 7: MariaDB 10.11
 # =============================================================================
 
-if ! step_is_done step6_mariadb; then
-    echo "--- STEP 6: MariaDB ---"
+if ! step_is_done step7_mariadb; then
+    echo "PICLINIC: --- STEP 7: MariaDB ---"
     # Ubuntu 24.04 ships MariaDB 10.11 LTS in its default repositories.
     sudo apt-get install -y mariadb-server mariadb-client
     sudo systemctl enable mariadb
@@ -364,19 +394,18 @@ DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%';
 -- Create the DBA admin user
 CREATE USER IF NOT EXISTS 'admin'@'localhost' IDENTIFIED BY '${DB_ADMIN_PASSWORD}';
 GRANT ALL PRIVILEGES ON *.* TO 'admin'@'localhost' WITH GRANT OPTION;
--- Create the application runtime user
-CREATE USER IF NOT EXISTS 'CTS-user'@'localhost' IDENTIFIED BY '${DB_APP_PASSWORD}';
-FLUSH PRIVILEGES;
+-- The application user account is created later in step 13 with the appropriate permissions
+-- for the piclinic database.
 EOF
-    mark_step_complete step6_mariadb
+    mark_step_complete step7_mariadb
 fi
 
 # =============================================================================
-# STEP 7: Composer
+# STEP 8: Composer
 # =============================================================================
 
-if ! step_is_done step7_composer; then
-    echo "--- STEP 7: Composer ---"
+if ! step_is_done step8_composer; then
+    echo "PICLINIC: --- STEP 8: Composer ---"
     cd ~
     php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
     HASH="$(curl -sS https://composer.github.io/installer.sig)"
@@ -384,83 +413,63 @@ if ! step_is_done step7_composer; then
     sudo php composer-setup.php --install-dir=/usr/local/bin --filename=composer
     rm composer-setup.php
     composer --version
-    mark_step_complete step7_composer
+    mark_step_complete step8_composer
 fi
 
 # =============================================================================
-# STEP 8: Node.js 20 LTS
+# STEP 9: Node.js 20 LTS
 # =============================================================================
 
-if ! step_is_done step8_nodejs; then
-    echo "--- STEP 8: Node.js 20 LTS ---"
+if ! step_is_done step9_nodejs; then
+    echo "PICLINIC: --- STEP 9: Node.js 20 LTS ---"
     cd ~
     curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
     sudo apt-get install -y nodejs
     node -v
     npm -v
-    mark_step_complete step8_nodejs
+    mark_step_complete step9_nodejs
 fi
 
 # =============================================================================
-# STEP 9: PHPUnit
+# STEP 10: PHPUnit
 # =============================================================================
 
-if ! step_is_done step9_phpunit; then
-    echo "--- STEP 9: PHPUnit 13 ---"
+if ! step_is_done step10_phpunit; then
+    echo "PICLINIC: --- STEP 10: PHPUnit 13 ---"
     # PHPUnit 13.x is required for PHP 8.4.
     sudo wget -O /usr/local/bin/phpunit https://phar.phpunit.de/phpunit-13.phar
     sudo chmod +x /usr/local/bin/phpunit
     phpunit --version
-    mark_step_complete step9_phpunit
+    mark_step_complete step10_phpunit
 fi
 
 # =============================================================================
-# STEP 10: Clone the piClinic repository
+# STEP 11: Clone the piClinic repository
 # =============================================================================
 
-if ! step_is_done step10_clone; then
-    echo "--- STEP 10: Clone piClinic repository ---"
+if ! step_is_done step11_clone; then
+    echo "PICLINIC: --- STEP 11: Clone piClinic repository ---"
     cd ~
     if [ -d ~/piClinic/.git ]; then
         echo "Repository already present -- pulling latest changes."
         cd ~/piClinic
         git fetch origin
-        git checkout main_v2
-        git pull origin main_v2
+        git checkout $INSTALL_BRANCH
+        git pull origin $INSTALL_BRANCH
     else
-        git clone -b main_v2 https://github.com/rbwatson/piClinic piClinic
+        git clone -b $INSTALL_BRANCH https://github.com/rbwatson/piClinic piClinic
         cd ~/piClinic
     fi
     git branch --show-current
-    mark_step_complete step10_clone
+    mark_step_complete step11_clone
 fi
 
 # =============================================================================
-# STEP 11: Install PHP (backend) dependencies via Composer
-# STEP 12: Initialize the React frontend project
-# (Both are deferred -- run manually when the v2 directory structure exists.)
-# =============================================================================
-#
-# STEP 11 -- run from ~/piClinic/www_v2/html/api/ once composer.json exists:
-#   cd ~/piClinic/www_v2/html/api/
-#   composer install
-#   NOTE: Use 'composer install' (from lock file), not 'composer require',
-#   to avoid modifying composer.json and composer.lock in the repo.
-#   After install, run: git update-index --skip-worktree composer.lock
-#
-# STEP 12 -- run from ~/piClinic/frontend/ once ready for Phase 3:
-#   cd ~/piClinic/frontend/
-#   npm ci
-#   NOTE: Use 'npm ci' (from lock file), not 'npm install',
-#   to avoid modifying package.json and package-lock.json in the repo.
-#   After install, run: git update-index --skip-worktree package-lock.json
-
-# =============================================================================
-# STEP 13: Create application directories
+# STEP 12: Create application directories
 # =============================================================================
 
-if ! step_is_done step13_directories; then
-    echo "--- STEP 13: Create application directories ---"
+if ! step_is_done step12_directories; then
+    echo "PICLINIC: --- STEP 12: Create application directories ---"
     sudo mkdir -p /var/local/piclinic/image
     sudo mkdir -p /var/local/piclinic/deleted
     sudo mkdir -p /var/local/piclinic/downloads
@@ -475,34 +484,81 @@ if ! step_is_done step13_directories; then
     # The change takes effect on the next login. To verify immediately (without
     # logging out), use: groups <username>
     # To activate in the current session without logging out: newgrp www-data
-    mark_step_complete step13_directories
+    mark_step_complete step12_directories
 fi
 
 # =============================================================================
-# STEP 14: Database setup
+# STEP 13: Database setup
 # =============================================================================
 
-if ! step_is_done step14_database; then
-    echo "--- STEP 14: Database setup ---"
+if ! step_is_done step13_database; then
+    echo "PICLINIC: --- STEP 13: Database setup ---"
+    # This step creates the CTS-user account by copying the password to the
+    #   target script before calling it
     cp ~/piClinic/sql/create_dbuser_ubuntu.sql ~/create_dbuser_ubuntu.sql
     sed -i "s/YOURPASSWORD/${DB_APP_PASSWORD}/g" ~/create_dbuser_ubuntu.sql
-    sudo mariadb -u root < ~/create_dbuser_ubuntu.sql
     cd ~/piClinic/sql
-    mariadb -u admin -p"${DB_ADMIN_PASSWORD}" piclinic < piclinic.sql
+    mariadb -u admin -p"${DB_ADMIN_PASSWORD}" < piclinic.sql
+    mariadb -u admin -p"${DB_ADMIN_PASSWORD}" piclinic < ~/create_dbuser_ubuntu.sql
+    echo "   Initializing database tables. This may take a moment..." 
     mariadb -u admin -p"${DB_ADMIN_PASSWORD}" piclinic < icd10.sql
     mariadb -u admin -p"${DB_ADMIN_PASSWORD}" piclinic < TestUsers.sql
     mariadb -u admin -p"${DB_ADMIN_PASSWORD}" piclinic < 100PatientsNum.sql
-    mark_step_complete step14_database
+    mark_step_complete step13_database
 fi
 
 # =============================================================================
-# STEP 15: Deploy v2 API and configure environment
+# STEP 14: Composer update + Deploy v2 API
 # =============================================================================
+#
+# composer update is run before deploy.sh so that the lock file is regenerated
+# for the current PHP version before the files are copied to /var/www.
+# deploy.sh then runs composer install from the already-updated directory.
+#
+# If composer.lock changed, commit it to the repo before the final reboot
+# so future installs do not require another update.
+#
+# The frontend build (npm run build) is a Phase 3 task -- www_v2/html/
+# contains a placeholder index.html until the React frontend is built.
+#
+if ! step_is_done step14_deploy; then
+    echo "PICLINIC: --- STEP 14: Composer update + Deploy v2 API ---"
 
-if ! step_is_done step15_deploy; then
-    echo "--- STEP 15: Deploy v2 API ---"
+    # Run composer update to regenerate lock file for current PHP version
+    echo "  Running composer update in ~/piClinic/www_v2/html/api/ ..."
+    cd ~/piClinic/www_v2/html/api
+    composer update --no-interaction
+
+    # Check if composer.lock changed and warn if so
+    if ! git -C ~/piClinic diff --quiet www_v2/html/api/composer.lock 2>/dev/null; then
+        queue_action_required ""
+        queue_action_required "  composer.lock was updated for the current PHP version."
+        queue_action_required "  Commit it to the repo so future installs do not require another update:"
+        queue_action_required ""
+        queue_action_required "      cd ~/piClinic"
+        queue_action_required "      git add www_v2/html/api/composer.lock"
+        queue_action_required "      git commit -m 'chore: update composer.lock for PHP 8.4'"
+        queue_action_required "      git push"
+        queue_action_required ""
+    fi
+
+    # Deploy (deploy.sh runs composer install from the updated directory)
     cd ~/piClinic
-    bash tools/deploy.sh v2
+    DEPLOY_OUTPUT="$(bash tools/deploy.sh v2 2>&1)"
+    echo "$DEPLOY_OUTPUT"
+
+    # Extract any ACTION REQUIRED messages from deploy.sh output.
+    # Keep only [deploy] WARN: lines, exclude === border lines, strip the prefix.
+    if echo "$DEPLOY_OUTPUT" | grep -q 'ACTION REQUIRED'; then
+        queue_action_required ""
+        echo "$DEPLOY_OUTPUT" \
+            | grep '\[deploy\] WARN:' \
+            | grep -v '===' \
+            | sed 's/\[deploy\] WARN:  \?/  /' \
+            >> "$ACTION_REQUIRED_FILE" || true
+    fi
+
+    # Configure .env
     if ! sudo test -f /var/www/html/api/.env; then
         sudo cp /var/www/html/api/.env.example /var/www/html/api/.env
         sudo sed -i "s/DB_PASSWORD=.*/DB_PASSWORD=${DB_APP_PASSWORD}/" /var/www/html/api/.env
@@ -512,35 +568,55 @@ if ! step_is_done step15_deploy; then
     else
         echo ".env already present -- leaving existing credentials in place."
     fi
+
+    # Configure v1 dbPass.php
     if sudo test -f /var/www/pass/dbPass.php; then
         sudo sed -i "s/define('DB_PASS', '.*'/define('DB_PASS', '${DB_APP_PASSWORD}'/ " /var/www/pass/dbPass.php
         echo "dbPass.php updated with DB_APP_PASSWORD."
     fi
-    mark_step_complete step15_deploy
+
+    # Queue reminder to review credential files
+    queue_action_required ""
+    queue_action_required "  Review and verify credential files before using the system:"
+    queue_action_required "      sudo nano /var/www/html/api/.env       (v2 DB credentials)"
+    queue_action_required "      sudo nano /var/www/pass/dbPass.php     (v1 DB credentials)"
+    queue_action_required "      sudo nano /var/www/pass/clinicSpecific.php  (clinic settings)"
+    queue_action_required ""
+
+    mark_step_complete step14_deploy
 fi
 
 # =============================================================================
-# STEP 16: Final system update and restart
+# STEP 15: Final system update and restart
 # =============================================================================
 
-if ! step_is_done step16_final_update; then
-    echo "--- STEP 16: Final system update ---"
+if ! step_is_done step15_final_update; then
+    echo "PICLINIC: --- STEP 15: Final system update ---"
     sudo apt-get update
     sudo apt-get upgrade -y
     sudo apt-get clean
     sudo apt-get autoremove -y
-    mark_step_complete step16_final_update
+    mark_step_complete step15_final_update
+
+    # Show any queued action-required messages and require acknowledgment
+    # before the system reboots.
+    show_action_required_and_confirm
+
     echo ""
     echo "All steps complete. The system will now restart."
     echo "After restart, run the environment check:"
     echo "    cd ~/piClinic/tools && python3 checkEnvironment.py"
     echo ""
     sudo shutdown -r now
+    exit 0
 fi
 
 # =============================================================================
-# All steps complete
+# All steps complete (reached only when all steps were already done)
 # =============================================================================
+
+# Show any leftover action-required messages (e.g. from a previous partial run)
+show_action_required_and_confirm
 
 echo ""
 echo "=============================================================================="

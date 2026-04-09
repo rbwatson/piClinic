@@ -2,78 +2,218 @@
   "description": "piClinic environment verification checks",
   "checks": [
     {
-      "name": "Apache web server",
+      "name": "STEP 1: Apache service active",
+      "type": "command",
+      "target": "systemctl is-active apache2",
+      "expect": ["active"],
+      "solution": "Start Apache: sudo systemctl start apache2\nEnable on boot: sudo systemctl enable apache2\nCheck logs: sudo journalctl -xe | grep apache"
+    },
+    {
+      "name": "STEP 2: Apache rewrite module enabled",
+      "type": "command",
+      "target": "apache2ctl -M 2>/dev/null | grep rewrite",
+      "expect": ["rewrite_module"],
+      "solution": "Enable the module: sudo a2enmod rewrite && sudo systemctl restart apache2"
+    },
+    {
+      "name": "STEP 3: Apache headers module enabled",
+      "type": "command",
+      "target": "apache2ctl -M 2>/dev/null | grep headers",
+      "expect": ["headers_module"],
+      "solution": "Enable the module: sudo a2enmod headers && sudo systemctl restart apache2"
+    },
+    {
+      "name": "STEP 4: Apache AllowOverride All configured",
+      "type": "command",
+      "target": "grep -A5 '<Directory /var/www/>' /etc/apache2/apache2.conf | grep AllowOverride",
+      "expect": ["AllowOverride All"],
+      "solution": "Set AllowOverride All in /etc/apache2/apache2.conf for the /var/www/ directory block, then: sudo systemctl restart apache2"
+    },
+    {
+      "name": "STEP 5: Apache serving piClinic frontend",
       "type": "http",
       "target": "http://localhost",
-      "expect": ["Apache2 Ubuntu Default Page", "It works"],
-      "solution": "Run: sudo systemctl start apache2\nIf it fails to start: sudo journalctl -xe | grep apache"
+      "expect": ["piClinic"],
+      "solution": "Run: sudo systemctl start apache2\nIf it fails to start: sudo journalctl -xe | grep apache\nVerify deployment: bash ~/piClinic/tools/deploy.sh v2"
     },
     {
-      "name": "PHP info page",
-      "type": "http",
-      "target": "http://localhost/phpinfo.php",
-      "expect": ["PHP Version", "phpinfo()"],
-      "solution": "Confirm phpinfo.php exists in /var/www/html/. If missing, re-run the phpinfo.php creation step in piClinicVMSetup.sh.\nNote: remove phpinfo.php before deploying to production.\nIf the file exists but returns 404: sudo a2enmod php8.3 && sudo systemctl restart apache2"
-    },
-    {
-      "name": "PHP version",
+      "name": "STEP 6: PHP 8.4 installed",
       "type": "command",
       "target": "php -v",
-      "expect": ["PHP 8."],
-      "solution": "PHP 8.2 or later is required. Install via:\n  sudo apt-get install -y libapache2-mod-php php-common php-mysql\nOr use the ondrej/php PPA to install a specific version."
+      "expect": ["PHP 8.4"],
+      "solution": "PHP 8.4 is required. On Ubuntu: sudo add-apt-repository ppa:ondrej/php && sudo apt-get update && sudo apt-get install -y libapache2-mod-php8.4 php8.4-common php8.4-mysql\nOn Pi OS Bookworm: sudo apt-get install -y libapache2-mod-php php-common php-mysql"
     },
     {
-      "name": "MySQL connectivity",
+      "name": "STEP 7: PHP mysql extension",
       "type": "command",
-      "target": "mysql -u admin -p${MYSQL_PASSWORD} -e \"SELECT 1;\"",
+      "target": "php -m",
+      "expect": ["mysqli"],
+      "solution": "Install: sudo apt-get install -y php8.4-mysql (Ubuntu) or php-mysql (Pi)"
+    },
+    {
+      "name": "STEP 8: PHP mbstring extension",
+      "type": "command",
+      "target": "php -m",
+      "expect": ["mbstring"],
+      "solution": "Install: sudo apt-get install -y php8.4-mbstring (Ubuntu) or php-mbstring (Pi)"
+    },
+    {
+      "name": "STEP 9: PHP curl extension",
+      "type": "command",
+      "target": "php -m",
+      "expect": ["curl"],
+      "solution": "Install: sudo apt-get install -y php8.4-curl (Ubuntu) or php-curl (Pi)"
+    },
+    {
+      "name": "STEP 10: PHP zip extension",
+      "type": "command",
+      "target": "php -m",
+      "expect": ["zip"],
+      "solution": "Install: sudo apt-get install -y php8.4-zip (Ubuntu) or php-zip (Pi)"
+    },
+    {
+      "name": "STEP 11: PHP display_errors On (Apache)",
+      "type": "command",
+      "target": "curl -sf http://localhost/phpinfo.php | grep -o '<td class=\"e\">display_errors</td><td class=\"v\">On</td><td class=\"v\">On</td>'",
+      "expect": ["display_errors"],
+      "solution": "Set display_errors = On in the Apache php.ini.\nFind the path: php --ini | grep 'Loaded Configuration' | sed 's|/cli/|/apache2/|'\nThen: sudo systemctl restart apache2\nNote: phpinfo.php must be present at /var/www/html/phpinfo.php"
+    },
+    {
+      "name": "STEP 12: PHP timezone configured (Apache)",
+      "type": "command",
+      "target": "curl -sf http://localhost/phpinfo.php | grep -o 'date\\.timezone.*</td>' | head -1",
+      "expect": ["/"],
+      "solution": "Set date.timezone in the Apache php.ini (find path: php --ini | sed 's|/cli/|/apache2/|')\nExample: date.timezone = America/New_York\nThen: sudo systemctl restart apache2"
+    },
+    {
+      "name": "STEP 13: PHP memory_limit 512M (Apache)",
+      "type": "command",
+      "target": "curl -sf http://localhost/phpinfo.php | grep -o 'memory_limit.*512M'",
+      "expect": ["512M"],
+      "solution": "Set memory_limit = 512M in the Apache php.ini\nFind path: php --ini | grep 'Loaded Configuration' | sed 's|/cli/|/apache2/|'\nThen: sudo systemctl restart apache2"
+    },
+    {
+      "name": "STEP 14: clinic group exists",
+      "type": "command",
+      "target": "getent group clinic",
+      "expect": ["clinic"],
+      "solution": "Create the group: sudo groupadd clinic"
+    },
+    {
+      "name": "STEP 15: clinic user exists",
+      "type": "command",
+      "target": "getent passwd clinic",
+      "expect": ["clinic"],
+      "solution": "Create the user: sudo useradd clinic -g clinic && sudo mkdir -p /home/clinic && sudo chown clinic /home/clinic"
+    },
+    {
+      "name": "STEP 16: MariaDB service active",
+      "type": "command",
+      "target": "systemctl is-active mariadb",
+      "expect": ["active"],
+      "solution": "Start MariaDB: sudo systemctl start mariadb\nEnable on boot: sudo systemctl enable mariadb"
+    },
+    {
+      "name": "STEP 17: MariaDB admin connectivity",
+      "type": "command",
+      "target": "mariadb -u admin -p${MYSQL_PASSWORD} -e \"SELECT 1;\"",
       "promptFor": [
-        {"var": "MYSQL_PASSWORD", "prompt": "MySQL admin password", "secret": true}
+        {"var": "MYSQL_PASSWORD", "prompt": "MariaDB admin password", "secret": true}
       ],
       "expect": ["1"],
-      "solution": "If MySQL is not running: sudo systemctl start mysql\nIf authentication fails, check the password you set in STEP 6 of piClinicVMSetup.sh.\nIf the admin user does not exist, re-run the DB user creation step."
+      "solution": "If authentication fails, check the DB_ADMIN_PASSWORD set in piclinic_setup.conf.\nIf the admin user does not exist, check STEP 7 of the setup script ran successfully."
     },
     {
-      "name": "Composer",
+      "name": "STEP 18: piclinic database exists",
+      "type": "command",
+      "target": "mariadb -u admin -p${MYSQL_PASSWORD} -e \"SHOW DATABASES LIKE 'piclinic';\"",
+      "expect": ["piclinic"],
+      "solution": "Load the schema: cd ~/piClinic/sql && mariadb -u admin -p<password> piclinic < piclinic.sql\nIf the database does not exist, re-run STEP 13 of the setup script."
+    },
+    {
+      "name": "STEP 19: CTS-user account exists",
+      "type": "command",
+      "target": "mariadb -u admin -p${MYSQL_PASSWORD} -e \"SELECT User FROM mysql.user WHERE User='CTS-user';\"",
+      "expect": ["CTS-user"],
+      "solution": "Create the CTS-user account by re-running STEP 13 of the setup script, or manually:\n  cp ~/piClinic/sql/create_dbuser*.sql ~/ && sed -i 's/YOURPASSWORD/<password>/g' ~/create_dbuser*.sql\n  sudo mariadb -u root < ~/create_dbuser*.sql"
+    },
+    {
+      "name": "STEP 20: Composer installed",
       "type": "command",
       "target": "composer --version",
       "expect": ["Composer version"],
-      "solution": "Install Composer per STEP 7 of piClinicVMSetup.sh:\n  php -r \"copy('https://getcomposer.org/installer', 'composer-setup.php');\"\n  sudo php composer-setup.php --install-dir=/usr/local/bin --filename=composer"
+      "solution": "Install Composer per STEP 8 of the setup script:\n  php -r \"copy('https://getcomposer.org/installer', 'composer-setup.php');\"\n  sudo php composer-setup.php --install-dir=/usr/local/bin --filename=composer\n  rm composer-setup.php"
     },
     {
-      "name": "Node.js version",
+      "name": "STEP 21: Node.js 20.x installed",
       "type": "command",
-      "target": "node -e \"process.exit(parseInt(process.versions.node) >= 18 ? 0 : 1)\" && node -v",
-      "expect": ["v"],
-      "solution": "Node.js 18 or later is required. Install via NodeSource per STEP 8 of piClinicVMSetup.sh:\n  curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -\n  sudo apt-get install -y nodejs"
+      "target": "node -e \"process.exit(parseInt(process.versions.node) >= 20 ? 0 : 1)\" && node -v",
+      "expect": ["v20"],
+      "solution": "Node.js 20 LTS is required. Install via NodeSource:\n  curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -\n  sudo apt-get install -y nodejs"
     },
     {
-      "name": "npm",
+      "name": "STEP 22: npm installed",
       "type": "command",
       "target": "npm -v",
       "expect": ["."],
-      "solution": "npm is normally installed with Node. Run: sudo apt install npm\nOr reinstall Node via NodeSource per STEP 8 of piClinicVMSetup.sh."
+      "solution": "npm is normally installed with Node. Reinstall Node via NodeSource per STEP 9 of the setup script."
     },
     {
-      "name": "PHPUnit",
+      "name": "STEP 23: PHPUnit 13.x installed",
       "type": "command",
       "target": "phpunit --version",
-      "expect": ["PHPUnit"],
-      "solution": "Install PHPUnit 12.x globally (PHP 8.3 compatible):\n  sudo wget -O /usr/local/bin/phpunit https://phar.phpunit.de/phpunit-12.phar\n  sudo chmod +x /usr/local/bin/phpunit\nOr install per-project: composer require --dev phpunit/phpunit:^12"
+      "expect": ["PHPUnit 13."],
+      "solution": "Install PHPUnit 13.x globally (required for PHP 8.4):\n  sudo wget -O /usr/local/bin/phpunit https://phar.phpunit.de/phpunit-13.phar\n  sudo chmod +x /usr/local/bin/phpunit"
     },
     {
-      "name": "Git branch",
+      "name": "STEP 24: piClinic repository present",
       "type": "command",
       "workdir": "~/piClinic",
-      "target": "git branch --show-current",
-      "expect": ["react-refactor"],
-      "solution": "If the branch is missing: git fetch origin && git checkout react-refactor\nIf the repo is not present, re-clone per STEP 10 of piClinicVMSetup.sh:\n  git clone -b react-refactor https://github.com/rbwatson/piClinic piClinic"
+      "target": "git remote get-url origin",
+      "expect": ["rbwatson/piClinic"],
+      "solution": "Clone the repository: git clone -b main_v2 https://github.com/rbwatson/piClinic ~/piClinic"
     },
     {
-      "name": "piClinic app directories",
+      "name": "STEP 25: /var/local/piclinic owned by www-data",
       "type": "command",
-      "target": "test -d /var/local/piclinic && test -d /var/log/piclinic && echo OK",
+      "target": "stat -c '%U' /var/local/piclinic",
+      "expect": ["www-data"],
+      "solution": "Fix ownership: sudo chown -R www-data:www-data /var/local/piclinic"
+    },
+    {
+      "name": "STEP 26: /var/log/piclinic directory present",
+      "type": "command",
+      "target": "test -d /var/log/piclinic && echo OK",
       "expect": ["OK"],
-      "solution": "Create the application directories per STEP 13 of piClinicVMSetup.sh:\n  sudo mkdir -p /var/local/piclinic/image /var/local/piclinic/deleted /var/local/piclinic/downloads\n  sudo mkdir -p /var/log/piclinic\n  sudo chown -R www-data:www-data /var/local/piclinic /var/log/piclinic\n  sudo chmod -R 750 /var/local/piclinic /var/log/piclinic"
+      "solution": "Create the log directory:\n  sudo mkdir -p /var/log/piclinic\n  sudo chown www-data:www-data /var/log/piclinic\n  sudo chmod 770 /var/log/piclinic"
+    },
+    {
+      "name": "STEP 27: piclinic schema tables present",
+      "type": "command",
+      "target": "mariadb -u admin -p${MYSQL_PASSWORD} piclinic -e \"SHOW TABLES;\"",
+      "expect": ["patient", "visit", "staff", "icd10"],
+      "solution": "Load the schema: cd ~/piClinic/sql && mariadb -u admin -p<password> piclinic < piclinic.sql\nLoad ICD-10 data: mariadb -u admin -p<password> piclinic < icd10.sql"
+    },
+    {
+      "name": "STEP 28: icd10 table populated",
+      "type": "command",
+      "target": "mariadb -u admin -p${MYSQL_PASSWORD} piclinic -e \"SELECT COUNT(*) FROM icd10;\" 2>/dev/null",
+      "expect": ["23702"],
+      "solution": "Load ICD-10 data: cd ~/piClinic/sql && mariadb -u admin -p<password> piclinic < icd10.sql"
+    },
+    {
+      "name": "STEP 29: v2 API .env file deployed",
+      "type": "command",
+      "target": "test -f /var/www/html/api/.env && echo OK",
+      "expect": ["OK"],
+      "solution": "Deploy the v2 API: cd ~/piClinic && bash tools/deploy.sh v2\nThen configure the .env file: sudo nano /var/www/html/api/.env"
+    },
+    {
+      "name": "STEP 30: v2 vendor directory deployed",
+      "type": "command",
+      "target": "test -d /var/www/html/api/vendor && echo OK",
+      "expect": ["OK"],
+      "solution": "Deploy the v2 API: cd ~/piClinic && bash tools/deploy.sh v2\nThis runs composer install automatically."
     }
   ]
 }

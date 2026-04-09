@@ -19,11 +19,21 @@
 -- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 -- SOFTWARE.
 --
+-- NOTE: This script grants privileges to the CTS-user account on the piclinic
+-- database. The CTS-user account and the piclinic database must already exist
+-- before running this script. Both are created earlier in the setup process:
+--   - CTS-user: created in STEP 6 of the setup script
+--   - piclinic database: created by piclinic.sql in STEP 14
 --
-CREATE DATABASE IF NOT EXISTS `piclinic` DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;
 USE `piclinic`;
-CREATE USER 'CTS-user'@'localhost' IDENTIFIED BY 'YOURPASSWORD';
-GRANT FILE, SHOW DATABASES, CREATE TEMPORARY TABLES, LOCK TABLES, SHOW VIEW, EXECUTE ON  *.* TO 'CTS-user'@'localhost';
+-- remove any existing CTS-user account to ensure we're starting from a clean slate
+DROP USER IF EXISTS 'CTS-user'@'localhost';
+FLUSH PRIVILEGES;
+--
+-- Create the CTS-user account with a password and grant necessary privileges for the piclinic application
+--
+CREATE USER IF NOT EXISTS 'CTS-user'@'localhost' IDENTIFIED BY 'YOURPASSWORD';
+GRANT FILE, SHOW DATABASES, CREATE TEMPORARY TABLES, LOCK TABLES, SHOW VIEW, EXECUTE ON *.* TO 'CTS-user'@'localhost';
 GRANT SELECT, INSERT, UPDATE, DELETE ON piclinic.* TO 'CTS-user'@'localhost';
 FLUSH PRIVILEGES;
-SHOW GRANTS for 'CTS-user'@'localhost';
+SHOW GRANTS FOR 'CTS-user'@'localhost';

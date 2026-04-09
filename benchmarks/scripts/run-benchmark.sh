@@ -89,9 +89,6 @@ fi
 BENCHMARK_PASSWORD="$(cat "${BENCHMARK_PASSWORD_FILE}")"
 DB_PASSWORD="$(cat "${DB_PASSWORD_FILE}")"
 
-# Expand ~ in SSH key path (optional)
-TARGET_SSH_KEY="${TARGET_SSH_KEY/#\~/$HOME}"
-
 # ---------------------------------------------------------------------------
 # Dependency checks
 # ---------------------------------------------------------------------------
@@ -131,11 +128,15 @@ ssh_target() {
 }
 
 scp_to_target() {
+  # Usage: scp_to_target <local_file> <remote_path>
+  # <remote_path> is the full destination path on the target (e.g. /tmp/foo.sh).
+  local local_file="$1"
+  local remote_path="$2"
   local ssh_key_arg=()
   [[ -n "${TARGET_SSH_KEY:-}" ]] && ssh_key_arg=(-i "${TARGET_SSH_KEY}")
   scp -o BatchMode=yes -o ConnectTimeout=10 \
       "${ssh_key_arg[@]}" \
-      "$@" "${TARGET_SSH_USER}@${TARGET_SSH_HOST}:"
+      "${local_file}" "${TARGET_SSH_USER}@${TARGET_SSH_HOST}:${remote_path}"
 }
 
 mysql_target() {
@@ -169,17 +170,18 @@ HW_PROFILE_OUT="${RESULTS_DIR}/hw-profile.md"
 if [[ ! -f "${HW_PROFILE_SCRIPT}" ]]; then
   echo "  WARNING: collect-hw-profile.sh not found — skipping hardware profile." >&2
 else
-  # Copy script to target home directory and run it there
+  # Copy script to a PID-unique path on the target and run it there.
+  # The full remote path is passed to scp so the file lands with the right name.
   REMOTE_SCRIPT="/tmp/collect-hw-profile-$$.sh"
-  if scp_to_target "${HW_PROFILE_SCRIPT}" 2>/dev/null && \
-     ssh_target "mv ~/collect-hw-profile-$$.sh ${REMOTE_SCRIPT} 2>/dev/null; chmod +x ${REMOTE_SCRIPT} && bash ${REMOTE_SCRIPT} --label '${TARGET_LABEL}'" \
-       > "${HW_PROFILE_OUT}" 2>/dev/null; then
+  if scp_to_target "${HW_PROFILE_SCRIPT}" "${REMOTE_SCRIPT}" && \
+     ssh_target "chmod +x ${REMOTE_SCRIPT} && bash ${REMOTE_SCRIPT} --label '${TARGET_LABEL}'" \
+       > "${HW_PROFILE_OUT}"; then
     echo "  Hardware profile saved to: ${HW_PROFILE_OUT}"
-    ssh_target "rm -f ${REMOTE_SCRIPT}" 2>/dev/null || true
   else
     echo "  WARNING: Hardware profile collection failed — continuing without it." >&2
-    ssh_target "rm -f ${REMOTE_SCRIPT}" 2>/dev/null || true
+    rm -f "${HW_PROFILE_OUT}"
   fi
+  ssh_target "rm -f ${REMOTE_SCRIPT}" || true
 fi
 
 echo ""
@@ -258,7 +260,7 @@ LOGIN_RESPONSE="$(curl -sf -X POST "${LOGIN_URL}" \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
   -A "${BM_USER_AGENT}" \
-  -d "{\"username\":\"${BENCHMARK_USERNAME}\",\"password\":\"${BENCHMARK_PASSWORD}\"}")"\
+  -d "{\"username\":\"${BENCHMARK_USERNAME}\",\"password\":\"${BENCHMARK_PASSWORD}\"}")" \
   || die "Login request failed"
 
 HTTP_STATUS="$(echo "${LOGIN_RESPONSE}" | jq -r '.status // empty')"

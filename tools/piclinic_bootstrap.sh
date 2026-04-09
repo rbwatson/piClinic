@@ -5,18 +5,19 @@
 # Minimal bootstrap for a fresh piClinic v2 installation.
 #
 # This script does only what is needed before the main setup script
-# can run: installs git (if missing) and clones the piClinic repository.
+# can run: installs curl and git (if missing) and clones the piClinic
+# repository.
 #
 # HOW TO USE:
 #   Open a terminal on the target machine and paste the following:
 #
 #       bash <(curl -fsSL https://raw.githubusercontent.com/rbwatson/piClinic/main_v2/tools/piclinic_bootstrap.sh)
 #
-#   Or, if you prefer not to pipe from the internet:
-#       1. Copy and paste the contents of this file into a terminal.
+#   Or, if curl is not yet available, paste the contents of this file
+#   directly into a terminal.
 #
 # WHAT THIS SCRIPT DOES:
-#   1. Installs git if it is not already present.
+#   1. Installs curl and git if they are not already present.
 #   2. Clones the piClinic repository (main_v2 branch) to ~/piClinic.
 #      If the directory already exists, it pulls the latest changes instead.
 #
@@ -28,9 +29,13 @@
 #          nano ~/piClinic/tools/piclinic_setup.conf
 #   3. Run the appropriate setup script for your platform:
 #      For a VirtualBox Ubuntu VM:
-#          bash ~/piClinic/tools/piClinicVMSetup.sh
+#          bash ~/piClinic/tools/piClinicVMSetup.sh 2>&1 | tee ~/piclinic_setup.log
 #      For a Raspberry Pi:
-#          bash ~/piClinic/tools/piClinicSystemSetup.sh
+#          bash ~/piClinic/tools/piClinicSystemSetup.sh 2>&1 | tee ~/piclinic_setup.log
+#
+#      The tee command writes output to both the terminal and ~/piclinic_setup.log
+#      so you have a record of the installation even if the terminal closes.
+#      Run the same command again after each restart -- progress is saved.
 #
 #*****************************************************************************
 
@@ -46,15 +51,29 @@ echo "==========================================================================
 echo ""
 
 # -----------------------------------------------------------------------------
-# STEP 1: Install git if missing
+# STEP 1: Install curl and git if missing
 # -----------------------------------------------------------------------------
 
+NEED_UPDATE=0
+
+if ! command -v curl &>/dev/null; then
+    echo "curl not found -- will install."
+    NEED_UPDATE=1
+else
+    echo "curl is already installed: $(curl --version | head -1)"
+fi
+
 if ! command -v git &>/dev/null; then
-    echo "git not found -- installing..."
-    sudo apt-get update -q
-    sudo apt-get install -y git
+    echo "git not found -- will install."
+    NEED_UPDATE=1
 else
     echo "git is already installed: $(git --version)"
+fi
+
+if [ "$NEED_UPDATE" -eq 1 ]; then
+    sudo apt-get update -q
+    command -v curl &>/dev/null || sudo apt-get install -y curl
+    command -v git  &>/dev/null || sudo apt-get install -y git
 fi
 
 # -----------------------------------------------------------------------------
@@ -99,12 +118,12 @@ echo ""
 echo " 2. Run the setup script for your platform:"
 echo ""
 echo "    VirtualBox Ubuntu VM:"
-echo "        bash ~/piClinic/tools/piClinicVMSetup.sh"
+echo "        bash ~/piClinic/tools/piClinicVMSetup.sh 2>&1 | tee ~/piclinic_setup.log"
 echo ""
 echo "    Raspberry Pi:"
-echo "        bash ~/piClinic/tools/piClinicSystemSetup.sh"
+echo "        bash ~/piClinic/tools/piClinicSystemSetup.sh 2>&1 | tee ~/piclinic_setup.log"
 echo ""
-echo "    The setup script will restart the system once after the initial"
-echo "    upgrade. After the restart, run the same command again to continue."
-echo "    Progress is saved automatically -- completed steps are not repeated."
+echo "    The tee command writes output to both the terminal and ~/piclinic_setup.log"
+echo "    so you have a record of the installation even if the terminal closes."
+echo "    Run the same command again after each restart -- progress is saved."
 echo ""

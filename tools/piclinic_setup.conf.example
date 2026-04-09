@@ -14,6 +14,15 @@
 # it directly, so values must not be quoted unless the value contains
 # spaces. Passwords should not contain single quotes (') or backslashes (\).
 #
+# =============================================================================
+# Installation configuration
+# =============================================================================
+
+# INSTALL_BRANCH
+#   The branch of the github repo to install.
+#   For production, this should be the default: main_v2
+#   For testing, this can be a feature branch.
+INSTALL_BRANCH=main_v2
 
 # =============================================================================
 # Linux accounts
