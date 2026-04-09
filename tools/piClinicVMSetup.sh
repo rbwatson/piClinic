@@ -441,16 +441,15 @@ fi
 # (Both are deferred -- run manually when the v2 directory structure exists.)
 # =============================================================================
 #
-# STEP 11 -- run from the directory containing composer.json once it exists:
+# STEP 11 -- run from ~/piClinic/www_v2/html/api/ once composer.json exists:
 #   cd ~/piClinic/www_v2/html/api/
 #   composer install
-#   composer require --dev phpunit/phpunit:^13 phpstan/phpstan
 #   NOTE: Use 'composer install' (from lock file), not 'composer require',
 #   to avoid modifying composer.json and composer.lock in the repo.
 #   After install, run: git update-index --skip-worktree composer.lock
 #
-# STEP 12 -- run once when ready to begin Phase 3 frontend work:
-#   cd ~/piClinic/frontend
+# STEP 12 -- run from ~/piClinic/frontend/ once ready for Phase 3:
+#   cd ~/piClinic/frontend/
 #   npm ci
 #   NOTE: Use 'npm ci' (from lock file), not 'npm install',
 #   to avoid modifying package.json and package-lock.json in the repo.
@@ -470,6 +469,12 @@ if ! step_is_done step13_directories; then
     sudo mkdir -p /var/log/piclinic
     sudo chown www-data:www-data /var/log/piclinic
     sudo chmod 770 /var/log/piclinic
+    #
+    # To allow a developer account interactive write access to the log directory:
+    #   sudo usermod -aG www-data <username>
+    # The change takes effect on the next login. To verify immediately (without
+    # logging out), use: groups <username>
+    # To activate in the current session without logging out: newgrp www-data
     mark_step_complete step13_directories
 fi
 
@@ -547,9 +552,11 @@ echo "     cd ~/piClinic/tools && python3 checkEnvironment.py"
 echo ""
 echo " Development workflow quick reference:"
 echo "     PHP dev server:  php -S localhost:8000 -t www/html"
-echo "     React dev server: cd frontend && npm run dev"
-echo "     PHP tests:       composer test  (from www_v2/html/api/ directory)"
-echo "     Frontend tests:  npm test       (from frontend/ directory)"
+echo "     React dev server: cd ~/piClinic/frontend && npm run dev"
+echo "     PHP tests:       cd ~/piClinic/www_v2/html/api && composer test"
+echo "     Static analysis: cd ~/piClinic/www_v2/html/api && vendor/bin/phpstan analyse --level 8"
+echo "     Frontend tests:  cd ~/piClinic/frontend && npm test"
+echo "     Generate types:  cd ~/piClinic/frontend && npx openapi-typescript ~/piClinic/www_v2/html/api/docs/openapi.yaml --output src/api/types.ts"
 echo ""
 echo " See CLAUDE.md for full development guidance and coding standards."
 echo ""
