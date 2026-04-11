@@ -68,12 +68,14 @@
 #
 # -----------------------------------------------------------------------------
 
+echo "PICLINIC: Starting Pi setup script: $(readlink -f "$0")"
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 CONF_FILE="$SCRIPT_DIR/piclinic_setup.conf"
 PROGRESS_FILE="$SCRIPT_DIR/piclinic_setup.progress"
 ACTION_REQUIRED_FILE="/tmp/piclinic_action_required.txt"
+INSTALL_BRANCH="main_v2"
 
 # =============================================================================
 # Progress tracking helpers
@@ -127,6 +129,7 @@ mark_step_complete() {
     local step="$1"
     local timestamp
     timestamp=$(date '+%Y-%m-%d %H:%M:%S')
+    echo "PICLINIC: [$timestamp] Marking complete: $step"
     echo "$step" > "$PROGRESS_FILE"
     echo "  [$timestamp] Completed: $step"
 }
@@ -205,6 +208,7 @@ fi
 # =============================================================================
 # Load installation configuration
 # =============================================================================
+echo "PICLINIC: Reading installation configuration: $(readlink -f "$CONF_FILE")"
 
 if [ ! -f "$CONF_FILE" ]; then
     echo "ERROR: Configuration file not found: $CONF_FILE"
@@ -219,7 +223,7 @@ fi
 # shellcheck source=piclinic_setup.conf
 source "$CONF_FILE"
 
-REQUIRED_VARS=(DB_ADMIN_PASSWORD DB_APP_PASSWORD PICLINIC_SYSADMIN_PASSWORD TIMEZONE)
+REQUIRED_VARS=(INSTALL_BRANCH DB_ADMIN_PASSWORD DB_APP_PASSWORD PICLINIC_SYSADMIN_PASSWORD TIMEZONE)
 for VAR in "${REQUIRED_VARS[@]}"; do
     if [ -z "${!VAR:-}" ]; then
         echo "ERROR: Required variable '$VAR' is not set in $CONF_FILE"
@@ -227,14 +231,14 @@ for VAR in "${REQUIRED_VARS[@]}"; do
     fi
 done
 
-echo "Configuration loaded from $CONF_FILE"
+echo "PICLINIC: Configuration loaded from $CONF_FILE"
 
 # =============================================================================
 # Pre-flight checks
 # =============================================================================
 
 echo ""
-echo "Running pre-flight checks..."
+echo "PICLINIC: Running pre-flight checks..."
 
 # Internet connectivity
 if ! curl -fsS --max-time 10 https://raspberrypi.com > /dev/null 2>&1; then
@@ -269,6 +273,7 @@ fi
 echo ""
 
 # Clear any leftover action-required file from a previous run
+echo "PICLINIC: removing any leftover action-required file: $ACTION_REQUIRED_FILE"
 rm -f "$ACTION_REQUIRED_FILE"
 
 # =============================================================================
@@ -276,7 +281,7 @@ rm -f "$ACTION_REQUIRED_FILE"
 # =============================================================================
 
 if ! step_is_done step1_update; then
-    echo "--- STEP 1: System update and base utilities ---"
+    echo "PICLINIC: --- STEP 1: System update and base utilities ---"
     sudo apt-get update
     sudo apt-get upgrade -y
     sudo apt-get install -y git net-tools nload curl wget gnupg2 ca-certificates \
@@ -298,7 +303,7 @@ fi
 # =============================================================================
 
 if ! step_is_done step2_apache; then
-    echo "--- STEP 2: Apache web server ---"
+    echo "PICLINIC: --- STEP 2: Apache web server ---"
     sudo apt-get install -y apache2 apache2-doc
     sudo a2enmod rewrite
     sudo a2enmod headers
@@ -312,7 +317,7 @@ fi
 # =============================================================================
 
 if ! step_is_done step3_php; then
-    echo "--- STEP 3: PHP 8.4 ---"
+    echo "PICLINIC: --- STEP 3: PHP 8.4 ---"
     # Raspberry Pi OS Bookworm ships PHP 8.4 by default. No PPA required.
     sudo apt-get install -y \
         libapache2-mod-php \
@@ -337,7 +342,7 @@ fi
 # =============================================================================
 
 if ! step_is_done step4_php_config; then
-    echo "--- STEP 4: Configure PHP ---"
+    echo "PICLINIC: --- STEP 4: Configure PHP ---"
     PHP_INI=$(php --ini | grep 'Loaded Configuration' | awk '{print $NF}')
     PHP_INI_APACHE=$(echo "$PHP_INI" | sed 's|/cli/|/apache2/|')
     echo "Configuring: $PHP_INI_APACHE"
@@ -356,7 +361,7 @@ fi
 # =============================================================================
 
 if ! step_is_done step5_apache_config; then
-    echo "--- STEP 5: Configure Apache ---"
+    echo "PICLINIC: --- STEP 5: Configure Apache ---"
     sudo sed -i '/<Directory \/var\/www\/>/,/<\/Directory>/ {
         s/Options Indexes FollowSymLinks/Options FollowSymLinks/
         s/AllowOverride None/AllowOverride All/
@@ -371,7 +376,7 @@ fi
 # =============================================================================
 
 if ! step_is_done step6_users; then
-    echo "--- STEP 6: User accounts and permissions ---"
+    echo "PICLINIC: --- STEP 6: User accounts and permissions ---"
     sudo groupadd --force clinic
     if ! id clinic &>/dev/null; then
         sudo useradd clinic -g clinic
@@ -391,7 +396,7 @@ fi
 # =============================================================================
 
 if ! step_is_done step7_mariadb; then
-    echo "--- STEP 7: MariaDB ---"
+    echo "PICLINIC: --- STEP 7: MariaDB ---"
     # Raspberry Pi OS Bookworm ships a current MariaDB release by default.
     sudo apt-get install -y mariadb-server mariadb-client
     sudo systemctl enable mariadb
@@ -419,7 +424,7 @@ fi
 # =============================================================================
 
 if ! step_is_done step8_composer; then
-    echo "--- STEP 8: Composer ---"
+    echo "PICLINIC: --- STEP 8: Composer ---"
     cd ~
     php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
     HASH="$(curl -sS https://composer.github.io/installer.sig)"
@@ -435,7 +440,7 @@ fi
 # =============================================================================
 
 if ! step_is_done step9_nodejs; then
-    echo "--- STEP 9: Node.js 20 LTS ---"
+    echo "PICLINIC: --- STEP 9: Node.js 20 LTS ---"
     cd ~
     curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
     sudo apt-get install -y nodejs
@@ -449,7 +454,7 @@ fi
 # =============================================================================
 
 if ! step_is_done step10_phpunit; then
-    echo "--- STEP 10: PHPUnit 13 ---"
+    echo "PICLINIC: --- STEP 10: PHPUnit 13 ---"
     # PHPUnit 13.x is required for PHP 8.4.
     sudo wget -O /usr/local/bin/phpunit https://phar.phpunit.de/phpunit-13.phar
     sudo chmod +x /usr/local/bin/phpunit
@@ -462,16 +467,16 @@ fi
 # =============================================================================
 
 if ! step_is_done step11_clone; then
-    echo "--- STEP 11: Clone piClinic repository ---"
+    echo "PICLINIC: --- STEP 11: Clone piClinic repository ---"
     cd ~
     if [ -d ~/piClinic/.git ]; then
         echo "Repository already present -- pulling latest changes."
         cd ~/piClinic
         git fetch origin
-        git checkout main_v2
-        git pull origin main_v2
+        git checkout $INSTALL_BRANCH
+        git pull origin $INSTALL_BRANCH
     else
-        git clone -b main_v2 https://github.com/rbwatson/piClinic piClinic
+        git clone -b $INSTALL_BRANCH https://github.com/rbwatson/piClinic piClinic
         cd ~/piClinic
     fi
     git branch --show-current
@@ -483,7 +488,7 @@ fi
 # =============================================================================
 
 if ! step_is_done step12_directories; then
-    echo "--- STEP 12: Create application directories ---"
+    echo "PICLINIC: --- STEP 12: Create application directories ---"
     sudo mkdir -p /var/local/piclinic/image
     sudo mkdir -p /var/local/piclinic/deleted
     sudo mkdir -p /var/local/piclinic/downloads
@@ -506,14 +511,15 @@ fi
 # =============================================================================
 
 if ! step_is_done step13_database; then
-    echo "--- STEP 13: Database setup ---"
+    echo "PICLINIC: --- STEP 13: Database setup ---"
     # This step creates the CTS-user account by copying the password to the
     #   target script before calling it
     cp ~/piClinic/sql/create_dbuser.sql ~/create_dbuser.sql
     sed -i "s/YOURPASSWORD/${DB_APP_PASSWORD}/g" ~/create_dbuser.sql
-    sudo mariadb -u root < ~/create_dbuser.sql
     cd ~/piClinic/sql
-    mariadb -u admin -p"${DB_ADMIN_PASSWORD}" piclinic < piclinic.sql
+    mariadb -u admin -p"${DB_ADMIN_PASSWORD}" < piclinic.sql
+    mariadb -u admin -p"${DB_ADMIN_PASSWORD}" piclinic < ~/create_dbuser.sql
+    echo "   Initializing database tables. This may take a moment..."
     mariadb -u admin -p"${DB_ADMIN_PASSWORD}" piclinic < icd10.sql
     mariadb -u admin -p"${DB_ADMIN_PASSWORD}" piclinic < TestUsers.sql
     mariadb -u admin -p"${DB_ADMIN_PASSWORD}" piclinic < 100PatientsNum.sql
@@ -535,7 +541,7 @@ fi
 # contains a placeholder index.html until the React frontend is built.
 #
 if ! step_is_done step14_deploy; then
-    echo "--- STEP 14: Composer update + Deploy v2 API ---"
+    echo "PICLINIC: --- STEP 14: Composer update + Deploy v2 API ---"
 
     # Run composer update to regenerate lock file for current PHP version
     echo "  Running composer update in ~/piClinic/www_v2/html/api/ ..."
@@ -604,7 +610,7 @@ fi
 # =============================================================================
 
 if ! step_is_done step15_final_update; then
-    echo "--- STEP 15: Final system update ---"
+    echo "PICLINIC: --- STEP 15: Final system update ---"
     sudo apt-get update
     sudo apt-get upgrade -y
     sudo apt-get clean
