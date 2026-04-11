@@ -240,8 +240,9 @@ echo "PICLINIC: Configuration loaded from $CONF_FILE"
 echo ""
 echo "PICLINIC: Running pre-flight checks..."
 
-# Internet connectivity
-if ! curl -fsS --max-time 10 https://raspberrypi.com > /dev/null 2>&1; then
+# Internet connectivity — use debian.org which reliably returns 200 for
+# unauthenticated requests (raspberrypi.com returns 403 for curl's default UA)
+if ! curl -fsS --max-time 10 https://debian.org > /dev/null 2>&1; then
     echo "ERROR: No internet connectivity. Check your network connection and try again."
     exit 1
 fi
