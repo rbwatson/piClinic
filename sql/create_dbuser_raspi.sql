@@ -1,5 +1,5 @@
 --
--- Copyright (c) 2018 by Robert B. Watson
+-- Copyright (c) 2022 by Robert B. Watson
 --
 -- Permission is hereby granted, free of charge, to any person obtaining a copy of
 -- this software and associated documentation files (the "Software"), to deal in
@@ -26,6 +26,13 @@
 --   - piclinic database: created by piclinic.sql in STEP 14
 --
 USE `piclinic`;
+-- remove any existing CTS-user account to ensure we're starting from a clean slate
+DROP USER IF EXISTS 'CTS-user'@'localhost';
+FLUSH PRIVILEGES;
+--
+-- Create the CTS-user account with a password and grant necessary privileges for the piclinic application
+--
+CREATE USER IF NOT EXISTS 'CTS-user'@'localhost' IDENTIFIED BY 'YOURPASSWORD';
 GRANT FILE, SHOW DATABASES, CREATE TEMPORARY TABLES, LOCK TABLES, SHOW VIEW, EXECUTE ON *.* TO 'CTS-user'@'localhost';
 GRANT SELECT, INSERT, UPDATE, DELETE ON piclinic.* TO 'CTS-user'@'localhost';
 FLUSH PRIVILEGES;

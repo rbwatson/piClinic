@@ -286,7 +286,7 @@ if ! step_is_done step1_update; then
     sudo apt-get update
     sudo apt-get upgrade -y
     sudo apt-get install -y git net-tools nload curl wget gnupg2 ca-certificates \
-        apt-transport-https software-properties-common lsb-release
+        apt-transport-https lsb-release
     sudo apt-get clean
     sudo apt-get autoremove -y
     mark_step_complete step1_update
@@ -515,7 +515,7 @@ if ! step_is_done step13_database; then
     echo "PICLINIC: --- STEP 13: Database setup ---"
     # This step creates the CTS-user account by copying the password to the
     #   target script before calling it
-    cp ~/piClinic/sql/create_dbuser.sql ~/create_dbuser.sql
+    cp ~/piClinic/sql/create_dbuser_raspi.sql ~/create_dbuser.sql
     sed -i "s/YOURPASSWORD/${DB_APP_PASSWORD}/g" ~/create_dbuser.sql
     cd ~/piClinic/sql
     mariadb -u admin -p"${DB_ADMIN_PASSWORD}" < piclinic.sql
