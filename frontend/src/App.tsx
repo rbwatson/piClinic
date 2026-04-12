@@ -5,10 +5,10 @@
  * Route structure:
  *   /login                 LoginPage          (public)
  *   /                      AppShell           (protected wrapper)
- *     index                DashboardPage      (Group 2 placeholder)
+ *     index                DashboardPage      (Group 2)
  *     /patients            PatientSearchPage  (Group 3 placeholder)
- *     /patients/:id        PatientDetailPage  (Group 3 placeholder)
  *     /patients/new        PatientFormPage    (Group 4 placeholder)
+ *     /patients/:id        PatientDetailPage  (Group 3 placeholder)
  *     /patients/:id/edit   PatientFormPage    (Group 4 placeholder)
  *     /visits/:id          VisitDetailPage    (Group 7 placeholder)
  *     /visits/:id/open     VisitOpenPage      (Group 5 placeholder)
@@ -23,6 +23,7 @@ import { AuthProvider } from '@/context/AuthContext'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import AppShell from '@/components/AppShell'
 import LoginPage from '@/pages/LoginPage'
+import DashboardPage from '@/pages/DashboardPage'
 import PlaceholderPage from '@/pages/PlaceholderPage'
 
 export default function App() {
@@ -37,7 +38,7 @@ export default function App() {
           {/* Protected — all routes inside AppShell */}
           <Route element={<ProtectedRoute />}>
             <Route element={<AppShell />}>
-              <Route index element={<PlaceholderPage title="Dashboard" />} />
+              <Route index element={<DashboardPage />} />
               <Route path="patients" element={<PlaceholderPage title="Patient Search" />} />
               <Route path="patients/new" element={<PlaceholderPage title="New Patient" />} />
               <Route path="patients/:id" element={<PlaceholderPage title="Patient Detail" />} />
