@@ -1,0 +1,127 @@
+/*
+ * globals.css
+ * shadcn/ui-compatible CSS variables mapped from the existing piClinic
+ * color scheme. All hue/saturation/lightness values are derived from
+ * the original hex tokens in index.css so the visual output is identical
+ * until branding work begins in a later phase.
+ *
+ * Light mode  -- derived from index.css :root block
+ * Dark mode   -- derived from index.css @media (prefers-color-scheme: dark)
+ *
+ * Token reference:
+ *   Original #6b6375  -> hsl(282 8% 43%)   body text (muted)
+ *   Original #08060d  -> hsl(258 54%  5%)   headings (foreground)
+ *   Original #ffffff  -> hsl(0 0% 100%)     background
+ *   Original #e5e4e7  -> hsl(270 4% 90%)    border
+ *   Original #aa3bff  -> hsl(275 100% 61%)  accent / primary
+ *   Original #f4f3ec  -> hsl(55 18% 93%)    code / muted bg
+ */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Typography */
+    --font-sans: system-ui, 'Segoe UI', Roboto, sans-serif;
+    --font-mono: ui-monospace, Consolas, monospace;
+
+    /* Layout */
+    --radius: 0.5rem;
+
+    /* Core surfaces */
+    --background:       0 0% 100%;
+    --foreground:       258 54% 5%;
+
+    /* Cards and popovers sit on the background */
+    --card:             0 0% 100%;
+    --card-foreground:  258 54% 5%;
+    --popover:          0 0% 100%;
+    --popover-foreground: 258 54% 5%;
+
+    /* Muted — used for secondary text and subdued backgrounds */
+    --muted:            55 18% 93%;
+    --muted-foreground: 282 8% 43%;
+
+    /* Primary — accent purple carried from index.css */
+    --primary:          275 100% 61%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Secondary — light neutral */
+    --secondary:        270 4% 93%;
+    --secondary-foreground: 258 54% 5%;
+
+    /* Destructive — red for errors and delete actions */
+    --destructive:      0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Accent — same purple at lower opacity context */
+    --accent:           275 100% 61%;
+    --accent-foreground: 0 0% 100%;
+
+    /* Form elements */
+    --border:           270 4% 90%;
+    --input:            270 4% 90%;
+    --ring:             275 100% 61%;
+
+    /* Sidebar */
+    --sidebar:               258 30% 12%;
+    --sidebar-foreground:    270 4% 85%;
+    --sidebar-border:        258 20% 20%;
+    --sidebar-accent:        275 100% 61%;
+    --sidebar-accent-foreground: 0 0% 100%;
+  }
+
+  .dark {
+    --background:       240 10% 11%;
+    --foreground:       220 13% 95%;
+
+    --card:             240 10% 11%;
+    --card-foreground:  220 13% 95%;
+    --popover:          240 10% 11%;
+    --popover-foreground: 220 13% 95%;
+
+    --muted:            240 8% 13%;
+    --muted-foreground: 220 9% 64%;
+
+    --primary:          280 89% 74%;
+    --primary-foreground: 258 54% 5%;
+
+    --secondary:        240 8% 18%;
+    --secondary-foreground: 220 13% 95%;
+
+    --destructive:      0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --accent:           280 89% 74%;
+    --accent-foreground: 258 54% 5%;
+
+    --border:           240 8% 18%;
+    --input:            240 8% 18%;
+    --ring:             280 89% 74%;
+
+    --sidebar:               240 12% 8%;
+    --sidebar-foreground:    220 9% 75%;
+    --sidebar-border:        240 8% 14%;
+    --sidebar-accent:        280 89% 74%;
+    --sidebar-accent-foreground: 258 54% 5%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply text-foreground font-medium;
+  }
+}
