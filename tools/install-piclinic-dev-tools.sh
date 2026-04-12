@@ -54,6 +54,50 @@ echo "==========================================================================
 echo ""
 
 # =============================================================================
+# apt lock helper
+#
+# Ubuntu's unattended-upgrades service frequently holds the dpkg lock on a
+# fresh VM boot. Wait up to 5 minutes for it to release before any apt call.
+# =============================================================================
+
+wait_for_apt() {
+    local LOCK_FILE="/var/lib/dpkg/lock-frontend"
+    local MAX_WAIT=300   # seconds
+    local WAITED=0
+    local INTERVAL=5
+
+    if ! sudo fuser "$LOCK_FILE" &>/dev/null 2>&1; then
+        return 0
+    fi
+
+    echo "  apt lock is held by another process (likely unattended-upgrades)."
+    echo "  Waiting up to ${MAX_WAIT}s for it to release..."
+
+    while sudo fuser "$LOCK_FILE" &>/dev/null 2>&1; do
+        if [ "$WAITED" -ge "$MAX_WAIT" ]; then
+            echo "ERROR: apt lock was not released after ${MAX_WAIT}s."
+            echo "       Check what is holding the lock:"
+            echo "           sudo fuser -v /var/lib/dpkg/lock-frontend"
+            echo "       If it is safe to do so, stop unattended-upgrades:"
+            echo "           sudo systemctl stop unattended-upgrades"
+            echo "       Then rerun this script."
+            exit 1
+        fi
+        sleep "$INTERVAL"
+        WAITED=$(( WAITED + INTERVAL ))
+        echo "  ...still waiting (${WAITED}s elapsed)"
+    done
+
+    echo "  apt lock released after ${WAITED}s."
+}
+
+# Convenience wrapper: wait for the lock then run apt-get
+apt_get() {
+    wait_for_apt
+    sudo apt-get "$@"
+}
+
+# =============================================================================
 # Pre-flight: verify prerequisites
 # =============================================================================
 
@@ -84,7 +128,7 @@ echo "  [ok] $PY_VER"
 
 if ! command -v pip3 &>/dev/null; then
     echo "  pip3 not found -- installing..."
-    sudo apt-get install -y python3-pip
+    apt_get install -y python3-pip
 fi
 echo "  [ok] pip3 $(pip3 --version | awk '{print $2}')"
 
@@ -183,7 +227,6 @@ echo "--- Step 7: Vale prose linter ---"
 if command -v vale &>/dev/null; then
     echo "  [ok] Vale $(vale --version) already installed"
 else
-    # Install via snap if available, otherwise download binary
     if command -v snap &>/dev/null; then
         sudo snap install vale --classic 2>/dev/null && \
             echo "  [ok] Vale installed via snap" || \
@@ -203,15 +246,14 @@ if [ "$INSTALL_VSCODE" = true ]; then
     if command -v code &>/dev/null; then
         echo "  [ok] VS Code $(code --version | head -1) already installed"
     else
-        # Use the official Microsoft repo for a stable release
         curl -fsSL https://packages.microsoft.com/keys/microsoft.asc \
             | gpg --dearmor \
             | sudo tee /usr/share/keyrings/microsoft-archive-keyring.gpg > /dev/null
         echo "deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft-archive-keyring.gpg] \
 https://packages.microsoft.com/repos/vscode stable main" \
             | sudo tee /etc/apt/sources.list.d/vscode.list > /dev/null
-        sudo apt-get update
-        sudo apt-get install -y code
+        apt_get update
+        apt_get install -y code
         echo "  [ok] VS Code installed"
     fi
     echo ""
