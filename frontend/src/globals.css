@@ -5,9 +5,6 @@
  * the original hex tokens in index.css so the visual output is identical
  * until branding work begins in a later phase.
  *
- * Light mode  -- derived from index.css :root block
- * Dark mode   -- derived from index.css @media (prefers-color-scheme: dark)
- *
  * Token reference:
  *   Original #6b6375  -> hsl(282 8% 43%)   body text (muted)
  *   Original #08060d  -> hsl(258 54%  5%)   headings (foreground)
@@ -15,6 +12,10 @@
  *   Original #e5e4e7  -> hsl(270 4% 90%)    border
  *   Original #aa3bff  -> hsl(275 100% 61%)  accent / primary
  *   Original #f4f3ec  -> hsl(55 18% 93%)    code / muted bg
+ *
+ * Note: @apply border-border is intentionally avoided inside @layer base
+ * because Tailwind v4 cannot resolve CSS-variable-backed utilities during
+ * the base layer pass. Border color is set with a direct CSS property below.
  */
 
 @tailwind base;
@@ -108,12 +109,15 @@
     --sidebar-accent-foreground: 258 54% 5%;
   }
 
+  /* Set default border color directly — avoids Tailwind v4 @apply
+     resolution issue with CSS-variable-backed utilities in @layer base */
   * {
-    @apply border-border;
+    border-color: hsl(var(--border));
   }
 
   body {
-    @apply bg-background text-foreground;
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
     font-family: var(--font-sans);
     font-size: 16px;
     line-height: 1.5;
@@ -122,6 +126,7 @@
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply text-foreground font-medium;
+    color: hsl(var(--foreground));
+    font-weight: 500;
   }
 }
