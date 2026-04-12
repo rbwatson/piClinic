@@ -49,9 +49,9 @@ SURGE_DAY_PATIENTS = 100
 # One surge week per this many normal weeks
 SURGE_PERIOD_WEEKS = 7
 
-# Arrival window: 07:00 to 11:30 (minutes from midnight)
-ARRIVAL_START = 7 * 60
-ARRIVAL_END = 11 * 60 + 30
+# Arrival window: 08:00 to 14:00 (minutes from midnight)
+ARRIVAL_START = 8 * 60
+ARRIVAL_END = 14 * 60
 
 # Visit duration range in minutes (for closed visits)
 DURATION_MIN = 20
@@ -360,7 +360,7 @@ def build_visit(patient: dict, staff: dict, scenario: tuple,
     """
 
     params = (
-        patient_visit_id, 
+        patient_visit_id,
         staff["username"], staff_name, staff["position"],
         visit_type, visit_status,
         primary_complaint, secondary_complaint,
