@@ -9,6 +9,16 @@
  * by the Axios interceptor in lib/api.ts and logs the user out automatically
  * on any 401 response.
  *
+ * Session API response shape (POST /api/v2/auth/login):
+ *   { status: 'success', data: {
+ *       token, username, accessGranted,
+ *       sessionLanguage, sessionClinicPublicID, expiresOnDate
+ *   }}
+ *
+ * Note: the Session model does NOT include firstName/lastName.
+ * The sidebar shows username only. A future enhancement can fetch
+ * full name from GET /api/v2/staff/{username} after login if needed.
+ *
  * Usage:
  *   const { user, login, logout, isAuthenticated } = useAuth()
  */
@@ -37,10 +47,10 @@ export type AccessLevel =
 
 export interface AuthUser {
   username: string
-  firstName: string
-  lastName: string
   accessGranted: AccessLevel
   preferredLanguage: 'en' | 'es' | 'ui'
+  sessionClinicPublicID: string | null
+  expiresOnDate: string
   token: string
 }
 
@@ -101,16 +111,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setState((s) => ({ ...s, isLoading: true, error: null }))
       try {
         const response = await api.post('/auth/login', { username, password })
+        // Login returns { status: 'success', data: Session }
         const data = response.data?.data ?? response.data
-        const token: string = data.token ?? data.sessionToken
+        const token: string = data.token
         setSessionToken(token)
         setState({
           user: {
-            username: data.username,
-            firstName: data.firstName,
-            lastName: data.lastName,
-            accessGranted: data.accessGranted,
-            preferredLanguage: data.sessionLanguage ?? 'en',
+            username:              data.username,
+            accessGranted:         data.accessGranted,
+            preferredLanguage:     data.sessionLanguage ?? 'en',
+            sessionClinicPublicID: data.sessionClinicPublicID ?? null,
+            expiresOnDate:         data.expiresOnDate,
             token,
           },
           isAuthenticated: true,

@@ -7,6 +7,9 @@
  *
  * Sidebar nav items are filtered by accessGranted role so clinic staff
  * don't see admin-only links.
+ *
+ * Note: Session model returns username only (no firstName/lastName).
+ * The sidebar displays username until a staff name lookup is added.
  */
 
 import { NavLink, Outlet } from 'react-router-dom'
@@ -16,22 +19,21 @@ import { useAuth } from '@/context/AuthContext'
 interface NavItem {
   to: string
   labelKey: string
-  /** Minimum role required. Omit for all authenticated users. */
   minRole?: 'ClinicAdmin' | 'SystemAdmin'
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { to: '/',          labelKey: 'NAV_DASHBOARD' },
-  { to: '/patients',  labelKey: 'NAV_PATIENTS' },
-  { to: '/reports',   labelKey: 'NAV_REPORTS' },
-  { to: '/admin',     labelKey: 'NAV_ADMIN', minRole: 'ClinicAdmin' },
+  { to: '/',         labelKey: 'NAV_DASHBOARD' },
+  { to: '/patients', labelKey: 'NAV_PATIENTS' },
+  { to: '/reports',  labelKey: 'NAV_REPORTS' },
+  { to: '/admin',    labelKey: 'NAV_ADMIN', minRole: 'ClinicAdmin' },
 ]
 
 const ROLE_ORDER: Record<string, number> = {
   ClinicReadOnly: 0,
-  ClinicStaff: 1,
-  ClinicAdmin: 2,
-  SystemAdmin: 3,
+  ClinicStaff:    1,
+  ClinicAdmin:    2,
+  SystemAdmin:    3,
 }
 
 function hasRole(userRole: string, minRole: string): boolean {
@@ -52,7 +54,7 @@ export default function AppShell() {
       {/* Sidebar */}
       <aside className="w-52 flex-shrink-0 bg-sidebar text-sidebar-foreground flex flex-col border-r border-sidebar-border">
 
-        {/* App name / logo area */}
+        {/* App name */}
         <div className="px-4 py-4 border-b border-sidebar-border">
           <span className="text-base font-semibold text-white tracking-tight">
             {t('APP_NAME')}
@@ -80,13 +82,13 @@ export default function AppShell() {
           ))}
         </nav>
 
-        {/* Session info + logout */}
+        {/* Session info + controls */}
         <div className="px-4 py-3 border-t border-sidebar-border text-xs text-sidebar-foreground/70 space-y-2">
           {user && (
             <p className="truncate">
               {t('SESSION_LOGGED_IN_AS')}{' '}
               <span className="font-medium text-sidebar-foreground">
-                {user.firstName} {user.lastName}
+                {user.username}
               </span>
             </p>
           )}

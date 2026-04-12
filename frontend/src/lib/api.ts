@@ -11,12 +11,16 @@
  * On 401, the response interceptor clears the token and dispatches a
  * custom 'piclinic:unauthorized' event so AuthContext can redirect
  * to the login page without creating a circular import.
+ *
+ * Response envelope conventions:
+ *   - POST/create endpoints return { status: 'success', data: T }
+ *   - GET list endpoints return bare arrays: T[]
+ *   - GET single endpoints return bare objects: T
+ *   - The Axios interceptor does NOT unwrap envelopes; callers handle this.
  */
 
 import axios from 'axios'
 
-// Base URL: in dev, Vite proxies /api to the PHP backend (see vite.config.ts).
-// In production the SPA and API are served from the same origin.
 const BASE_URL = '/api/v2'
 
 const api = axios.create({
@@ -24,7 +28,6 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  // Do not send credentials (cookies) — auth is token-based
   withCredentials: false,
 })
 
