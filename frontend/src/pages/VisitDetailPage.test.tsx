@@ -89,7 +89,10 @@ describe('VisitDetailPage', () => {
     } as unknown as ReturnType<typeof visitsApi.useVisit>)
     renderDetailPage()
     await waitFor(() => {
-      expect(screen.getByText(/Yamel/)).toBeInTheDocument()
+        // There should be two instances of the patient's name on the page:
+        // their display name and the link to their patient detail page.
+      const nameElements = screen.queryAllByText(/Yamel/);
+      expect(nameElements).toHaveLength(2);
       expect(screen.getByText('PT-GEN-000001')).toBeInTheDocument()
     })
   })
