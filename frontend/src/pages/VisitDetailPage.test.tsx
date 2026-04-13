@@ -1,0 +1,176 @@
+/**
+ * VisitDetailPage.test.tsx
+ *
+ * Component tests for VisitDetailPage.
+ * Verifies loading/error states, visit info display, conditional
+ * action buttons, and vitals/diagnosis section visibility.
+ */
+
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { render, screen, waitFor } from '@testing-library/react'
+import { MemoryRouter, Route, Routes } from 'react-router-dom'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import VisitDetailPage from '@/pages/VisitDetailPage'
+import * as visitsApi from '@/api/visits'
+
+const BASE_VISIT: visitsApi.Visit = {
+  patientVisitID:    '000000000001202604010101',
+  clinicPatientID:   'PT-GEN-000001',
+  firstVisit:        'NO',
+  patientNationalID: null,
+  patientFamilyID:   null,
+  staffName:         'Dr. Verduzco',
+  staffUsername:     'Verduzco',
+  staffPosition:     'DoctorGeneral',
+  visitType:         'Outpatient',
+  visitStatus:       'Open',
+  primaryComplaint:  'Fever',
+  secondaryComplaint: null,
+  dateTimeIn:        '2026-04-13 09:00:00',
+  dateTimeOut:       null,
+  payment:           null,
+  patientLastName:   'Fernández',
+  patientFirstName:  'Yamel',
+  patientSex:        'F',
+  patientBirthDate:  '2001-07-21',
+  patientHomeAddress1: null, patientHomeAddress2: null,
+  patientHomeNeighborhood: null, patientHomeCity: null,
+  patientHomeCounty: null, patientHomeState: null,
+  patientContactPhone: null, patientContactAltPhone: null,
+  patientKnownAllergies: null, patientCurrentMedications: null,
+  patientNextVaccinationDate: null, patientResponsibleParty: null,
+  patientMaritalStatus: null, patientProfession: null,
+  height: null, heightUnits: null,
+  weight: null, weightUnits: null,
+  temp: null, tempUnits: null,
+  bpSystolic: null, bpDiastolic: null,
+  pulse: null, glucose: null, glucoseUnits: null,
+  diagnosis1: null, condition1: null,
+  diagnosis2: null, condition2: null,
+  diagnosis3: null, condition3: null,
+  referredTo: null, referredFrom: null,
+}
+
+function renderDetailPage() {
+  const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+  return render(
+    <QueryClientProvider client={qc}>
+      <MemoryRouter initialEntries={['/visits/000000000001202604010101']}>
+        <Routes>
+          <Route path="/visits/:id" element={<VisitDetailPage />} />
+        </Routes>
+      </MemoryRouter>
+    </QueryClientProvider>
+  )
+}
+
+describe('VisitDetailPage', () => {
+  beforeEach(() => vi.restoreAllMocks())
+
+  it('shows loading state', () => {
+    vi.spyOn(visitsApi, 'useVisit').mockReturnValue({
+      data: undefined, isLoading: true, isError: false,
+    } as unknown as ReturnType<typeof visitsApi.useVisit>)
+    renderDetailPage()
+    expect(screen.getByText('LOADING')).toBeInTheDocument()
+  })
+
+  it('shows error when visit not found', () => {
+    vi.spyOn(visitsApi, 'useVisit').mockReturnValue({
+      data: undefined, isLoading: false, isError: true,
+    } as unknown as ReturnType<typeof visitsApi.useVisit>)
+    renderDetailPage()
+    expect(screen.getByText('ERROR_NOT_FOUND')).toBeInTheDocument()
+  })
+
+  it('shows patient name and visit type', async () => {
+    vi.spyOn(visitsApi, 'useVisit').mockReturnValue({
+      data: BASE_VISIT, isLoading: false, isError: false,
+    } as unknown as ReturnType<typeof visitsApi.useVisit>)
+    renderDetailPage()
+    await waitFor(() => {
+      expect(screen.getByText(/Yamel/)).toBeInTheDocument()
+      expect(screen.getByText('PT-GEN-000001')).toBeInTheDocument()
+    })
+  })
+
+  it('shows Open status badge for open visits', async () => {
+    vi.spyOn(visitsApi, 'useVisit').mockReturnValue({
+      data: BASE_VISIT, isLoading: false, isError: false,
+    } as unknown as ReturnType<typeof visitsApi.useVisit>)
+    renderDetailPage()
+    await waitFor(() => {
+      expect(screen.getByText('VISIT_STATUS_OPEN')).toBeInTheDocument()
+    })
+  })
+
+  it('shows Edit and Discharge action buttons for open visits', async () => {
+    vi.spyOn(visitsApi, 'useVisit').mockReturnValue({
+      data: BASE_VISIT, isLoading: false, isError: false,
+    } as unknown as ReturnType<typeof visitsApi.useVisit>)
+    renderDetailPage()
+    await waitFor(() => {
+      expect(screen.getByText('VISIT_EDIT_ACTION')).toBeInTheDocument()
+      expect(screen.getByText('VISIT_CLOSE_ACTION')).toBeInTheDocument()
+    })
+  })
+
+  it('does not show Edit/Discharge buttons for closed visits', async () => {
+    vi.spyOn(visitsApi, 'useVisit').mockReturnValue({
+      data: { ...BASE_VISIT, visitStatus: 'Closed', dateTimeOut: '2026-04-13 11:00:00' },
+      isLoading: false, isError: false,
+    } as unknown as ReturnType<typeof visitsApi.useVisit>)
+    renderDetailPage()
+    await waitFor(() => {
+      expect(screen.queryByText('VISIT_EDIT_ACTION')).not.toBeInTheDocument()
+      expect(screen.queryByText('VISIT_CLOSE_ACTION')).not.toBeInTheDocument()
+    })
+  })
+
+  it('does not show vitals section when all vitals are null', async () => {
+    vi.spyOn(visitsApi, 'useVisit').mockReturnValue({
+      data: BASE_VISIT, isLoading: false, isError: false,
+    } as unknown as ReturnType<typeof visitsApi.useVisit>)
+    renderDetailPage()
+    await waitFor(() => {
+      expect(screen.queryByText('VISIT_PRECLINIC_HEADING')).not.toBeInTheDocument()
+    })
+  })
+
+  it('shows vitals section when at least one vital is present', async () => {
+    vi.spyOn(visitsApi, 'useVisit').mockReturnValue({
+      data: { ...BASE_VISIT, pulse: 72 },
+      isLoading: false, isError: false,
+    } as unknown as ReturnType<typeof visitsApi.useVisit>)
+    renderDetailPage()
+    await waitFor(() => {
+      expect(screen.getByText('VISIT_PRECLINIC_HEADING')).toBeInTheDocument()
+    })
+  })
+
+  it('shows diagnosis section with ICD code when diagnosis is present', async () => {
+    vi.spyOn(visitsApi, 'useVisit').mockReturnValue({
+      data: {
+        ...BASE_VISIT,
+        condition1: 'J06.9',
+        diagnosis1: 'Acute upper respiratory infection',
+      },
+      isLoading: false, isError: false,
+    } as unknown as ReturnType<typeof visitsApi.useVisit>)
+    renderDetailPage()
+    await waitFor(() => {
+      expect(screen.getByText('J06.9')).toBeInTheDocument()
+      expect(screen.getByText('Acute upper respiratory infection')).toBeInTheDocument()
+    })
+  })
+
+  it('does not show diagnoses section when no diagnoses are set', async () => {
+    vi.spyOn(visitsApi, 'useVisit').mockReturnValue({
+      data: BASE_VISIT, isLoading: false, isError: false,
+    } as unknown as ReturnType<typeof visitsApi.useVisit>)
+    renderDetailPage()
+    await waitFor(() => {
+      expect(screen.queryByText('VISIT_DIAGNOSES_HEADING')).not.toBeInTheDocument()
+    })
+  })
+})
