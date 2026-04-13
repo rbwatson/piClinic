@@ -21,17 +21,4 @@ export default defineConfig({
       },
     },
   },
-  test: {
-    // Use jsdom to simulate a browser environment
-    environment: 'jsdom',
-    // Run the setup file before each test suite
-    setupFiles: ['./src/test/setup.ts'],
-    // Allow test files anywhere under src/ using either naming convention
-    include: ['src/**/*.test.{ts,tsx}', 'src/**/*.spec.{ts,tsx}'],
-    globals: true,
-    // Resolve the same @ alias inside tests
-    alias: {
-      '@': path.resolve(__dirname, './src'),
-    },
-  },
 })
