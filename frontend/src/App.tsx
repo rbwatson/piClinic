@@ -33,6 +33,8 @@ import PatientDetailPage from '@/pages/PatientDetailPage'
 import PatientFormPage from '@/pages/PatientFormPage'
 import PlaceholderPage from '@/pages/PlaceholderPage'
 import VisitOpenPage from './pages/VisitOpenPage'
+import VisitEditPage from './pages/VisitEditPage'
+import VisitClosePage from './pages/VisitClosePage'
 
 export default function App() {
   return (
@@ -55,8 +57,8 @@ export default function App() {
               {/* visits/new before visits/:id */}
               <Route path="visits/new" element={<VisitOpenPage />} />
               <Route path="visits/:id" element={<PlaceholderPage title="Visit Detail" />} />
-              <Route path="visits/:id/edit" element={<PlaceholderPage title="Edit Visit" />} />
-              <Route path="visits/:id/close" element={<PlaceholderPage title="Close Visit" />} />
+              <Route path="visits/:id/edit"  element={<VisitEditPage />} />
+              <Route path="visits/:id/close" element={<VisitClosePage />} />
               <Route path="reports" element={<PlaceholderPage title="Reports" />} />
               <Route path="admin" element={<PlaceholderPage title="Admin" />} />
             </Route>

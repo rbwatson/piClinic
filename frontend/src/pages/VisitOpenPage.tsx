@@ -29,16 +29,13 @@ import { usePatient } from '@/api/patients'
 import { patientDisplayName } from '@/lib/patientForm.utils'
 import ICD10Autocomplete from '@/components/ICD10Autocomplete'
 import type { Visit } from '@/api/visits'
+import VitalsSection from '@/components/VitalsSection'
 
 // ---------------------------------------------------------------------------
 // Constants
 // ---------------------------------------------------------------------------
 
 const VISIT_TYPES = ['Outpatient', 'Emergency', 'Specialist'] as const
-const HEIGHT_UNITS = ['cm', 'in'] as const
-const WEIGHT_UNITS = ['kg', 'lbs'] as const
-const TEMP_UNITS   = ['C', 'F'] as const
-const GLUCOSE_UNITS = ['RBS', 'FBS'] as const
 
 // ---------------------------------------------------------------------------
 // Form values
@@ -314,126 +311,7 @@ export default function VisitOpenPage() {
 
         {/* ── Pre-clinic vitals ── */}
         <SectionHeader title={t('VISIT_PRECLINIC_HEADING')} />
-
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-
-          {/* Height */}
-          <div className="mb-3">
-            <label className="block text-xs font-medium text-muted-foreground mb-1">
-              {t('VISIT_HEIGHT_LABEL')}
-            </label>
-            <div className="flex gap-1">
-              <input
-                type="number"
-                step="0.1"
-                min="0"
-                placeholder="—"
-                className={`${inputClass} flex-1`}
-                {...register('height')}
-              />
-              <select className="rounded-md border border-input bg-background px-2 py-2 text-sm" {...register('heightUnits')}>
-                {HEIGHT_UNITS.map((u) => <option key={u}>{u}</option>)}
-              </select>
-            </div>
-          </div>
-
-          {/* Weight */}
-          <div className="mb-3">
-            <label className="block text-xs font-medium text-muted-foreground mb-1">
-              {t('VISIT_WEIGHT_LABEL')}
-            </label>
-            <div className="flex gap-1">
-              <input
-                type="number"
-                step="0.1"
-                min="0"
-                placeholder="—"
-                className={`${inputClass} flex-1`}
-                {...register('weight')}
-              />
-              <select className="rounded-md border border-input bg-background px-2 py-2 text-sm" {...register('weightUnits')}>
-                {WEIGHT_UNITS.map((u) => <option key={u}>{u}</option>)}
-              </select>
-            </div>
-          </div>
-
-          {/* Temp */}
-          <div className="mb-3">
-            <label className="block text-xs font-medium text-muted-foreground mb-1">
-              {t('VISIT_TEMP_LABEL')}
-            </label>
-            <div className="flex gap-1">
-              <input
-                type="number"
-                step="0.1"
-                min="0"
-                placeholder="—"
-                className={`${inputClass} flex-1`}
-                {...register('temp')}
-              />
-              <select className="rounded-md border border-input bg-background px-2 py-2 text-sm" {...register('tempUnits')}>
-                {TEMP_UNITS.map((u) => <option key={u}>{u}</option>)}
-              </select>
-            </div>
-          </div>
-
-          {/* BP */}
-          <div className="mb-3">
-            <label className="block text-xs font-medium text-muted-foreground mb-1">
-              {t('VISIT_BP_LABEL')}
-            </label>
-            <div className="flex items-center gap-1">
-              <input
-                type="number"
-                min="0"
-                placeholder={t('BP_SYS_PLACEHOLDER', 'Sys')}
-                className={`${inputClass} flex-1`}
-                {...register('bpSystolic')}
-              />
-              <span className="text-muted-foreground text-sm">/</span>
-              <input
-                type="number"
-                min="0"
-                placeholder={t('BP_DIA_PLACEHOLDER', 'Dia')}
-                className={`${inputClass} flex-1`}
-                {...register('bpDiastolic')}
-              />
-            </div>
-          </div>
-
-          {/* Pulse */}
-          <div className="mb-3">
-            <label className="block text-xs font-medium text-muted-foreground mb-1">
-              {t('VISIT_PULSE_LABEL')}
-            </label>
-            <input
-              type="number"
-              min="0"
-              placeholder="—"
-              className={inputClass}
-              {...register('pulse')}
-            />
-          </div>
-
-          {/* Glucose */}
-          <div className="mb-3">
-            <label className="block text-xs font-medium text-muted-foreground mb-1">
-              {t('VISIT_GLUCOSE_LABEL')}
-            </label>
-            <div className="flex gap-1">
-              <input
-                type="number"
-                min="0"
-                placeholder="—"
-                className={`${inputClass} flex-1`}
-                {...register('glucose')}
-              />
-              <select className="rounded-md border border-input bg-background px-2 py-2 text-sm" {...register('glucoseUnits')}>
-                {GLUCOSE_UNITS.map((u) => <option key={u}>{u}</option>)}
-              </select>
-            </div>
-          </div>
-        </div>
+        <VitalsSection register={register} />
 
         {/* ── Diagnoses ── */}
         <SectionHeader title={t('VISIT_DIAGNOSES_HEADING')} />
