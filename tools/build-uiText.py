@@ -107,6 +107,8 @@ python build-uiText.py [-h] [--build {new,all}] --infile INFILE [--srcpath SRCPA
 """
 
 cliParser = argparse.ArgumentParser(prog="build-uiText.py", usage=how)
+cliParser.add_argument('-v', '--version', required=False, choices=['v1', 'v2'], default='v2', \
+     help='Version of the tool to run. v1 creates the .php include file for v1 and v2 creates the json files for v2. The default is v2.')  
 cliParser.add_argument('--build', required=False, choices=["new","all"], default="new", \
     help="What to build: new | all. new updates only changed files and all rebuilds all files.")
 cliParser.add_argument('--infile', required=True,  \
@@ -173,7 +175,7 @@ def createTextFiles (file_list, csv_rows, langs):
 #	return file_count
 
 
-def createFiles (arg_build, arg_csvfile, arg_codedir):
+def createV1Files (arg_build, arg_csvfile, arg_codedir):
     # test the CSV file
     file_count = 0
     if not os.path.isfile(arg_csvfile):
@@ -182,8 +184,9 @@ def createFiles (arg_build, arg_csvfile, arg_codedir):
     else:
         # get the csv file date and then open the file
         csv_file_date = os.path.getmtime(arg_csvfile)
-        # open the CSV file
-        with codecs.open(arg_csvfile, 'r', 'utf-8') as csv_file:
+
+        # open the CSV file and read the contents
+        with codecs.open(arg_csvfile, 'r', 'utf-8', "strict") as csv_file:
             csv_read = csv.DictReader(csv_file, )
 
             # convert csv_read to dict object
@@ -260,15 +263,30 @@ def createFiles (arg_build, arg_csvfile, arg_codedir):
     return createTextFiles(php_files, csv_rows, langs)
 
 
+def createV2Files ():
+    # This is a placeholder for the V2 version of the tool that creates .json files for each language.
+    return
+
+
 def main ():
     args = cliParser.parse_args()
     # assign default values
     arg_build = args.build	    # default: build all files
     arg_csvfile = args.infile   # required parameter: the file with the localized strings
     arg_codedir = args.srcpath  # folder with the .php source files to scan; the default is current folder
+    arg_version = args.version  # version of the tool to run
 
-    # create the string files
-    filesCreated = createFiles (arg_build, arg_csvfile, arg_codedir)
+    if arg_version == 'v1':
+        print ('Running version 1 of the tool to create .php include files for each .php file with localized strings.')
+        # create the string files for V1
+        filesCreated = createV1Files (arg_build, arg_csvfile, arg_codedir)
+    elif arg_version == 'v2':
+        print ('Running version 2 of the tool to create .json files for each language.')
+        # create the string files for V2
+        filesCreated = createV2Files ()
+    else:
+        print ('Invalid version specified. Use --version to specify v1 or v2.')
+        filesCreated = 0
 
     return ("{} UI text files created.".format(filesCreated))
 
