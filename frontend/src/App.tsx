@@ -32,6 +32,7 @@ import PatientSearchPage from '@/pages/PatientSearchPage'
 import PatientDetailPage from '@/pages/PatientDetailPage'
 import PatientFormPage from '@/pages/PatientFormPage'
 import PlaceholderPage from '@/pages/PlaceholderPage'
+import VisitOpenPage from './pages/VisitOpenPage'
 
 export default function App() {
   return (
@@ -52,7 +53,7 @@ export default function App() {
               <Route path="patients/:id" element={<PatientDetailPage />} />
               <Route path="patients/:id/edit" element={<PatientFormPage />} />
               {/* visits/new before visits/:id */}
-              <Route path="visits/new" element={<PlaceholderPage title="Open Visit" />} />
+              <Route path="visits/new" element={<VisitOpenPage />} />
               <Route path="visits/:id" element={<PlaceholderPage title="Visit Detail" />} />
               <Route path="visits/:id/edit" element={<PlaceholderPage title="Edit Visit" />} />
               <Route path="visits/:id/close" element={<PlaceholderPage title="Close Visit" />} />
