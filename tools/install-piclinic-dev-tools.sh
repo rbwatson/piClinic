@@ -166,10 +166,24 @@ fi
 echo ""
 
 # =============================================================================
-# Step 3: @types/node (required for path alias in vite.config.ts)
+# Step 3: JSDOM for testing
 # =============================================================================
 
-echo "--- Step 3: @types/node ---"
+echo "--- Step 3: jsdom ---"
+cd "$FRONTEND_DIR"
+if npm list jsdom --depth=0 2>/dev/null | grep -q 'jsdom'; then
+    echo "  [ok] jsdom already installed"
+else
+    npm install --save-dev jsdom
+    echo "  [ok] jsdom installed"
+fi
+echo ""
+
+# =============================================================================
+# Step 4: @types/node (required for path alias in vite.config.ts)
+# =============================================================================
+
+echo "--- Step 4: @types/node ---"
 cd "$FRONTEND_DIR"
 if npm list @types/node --depth=0 2>/dev/null | grep -q '@types/node'; then
     echo "  [ok] @types/node already installed"
@@ -180,10 +194,10 @@ fi
 echo ""
 
 # =============================================================================
-# Step 4: openapi-typescript (generates TypeScript types from openapi.yaml)
+# Step 5: openapi-typescript (generates TypeScript types from openapi.yaml)
 # =============================================================================
 
-echo "--- Step 4: openapi-typescript ---"
+echo "--- Step 5: openapi-typescript ---"
 if npm list -g openapi-typescript 2>/dev/null | grep -q 'openapi-typescript'; then
     echo "  [ok] openapi-typescript already installed globally"
 else
@@ -193,10 +207,10 @@ fi
 echo ""
 
 # =============================================================================
-# Step 5: mysql-connector-python (for generate_test_visits.py)
+# Step 6: mysql-connector-python (for generate_test_visits.py)
 # =============================================================================
 
-echo "--- Step 5: mysql-connector-python ---"
+echo "--- Step 6: mysql-connector-python ---"
 if python3 -c "import mysql.connector" 2>/dev/null; then
     echo "  [ok] mysql-connector-python already installed"
 else
@@ -206,10 +220,10 @@ fi
 echo ""
 
 # =============================================================================
-# Step 6: Playwright browsers (for future E2E tests)
+# Step 7: Playwright browsers (for future E2E tests)
 # =============================================================================
 
-echo "--- Step 6: Playwright browsers ---"
+echo "--- Step 7: Playwright browsers ---"
 cd "$FRONTEND_DIR"
 # Install only Chromium to save space -- sufficient for Pi/Ubuntu testing
 if npx playwright install chromium --with-deps 2>/dev/null; then
@@ -220,10 +234,10 @@ fi
 echo ""
 
 # =============================================================================
-# Step 7: Vale prose linter
+# Step 8: Vale prose linter
 # =============================================================================
 
-echo "--- Step 7: Vale prose linter ---"
+echo "--- Step 8: Vale prose linter ---"
 if command -v vale &>/dev/null; then
     echo "  [ok] Vale $(vale --version) already installed"
 else
@@ -238,11 +252,11 @@ fi
 echo ""
 
 # =============================================================================
-# Step 8: VS Code (optional)
+# Step 9: VS Code (optional)
 # =============================================================================
 
 if [ "$INSTALL_VSCODE" = true ]; then
-    echo "--- Step 8: VS Code ---"
+    echo "--- Step 9: VS Code ---"
     if command -v code &>/dev/null; then
         echo "  [ok] VS Code $(code --version | head -1) already installed"
     else
@@ -263,10 +277,10 @@ else
 fi
 
 # =============================================================================
-# Step 9: Verify the frontend build works
+# Step 10: Verify the frontend build works
 # =============================================================================
 
-echo "--- Step 9: Verify frontend build ---"
+echo "--- Step 10: Verify frontend build ---"
 cd "$FRONTEND_DIR"
 if npm run build 2>&1 | tail -5; then
     echo "  [ok] npm run build succeeded"
