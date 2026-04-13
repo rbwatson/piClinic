@@ -167,7 +167,7 @@ export default function ICD10Autocomplete({
       {isOpen && results.length > 0 && (
         <ul
           role="listbox"
-          className="absolute z-50 mt-1 w-full max-h-60 overflow-auto rounded-md border border-border bg-popover shadow-md"
+          className="absolute z-50 mt-1 w-full max-h-60 overflow-auto rounded-md border border-border bg-white dark:bg-zinc-900 shadow-lg"
         >
           {results.map((code, index) => (
             <li
