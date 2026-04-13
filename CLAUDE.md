@@ -8,53 +8,24 @@ piClinic is a clinic information system designed for resource-constrained enviro
 
 **Current State:**
 - Version: v1.x (production), v2.0 (in development)
-- Status: Active refactoring per phased implementation plan
+- Status: Active refactoring — Phase 3 frontend in progress
 
 **Key Documentation:**
 - Master plan: `v2_refactor/REFACTORING_GUIDE.md`
 - Implementation details: `v2_refactor/IMPLEMENTATION_PRIORITIES.md`
-- Testing strategy: `v2_refactor/thoughts/TESTING_STRATEGY.md`
 
 ## Branch Strategy
-
-The repository uses three long-lived branches:
 
 | Branch | Purpose |
 |--------|---------|
 | `main` | v1.x production code. Not modified while v1 systems are running. |
 | `main_v2` | Stable v2.0 code. Receives merges from phase branches at phase-end Go/No-Go decisions only. |
-| `react-refactor` | Active v2.0 development. Current working branch. |
+| `phase-3-frontend-core` | Current working branch. |
 
-### Phase Branches
-
-Development work is organized into phase branches that correspond to the phases defined in `v2_refactor/IMPLEMENTATION_PRIORITIES.md`:
-
-```
-phase-0-foundation   (complete)
-phase-1-backend
-phase-2-backend-pi
-phase-3-frontend-core
-phase-4-frontend-features
-phase-5-cross-platform
-phase-6-migration
-phase-7-production
-```
-
-Each phase branch:
-- Forks from the previous phase branch
-- Contains all work for that phase
-- Merges into `main_v2` only at the phase-end Go/No-Go decision point
-- Is retained after merging as a historical rollback point
-
-### Merge Policy
-
-- **Phase branch → `main_v2`**: Only at phase-end Go/No-Go. All tests must pass and phase success criteria must be met.
-- **`main_v2` → `main`**: Only for the final v2.0 production release (Phase 7 completion).
-- **`main` is never modified** during v2 development.
+Phase branches fork from the previous phase branch, contain all work for that phase,
+and merge into `main_v2` only at the phase-end Go/No-Go decision point.
 
 ### Current Branch
-
-Check which phase branch you are on before starting any work:
 
 ```bash
 git branch --show-current
@@ -62,492 +33,282 @@ git branch --show-current
 
 ## Critical Constraints
 
-These are non-negotiable requirements that must guide all decisions:
-
 1. **Must run on Raspberry Pi 3B+ (1GB RAM)**
    - Backend memory usage must stay under 700MB
-   - Frontend bundle must be optimized for low-resource browsers
-   - Test on Pi early and often (Phase 2+)
+   - Frontend bundle optimised for low-resource browsers
+   - Test on Pi at Phase 2 and Phase 5 checkpoints
 
 2. **Zero data loss during migration**
-   - Never drop columns or tables (mark as deprecated instead)
+   - Never drop columns or tables
    - All migrations must have rollback scripts
-   - Extensive testing before production deployment
 
 3. **Minimal downtime (< 45 minutes for migration)**
-   - Use blue-green deployment strategy
-   - Automated migration scripts
-   - Quick rollback capability (< 10 minutes)
 
 4. **Backward compatibility during transition**
    - v1.x must continue working until migration
-   - Database changes must be additive only
    - API versioning (/api/v2/)
 
 5. **Platform support**
    - P0: Raspberry Pi 3B+, Ubuntu 20.04+
    - P1: Windows 10+
-   - P2: Raspberry Pi 4
 
 ## Technology Stack
 
 ### Frontend (v2.0)
-- React 18+ with TypeScript
-- Build tool: Vite
+- React 19 with TypeScript
+- Build tool: Vite 8
 - State management: React Query (server state) + Context (UI state)
-- Routing: React Router v6
+- Routing: React Router v7
 - Forms: React Hook Form
-- Validation: Yup
-- i18n: react-i18next
-- HTTP: Axios
+- i18n: react-i18next (EN/ES, persisted to localStorage)
+- HTTP: Axios (in-memory session token, no localStorage)
+- Styling: **Tailwind CSS v4** via `@tailwindcss/vite` plugin
+- Component pattern: shadcn-compatible CSS variable tokens, no external component library
 - Testing: Vitest + React Testing Library + Playwright
-- UI library: TBD (Material-UI, Ant Design, or Tailwind)
 
 ### Backend (v2.0)
-- PHP 8.2+ (keep existing for low memory footprint)
-- Apache web server
-- MySQL/MariaDB
+- PHP 8.4
+- Apache web server with `AllowOverride All`
+- MariaDB 10.11 LTS
 - Architecture: Controller → Service → Repository pattern
-- Testing: PHPUnit + PHPStan (level 8)
+- Testing: PHPUnit 13 + PHPStan (level 8)
 - Documentation: OpenAPI (swagger-php)
-- Dependencies: JWT, Monolog, Respect/Validation, phpdotenv
 
-### Type Safety
-- Backend: OpenAPI annotations on PHP code
-- Generate: `openapi.yaml` from PHP annotations
-- Frontend: TypeScript types auto-generated from OpenAPI spec
-- Result: Shared types between frontend and backend
+### Correct Directory Paths
+- v2 API source: `www_v2/html/api/src/` (Controllers, Services, Repositories, Models)
+- v2 API deployed: `/var/www/html/api/`
+- v2 frontend source: `frontend/`
+- v2 frontend deployed: `/var/www/html/`
+- OpenAPI spec: `www_v2/html/api/docs/openapi.yaml`
+
+## API Response Conventions
+
+- `POST`/create: `{ status: 'success', data: T }` (201)
+- `GET` list: bare array `T[]` (no envelope)
+- `GET` single: bare object `T` (no envelope)
+- `PATCH`/update: bare object `T` (no envelope)
+- Auth header: `X-Session-Token: <token>`
+- Session model fields: `token, username, accessGranted, sessionLanguage, sessionClinicPublicID, expiresOnDate`
+- Session does NOT include `firstName` or `lastName`
+
+## Frontend Build and Deploy
+
+The Pi never runs a build step. Build on the dev machine and deploy the output:
+
+```bash
+cd ~/piClinic/frontend
+npm run build                   # compiles to frontend/dist/
+cp -r dist/* ../www_v2/html/   # copy to deployment tree
+cd ~/piClinic
+bash tools/deploy.sh v2        # copy to /var/www/ and restart Apache
+```
+
+`www_v2/html/.htaccess` rewrites all non-file, non-API requests to `index.html`
+for React Router client-side routing on port 80.
 
 ## Architecture Patterns
 
 ### Backend Structure
 ```
-www/html/api/v2/
-├── index.php           # API router
-├── config/            # Configuration
-├── middleware/        # Auth, CORS, Logger, Validator
-├── controllers/       # HTTP layer, request/response handling
-├── services/          # Business logic
-├── repositories/      # Data access layer
-├── models/            # Data models
-└── docs/              # OpenAPI documentation
-```
-
-**Pattern to follow:**
-```
-Request → Middleware → Controller → Service → Repository → Database
+www_v2/html/api/src/
+├── Controllers/    # HTTP layer, request/response
+├── Services/       # Business logic
+├── Repositories/   # Data access
+├── Models/         # Data models (readonly, toArray(), fromRow())
+├── Middleware/     # Auth, CORS
+└── Config/         # Configuration
 ```
 
 ### Frontend Structure
 ```
 frontend/src/
-├── api/              # API client + auto-generated types
-├── components/       # Reusable components
-│   ├── common/      # Generic (Button, Input, Table)
-│   ├── patients/    # Patient-specific
-│   └── visits/      # Visit-specific
-├── pages/           # Page components (routes)
-├── hooks/           # Custom React hooks
-├── contexts/        # React contexts
-├── types/           # TypeScript types
-├── utils/           # Utilities
-└── App.tsx          # Root component
+├── api/            # API functions + React Query hooks (visits.ts, patients.ts)
+├── components/     # Reusable components (AppShell, ProtectedRoute)
+├── context/        # React contexts (AuthContext)
+├── lib/            # Shared utilities (api.ts, i18n.ts, queryClient.ts, *.utils.ts)
+├── locales/        # i18n JSON files (en.json, es.json)
+├── pages/          # Page components (one per route)
+├── test/           # Test setup (setup.ts)
+└── App.tsx         # Root router
 ```
+
+## Testing Philosophy
+
+### Write tests alongside the code — not after
+
+Every group of pages in Phase 3 ships with tests in the same commit. Tests are
+not a cleanup task; they are part of the definition of done for each group.
+
+### Three layers — use all three
+
+**Layer 1: Unit tests (Vitest)** — pure functions and isolated logic.
+Fast, no browser, no backend. These are the first tests to write because
+they catch the most regressions for the least effort.
+
+Target: every pure utility function (`pipeToLines`, `linesToPipe`,
+`patientDisplayName`, `hasRole`, date formatters, etc.) has unit test coverage
+before the component that uses it is considered complete.
+
+**Layer 2: Component tests (Vitest + React Testing Library)** — component
+behaviour in a simulated browser (jsdom). API calls are mocked via MSW or
+`vi.mock`. These verify: form renders correctly, validation fires on bad input,
+error banners appear, buttons are disabled during loading, role-based UI
+hides/shows correctly.
+
+Target: every page component has tests for its primary render state, its
+error state, and any non-trivial user interaction.
+
+**Layer 3: E2E tests (Playwright)** — full browser, real backend, real
+database. These verify complete user workflows end to end. They are slower
+and require the backend to be running, so they are written after the unit
+and component tests are in place.
+
+Target: one E2E test per major workflow (login, create patient, open visit,
+close visit). These are regression guards for the full stack.
+
+### Extract pure functions for testability
+
+Business logic that lives inside a component cannot be unit-tested without
+rendering the component. When a component contains non-trivial logic (data
+transformation, validation, role checks), extract it into a `*.utils.ts`
+file in `src/lib/` or alongside the module. This makes the logic independently
+testable and documents the intended behaviour.
+
+Example: `src/lib/patientForm.utils.ts` contains `pipeToLines`, `linesToPipe`,
+`patientDisplayName`, and `hasRole` — all extracted from their originating
+components and tested in `patientForm.utils.test.ts`.
+
+### Test file naming and location
+
+- Unit/component tests: co-located with the source file, `.test.ts` or `.test.tsx` suffix
+- Pure utility tests: `src/lib/featureName.utils.test.ts`
+- API module tests: `src/api/moduleName.utils.test.ts`
+- E2E tests: `src/test/e2e/workflowName.spec.ts` (Playwright)
+- Test setup: `src/test/setup.ts`
+
+### Mock strategy
+
+- `react-i18next` is mocked globally in `src/test/setup.ts` — the `t()` function
+  returns the key as the value, making assertions like `getByText('LOGIN_SUBMIT')`
+  readable and stable across language changes
+- `react-router-dom` is NOT globally mocked — wrap components in `<MemoryRouter>`
+  in tests that need routing
+- `AuthContext` is mocked per-test using `vi.spyOn(AuthContext, 'useAuth')`
+- API calls are mocked at the Axios level using `vi.mock('@/lib/api')` or MSW
+  for more complex scenarios
+
+### Running tests
+
+```bash
+cd ~/piClinic/frontend
+npm test                  # run all unit/component tests once
+npm run test:watch        # watch mode during development
+npm run test:coverage     # coverage report
+npm run test:e2e          # Playwright E2E tests (requires backend running)
+```
+
+### Coverage targets
+
+- Unit + component tests: 80%+ of `src/lib/` and `src/pages/`
+- E2E: all P0 user workflows (login, patient CRUD, visit open/close)
 
 ## Coding Standards
 
-### General Rules
-- Write clear, self-documenting code
-- Avoid premature optimization (but always consider Pi constraints)
-- Prefer explicit over implicit
-- No console.log or var_dump in production code
+### General
+- No `console.log` or `var_dump` in production code
 - Use meaningful variable/function names
+- No `any` in TypeScript unless unavoidable
 
 ### PHP Backend
-- Follow PSR-12 coding standard
-- Use type hints for all function parameters and return types
-- Prepare all SQL statements (prevent SQL injection)
-- Add OpenAPI annotations to all endpoints
-- Validate all input data
-- Use dependency injection where appropriate
-- Keep controllers thin (business logic goes in services)
-- Repository pattern for all database access
-
-**Example controller:**
-```php
-class PatientController extends BaseController
-{
-    private PatientService $patientService;
-
-    public function __construct(PatientService $patientService)
-    {
-        $this->patientService = $patientService;
-    }
-
-    /**
-     * @OA\Get(
-     *     path="/api/v2/patients/{id}",
-     *     @OA\Response(response="200", description="Success")
-     * )
-     */
-    public function getById(string $id): JsonResponse
-    {
-        $patient = $this->patientService->getById($id);
-        return $this->json($patient);
-    }
-}
-```
+- PSR-12 coding standard
+- Type hints on all parameters and return types
+- Prepared statements for all SQL
+- OpenAPI annotations on all endpoints
+- Controllers are thin — business logic in Services, data access in Repositories
 
 ### React Frontend
-- Use functional components with hooks (no class components)
-- Prefer custom hooks over component logic duplication
-- Use React Query for all server state management
-- Use Context only for global UI state (auth, language, theme)
-- Colocate tests with components
-- Use TypeScript strictly (no `any` unless absolutely necessary)
-- Prefer composition over prop drilling
-- Keep components small and focused
-- Memoize expensive computations
+- Functional components with hooks only
+- React Query for all server state
+- Context only for global UI state (auth, language)
+- Pure functions extracted to `*.utils.ts` files for testability
+- Tailwind utility classes directly in JSX — no inline `style` props
+- Do NOT use `@apply` inside `@layer base` with CSS-variable-backed utilities
+  (Tailwind v4 limitation) — use direct CSS properties instead
 
-**Example component pattern:**
-```typescript
-// hooks/usePatient.ts
-export function usePatient(id: string) {
-  return useQuery({
-    queryKey: ['patient', id],
-    queryFn: () => patientApi.getById(id)
-  });
-}
+## git Sync Pattern
 
-// components/patients/PatientDetail.tsx
-export function PatientDetail({ id }: Props) {
-  const { data: patient, isLoading, error } = usePatient(id);
+When Claude commits to the repo and you have local changes (npm install,
+composer update, deploy.sh), use:
 
-  if (isLoading) return <Spinner />;
-  if (error) return <ErrorMessage error={error} />;
-
-  return <div>{/* patient details */}</div>;
-}
-```
-
-## Testing Requirements
-
-### Coverage Targets
-- Backend: 80%+ test coverage
-- Frontend: 80%+ test coverage
-- E2E: Critical user flows (15 scenarios)
-
-### Testing Pyramid
-```
-    /E2E\      10% - Critical flows
-   /------\
-  /  Integ \ 20% - API + DB integration
- /----------\
-/    Unit    \ 70% - Components, Services, Utils
-```
-
-### What to Test
-
-**Backend:**
-- All service layer business logic (unit tests)
-- All repository data access (integration tests)
-- All API endpoints (integration tests)
-- Authentication/authorization flows
-- Validation logic
-- Error handling
-
-**Frontend:**
-- Component rendering and interactions
-- Custom hooks with React Query
-- Form validation and submission
-- Error states and loading states
-- Accessibility (keyboard navigation, ARIA)
-
-**E2E:**
-- Complete login flow
-- Create/edit patient workflow
-- Open/edit/close visit workflow
-- Generate reports workflow
-- Admin functions workflow
-
-### Testing Commands
 ```bash
-# Backend
-composer test                    # Run PHPUnit tests
-vendor/bin/phpstan analyse      # Static analysis
-
-# Frontend
-npm test                        # Run Vitest tests
-npm run test:e2e               # Run Playwright E2E tests
-npm run test:coverage          # Coverage report
+git stash
+git pull
+git stash pop
+npm install    # regenerate package-lock.json if package.json changed
 ```
 
-## Database Guidelines
+Commit updated lock files from the VM after any install or update.
 
-### Migration Rules (Critical)
-1. **Never drop columns** - Mark as deprecated, add comment
-2. **Never drop tables** - Rename with `_deprecated` suffix
-3. **Always add with DEFAULT values** - Avoid breaking v1.x
-4. **Create indexes without locking** - Use ALGORITHM=INPLACE
-5. **Update views to maintain compatibility**
-6. **Every migration must have rollback script**
+## Tailwind v4 Notes
 
-### Migration Template
-```sql
--- Migration: 001_add_audit_columns.sql
-ALTER TABLE patient
-  ADD COLUMN createdBy VARCHAR(20) NULL DEFAULT NULL,
-  ADD COLUMN modifiedBy VARCHAR(20) NULL DEFAULT NULL;
-
--- Rollback: 001_add_audit_columns_rollback.sql
-ALTER TABLE patient
-  DROP COLUMN createdBy,
-  DROP COLUMN modifiedBy;
-```
-
-## Phase-Aware Development
-
-Check current phase in `v2_refactor/IMPLEMENTATION_PRIORITIES.md` before starting work.
-
-### Phase 0: Foundation (Weeks 1-2)
-- Development environment setup on Ubuntu
-- Testing infrastructure
-- Version tracking in v1.x
-
-### Phase 1: Backend on Ubuntu (Weeks 3-10)
-- Develop on Ubuntu for fast iteration
-- **Do not test on Pi yet** - that's Phase 2
-- Focus: API structure, auth, patient/visit APIs, tests
-- Deliverable: Complete backend with 80%+ test coverage
-
-### Phase 2: Backend on Pi (Weeks 11-12)
-- **Now test on actual Raspberry Pi 3B+**
-- Validate performance under constraints
-- Memory usage must be < 700MB
-- Response times < 500ms for simple queries
-- Go/No-Go decision based on Pi performance
-
-### Phase 3: Frontend Core (Weeks 13-19)
-- Develop on desktop browsers for fast iteration
-- **Do not test on Pi browsers yet** - that's Phase 5
-- Focus: Auth, patient management, visit management
-- Use auto-generated TypeScript types from backend
-
-### Phase 4: Frontend Features (Weeks 20-22)
-- Reports, admin functions, full localization (EN/ES)
-- Feature parity with v1.x
-
-### Phase 5: Cross-Platform Testing (Weeks 23-25)
-- **Now test on Pi browsers** (Chromium on Pi 3B+)
-- Test on all desktop browsers
-- Mobile responsive testing
-- Optimize if performance issues found
-
-### Phase 6: Migration Tools (Weeks 26-28)
-- Automated migration scripts
-- Blue-green deployment tooling
-- Rollback procedures
-- Test migration on staging
-
-### Phase 7: Production Readiness (Weeks 29-30)
-- Security audit (PHPStan level 8)
-- Performance optimization
-- User acceptance testing
-- Final documentation
-
-## Common Pitfalls to Avoid
-
-1. **Don't develop on Pi during early phases**
-   - Use Ubuntu for fast iteration (Phases 1, 3, 4)
-   - Validate on Pi at designated checkpoints (Phases 2, 5)
-
-2. **Don't ignore bundle size**
-   - Monitor frontend bundle size continuously
-   - Code splitting and lazy loading are essential for Pi
-   - Target: < 1MB initial bundle
-
-3. **Don't mix business logic in controllers**
-   - Controllers = HTTP layer only
-   - Business logic = Services
-   - Data access = Repositories
-
-4. **Don't use untyped data between frontend/backend**
-   - Always regenerate TypeScript types after API changes
-   - Command: `npx openapi-typescript openapi.yaml --output src/api/types.ts`
-
-5. **Don't skip testing**
-   - Write tests as you go, not at the end
-   - 80% coverage is required, not optional
-
-6. **Don't make breaking database changes**
-   - Always additive migrations
-   - v1.x must continue working during transition
-
-7. **Don't optimize prematurely**
-   - But always keep Pi constraints in mind
-   - Profile before optimizing
-
-8. **Don't forget accessibility**
-   - Keyboard navigation must work
-   - Screen reader compatible
-   - WCAG 2.1 AA compliance
+- Use `@tailwindcss/vite` plugin (not postcss)
+- Token pattern: CSS variables in `src/globals.css`, referenced in `tailwind.config.ts`
+  as `hsl(var(--token))`
+- Do NOT use `@apply` inside `@layer base` for CSS-variable-backed utilities
 
 ## Quick Commands Reference
 
-### Environment Verification
+### Backend
 ```bash
-# Verify the development environment
-cd ~/piClinic/tools
-python3 checkEnvironment.py
+cd ~/piClinic/www_v2/html/api
+composer test                         # PHPUnit
+composer analyse                      # PHPStan level 8
 ```
 
-### Backend Development
+### Frontend
 ```bash
-# Start development server
-php -S localhost:8000 -t www/html
+cd ~/piClinic/frontend
+npm run dev                           # dev server (port 5173, proxies /api to :80)
+npm run build                         # production build to dist/
+npm test                              # Vitest unit/component tests
+npm run test:watch                    # watch mode
+npm run test:coverage                 # coverage report
+npm run test:e2e                      # Playwright E2E
 
-# Run tests
-composer test
-vendor/bin/phpstan analyse --level 8
-
-# Generate OpenAPI spec
-vendor/bin/openapi api/v2 -o openapi.yaml
-
-# Database migrations (when ready)
-mysql -u CTS-user -p piclinic < sql/migrations/001_migration.sql
+# Generate TypeScript types from OpenAPI spec
+npx openapi-typescript \
+  ~/piClinic/www_v2/html/api/docs/openapi.yaml \
+  --output src/api/types.ts
 ```
 
-### Frontend Development
+### Deploy
 ```bash
-# Install dependencies
-npm install
-
-# Start dev server
-npm run dev
-
-# Build for production
-npm run build
-
-# Run tests
-npm test
-npm run test:coverage
-npm run test:e2e
-
-# Generate types from backend
-npx openapi-typescript ../www/html/api/v2/docs/openapi.yaml --output src/api/types.ts
-
-# Type check
-npm run type-check
-
-# Lint
-npm run lint
-```
-
-### Deployment
-```bash
-# Deploy to staging
-bash tools/deploy-staging.sh
-
-# Run migration (when ready)
-bash tools/full-migration.sh
-
-# Rollback if needed
-bash tools/rollback-migration.sh
+cd ~/piClinic/frontend && npm run build
+cp -r dist/* ../www_v2/html/
+cd ~/piClinic && bash tools/deploy.sh v2
 ```
 
 ## Performance Targets
 
-### Raspberry Pi 3B+ Requirements
-- Total memory usage: < 700MB (leaves 300MB for OS)
-- API response time: < 500ms (simple queries)
-- Dashboard load time: < 3s
-- Support 10 concurrent users minimum
-- 24-hour stability without crashes
+### Raspberry Pi 3B+
+- Total memory: < 700MB
+- API response: < 500ms (simple queries)
+- Dashboard load: < 3s
 
-### Ubuntu Development
-- API response time: < 200ms (simple queries)
-- Dashboard load time: < 2s
-- Support 20+ concurrent users
-
-## Security Checklist
-
-Before any production deployment:
-- [ ] PHPStan level 8 passes with no errors
-- [ ] All SQL uses prepared statements
-- [ ] All input is validated
-- [ ] CSRF protection enabled
-- [ ] XSS prevention in place
-- [ ] Authentication properly secured
-- [ ] No secrets in code (use .env)
-- [ ] HTTPS enforced in production
-- [ ] Proper CORS configuration
-
-## File Naming Conventions
-
-### Backend
-- Controllers: `PascalCase` + `Controller` suffix (e.g., `PatientController.php`)
-- Services: `PascalCase` + `Service` suffix (e.g., `PatientService.php`)
-- Repositories: `PascalCase` + `Repository` suffix (e.g., `PatientRepository.php`)
-- Models: `PascalCase` (e.g., `Patient.php`)
-- Tests: Same as source with `Test` suffix (e.g., `PatientServiceTest.php`)
-
-### Frontend
-- Components: `PascalCase` (e.g., `PatientForm.tsx`)
-- Hooks: `camelCase` with `use` prefix (e.g., `usePatient.ts`)
-- Utils: `camelCase` (e.g., `formatDate.ts`)
-- Types: `PascalCase` (e.g., `Patient.ts`)
-- Tests: Same as source with `.test` suffix (e.g., `PatientForm.test.tsx`)
+### Ubuntu VM
+- API response: < 200ms
+- Dashboard load: < 2s
 
 ## Before Starting Any Task
 
-1. **Check your branch** - Run `git branch --show-current` and confirm you are on the correct phase branch
-2. **Read the phase documentation** - Understand current phase requirements
-3. **Check existing code** - Look for similar patterns to follow
-4. **Consider Pi constraints** - Will this work on low-resource hardware?
-5. **Plan for testing** - How will you test this?
-6. **Think about types** - Ensure type safety between frontend/backend
-7. **If the task is ambiguous**, ask one clarifying question before writing any code.
-8. **Review security** - Any injection vulnerabilities?
-
-## When Asking Questions
-
-Prefer to:
-1. Check `v2_refactor/REFACTORING_GUIDE.md` first
-2. Check `v2_refactor/IMPLEMENTATION_PRIORITIES.md` for phase details
-3. Look at existing code for patterns
-4. Refer to this CLAUDE.md for standards
-
-## Success Criteria for v2.0
-
-**Functionality:**
-- 100% feature parity with v1.x
-- Bilingual (English/Spanish) support
-
-**Quality:**
-- 80%+ test coverage (backend + frontend)
-- No critical bugs
-- PHPStan level 8 passes
-- WCAG 2.1 AA accessible
-
-**Performance:**
-- Works on Raspberry Pi 3B+ with < 700MB memory
-- Dashboard < 3s on Pi, < 2s on Ubuntu
-- API < 500ms on Pi, < 200ms on Ubuntu
-
-**Compatibility:**
-- Raspberry Pi 3B+ ✓
-- Ubuntu 20.04+ ✓
-- Windows 10+ ✓
-- Chrome, Firefox, Edge ✓
-- Mobile responsive ✓
-
-**Deployment:**
-- Migration from v1.x < 45 minutes
-- Rollback capability < 10 minutes
-- Zero data loss
+1. Check your branch: `git branch --show-current`
+2. Check existing code for patterns to follow
+3. Consider Pi memory and bundle size constraints
+4. Plan tests before writing the implementation
+5. If the task is ambiguous, ask one clarifying question before writing code
 
 ---
 
-**Document Version:** 1.1
+**Document Version:** 2.0
 **Created:** 2026-03-22
-**Last Updated:** 2026-04-03
+**Last Updated:** 2026-04-13
