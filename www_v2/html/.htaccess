@@ -1,0 +1,24 @@
+# www_v2/html/.htaccess
+#
+# Apache rewrite rules for the piClinic v2 React SPA.
+#
+# All requests that are not real files or directories and do not
+# start with /api are rewritten to index.html so that React Router
+# can handle client-side navigation.
+#
+# The /api path is excluded so that PHP API requests pass through
+# to the api/ directory unmodified.
+
+Options -Indexes
+RewriteEngine On
+
+# If the request is for an actual file or directory, serve it directly
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# Pass /api requests through to the PHP backend unchanged
+RewriteRule ^api/ - [L]
+
+# All other requests go to index.html for React Router
+RewriteRule ^ index.html [L]
