@@ -71,13 +71,13 @@ describe('VisitEditPage', () => {
     vi.restoreAllMocks()
     vi.spyOn(staffApi, 'useActiveStaff').mockReturnValue({
       data: [], isLoading: false, isError: false,
-    } as ReturnType<typeof staffApi.useActiveStaff>)
+    } as unknown as ReturnType<typeof staffApi.useActiveStaff>)
   })
 
   it('shows loading state while visit is fetching', () => {
     vi.spyOn(visitsApi, 'useVisit').mockReturnValue({
       data: undefined, isLoading: true, isError: false,
-    } as ReturnType<typeof visitsApi.useVisit>)
+    } as unknown as ReturnType<typeof visitsApi.useVisit>)
     renderEditPage()
     expect(screen.getByText('LOADING')).toBeInTheDocument()
   })
@@ -85,7 +85,7 @@ describe('VisitEditPage', () => {
   it('shows error when visit is not found', () => {
     vi.spyOn(visitsApi, 'useVisit').mockReturnValue({
       data: undefined, isLoading: false, isError: true,
-    } as ReturnType<typeof visitsApi.useVisit>)
+    } as unknown as ReturnType<typeof visitsApi.useVisit>)
     renderEditPage()
     expect(screen.getByText('ERROR_NOT_FOUND')).toBeInTheDocument()
   })
@@ -93,7 +93,7 @@ describe('VisitEditPage', () => {
   it('shows patient name and ID in the visit summary', async () => {
     vi.spyOn(visitsApi, 'useVisit').mockReturnValue({
       data: MOCK_VISIT, isLoading: false, isError: false,
-    } as ReturnType<typeof visitsApi.useVisit>)
+    } as unknown as ReturnType<typeof visitsApi.useVisit>)
     renderEditPage()
     await waitFor(() => {
       expect(screen.getByText(/Yamel/)).toBeInTheDocument()
@@ -104,7 +104,7 @@ describe('VisitEditPage', () => {
   it('renders the edit form title', async () => {
     vi.spyOn(visitsApi, 'useVisit').mockReturnValue({
       data: MOCK_VISIT, isLoading: false, isError: false,
-    } as ReturnType<typeof visitsApi.useVisit>)
+    } as unknown as ReturnType<typeof visitsApi.useVisit>)
     renderEditPage()
     await waitFor(() => {
       expect(screen.getByText('VISIT_EDIT_TITLE')).toBeInTheDocument()
