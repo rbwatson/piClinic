@@ -15,12 +15,23 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      // Proxy API calls to the PHP backend during development.
-      // Change the target to match your local piClinic install.
       '/api': {
         target: 'http://localhost:80',
         changeOrigin: true,
       },
+    },
+  },
+  test: {
+    // Use jsdom to simulate a browser environment
+    environment: 'jsdom',
+    // Run the setup file before each test suite
+    setupFiles: ['./src/test/setup.ts'],
+    // Allow test files anywhere under src/ using either naming convention
+    include: ['src/**/*.test.{ts,tsx}', 'src/**/*.spec.{ts,tsx}'],
+    globals: true,
+    // Resolve the same @ alias inside tests
+    alias: {
+      '@': path.resolve(__dirname, './src'),
     },
   },
 })
