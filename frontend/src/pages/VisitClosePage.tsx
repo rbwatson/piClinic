@@ -55,17 +55,6 @@ const selectClass =
   'w-full rounded-md border border-input bg-background px-3 py-2 text-sm ' +
   'text-foreground focus:outline-none focus:ring-2 focus:ring-ring'
 
-function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
-  return (
-    <div className="flex gap-2 py-1.5 border-b border-border last:border-0">
-      <span className="w-36 flex-shrink-0 text-xs font-medium text-muted-foreground">
-        {label}
-      </span>
-      <span className="text-sm text-foreground">{value || '—'}</span>
-    </div>
-  )
-}
-
 function SectionHeader({ title }: { title: string }) {
   return (
     <h2 className="text-sm font-semibold text-foreground mt-6 mb-3 pb-1 border-b border-border">

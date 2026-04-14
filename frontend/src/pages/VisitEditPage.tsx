@@ -18,9 +18,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useVisit, updateVisit } from '@/api/visits'
-import { useMedicalStaff, staffDisplayName } from '@/api/staff'
-import ICD10Autocomplete from '@/components/ICD10Autocomplete'
-import VitalsSection from '@/components/VitalsSection'
+
 
 // ---------------------------------------------------------------------------
 // Form values — same shape as VisitOpenPage
@@ -53,25 +51,6 @@ interface VisitEditFormValues {
   referredTo:   string
 }
 
-const VISIT_TYPES = ['Outpatient', 'Emergency', 'Specialist'] as const
-
-const inputClass =
-  'w-full rounded-md border border-input bg-background px-3 py-2 text-sm ' +
-  'text-foreground placeholder:text-muted-foreground focus:outline-none ' +
-  'focus:ring-2 focus:ring-ring disabled:opacity-50'
-
-const selectClass =
-  'w-full rounded-md border border-input bg-background px-3 py-2 text-sm ' +
-  'text-foreground focus:outline-none focus:ring-2 focus:ring-ring'
-
-function SectionHeader({ title }: { title: string }) {
-  return (
-    <h2 className="text-sm font-semibold text-foreground mt-6 mb-3 pb-1 border-b border-border">
-      {title}
-    </h2>
-  )
-}
-
 // ---------------------------------------------------------------------------
 // Page
 // ---------------------------------------------------------------------------
@@ -81,15 +60,9 @@ export default function VisitEditPage() {
   const { id }       = useParams<{ id: string }>()
   const navigate     = useNavigate()
   const queryClient  = useQueryClient()
-  const lang = (i18n.language === 'es' ? 'es' : 'en') as 'en' | 'es'
-
   const patientVisitID = id ?? ''
 
   const { data: visit, isLoading } = useVisit(patientVisitID)
-  const { data: staffList = [] }   = useMedicalStaff()
-
-  const { register, handleSubmit, reset, setValue, setError,
-          formState: { errors } } = useForm<VisitEditFormValues>()
 
   // Pre-populate form when visit loads
   useEffect(() => {

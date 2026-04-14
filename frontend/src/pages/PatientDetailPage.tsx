@@ -49,7 +49,6 @@ function SectionHeading({ title }: { title: string }) {
 }
 
 function VisitRow({ visit }: { visit: Visit }) {
-  const { t } = useTranslation()
   const date = visit.dateTimeIn
     ? new Date(visit.dateTimeIn).toLocaleDateString()
     : '—'
