@@ -30,6 +30,7 @@ import { patientDisplayName } from '@/lib/patientForm.utils'
 import ICD10Autocomplete from '@/components/ICD10Autocomplete'
 import type { Visit } from '@/api/visits'
 import VitalsSection from '@/components/VitalsSection'
+import PageActions from '@/components/PageActions'
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -196,20 +197,46 @@ export default function VisitOpenPage() {
   const isBusy = mutation.isPending
 
   return (
-    <div className="max-w-2xl">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-xl font-semibold text-foreground">
-          {t('VISIT_OPEN_TITLE')}
-        </h1>
-        <Link
-          to={patientParam ? `/patients/${patientParam}` : '/patients'}
-          className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-        >
+<div>
+      {/* PageActions */}
+      <PageActions>
+        <PageActions.Link to={patientParam ? `/patients/${patientParam}` : '/patients'}>
           {t('VISIT_CANCEL')}
-        </Link>
-      </div>
+        </PageActions.Link>
+      </PageActions>
 
+      {/* nameBlock */}
+      <div className="flex flex-col sm:flex-row sm:items-start sm:gap-8 mb-4">
+        <div className="flex-1">
+          {patientLoading ? (
+            <p className="text-sm text-muted-foreground">{t('LOADING')}</p>
+          ) : patient ? (
+            <>
+              <h1 className="text-xl font-medium text-foreground leading-tight">
+                {patientDisplayName(patient)}
+                <span className="text-sm font-normal text-muted-foreground ml-2">
+                  ({patient.sex})
+                </span>
+              </h1>
+              <p className="text-sm text-muted-foreground mt-0.5">
+                {patient.birthDate}&nbsp;&nbsp;
+                <Link to={`/patients/${patientParam}`} className="text-primary hover:underline">
+                  {patient.clinicPatientID}
+                </Link>
+              </p>
+            </>
+          ) : (
+            <p className="text-sm text-destructive">{t('PATIENT_NOT_FOUND')}</p>
+          )}
+        </div>
+        <div className="mt-1 sm:mt-0 sm:text-right flex-shrink-0">
+          <p className="text-sm text-foreground">
+            <span className="font-semibold text-xs">{t('VISIT_DATE_LABEL')}:</span>{' '}
+            {new Date().toLocaleDateString()}
+          </p>
+        </div>
+      </div>
+      
       {/* Patient summary */}
       {patientParam && (
         <div className="mb-5 rounded-lg bg-muted/50 border border-border px-4 py-3 text-sm">
@@ -360,12 +387,6 @@ export default function VisitOpenPage() {
           >
             {isBusy ? t('LOADING') : t('VISIT_OPEN_ACTION')}
           </button>
-          <Link
-            to={patientParam ? `/patients/${patientParam}` : '/patients'}
-            className="rounded-md border border-border px-5 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            {t('VISIT_CANCEL')}
-          </Link>
         </div>
 
       </form>

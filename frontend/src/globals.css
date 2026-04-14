@@ -2,14 +2,14 @@
  * globals.css
  * CSS custom properties for the piClinic v2 React SPA.
  *
- * Colors are derived from the v1 piClinic stylesheet (piClinic.css):
+ * Colors derived from the v1 piClinic stylesheet (piClinic.css):
  *   Brand blue:  #558ED5  -> hsl(213 60% 58%)
  *   White:       #FFFFFF  -> hsl(0 0% 100%)
- *   Light gray:  #EEEEEE  -> hsl(0 0% 93%)   backgrounds, muted
- *   Border gray: #CCCCCC  -> hsl(0 0% 80%)   borders, dividers
- *   Error red:   #FF0000  -> hsl(0 100% 50%) destructive actions
- *   Inactive:    #AAAAAA  -> hsl(0 0% 67%)   muted text
- *   Dark text:   #111111  -> hsl(0 0% 7%)    foreground
+ *   Light gray:  #EEEEEE  -> hsl(0 0% 93%)
+ *   Border gray: #CCCCCC  -> hsl(0 0% 80%)
+ *   Error red:   #CC0000  -> hsl(0 84% 40%)
+ *   Inactive:    #AAAAAA  -> hsl(0 0% 67%)
+ *   Dark text:   #111111  -> hsl(0 0% 7%)
  *
  * No dark mode — v1 had none; v2 follows the same approach.
  *
@@ -53,8 +53,8 @@
     --secondary:          0 0% 93%;
     --secondary-foreground: 0 0% 7%;
 
-    /* Destructive — red for errors and delete actions */
-    --destructive:        0 84% 45%;
+    /* Destructive — red for errors and warnings */
+    --destructive:        0 84% 40%;
     --destructive-foreground: 0 0% 100%;
 
     /* Accent — same as primary */
@@ -104,7 +104,7 @@
     text-decoration: underline;
   }
 
-  /* Inactive / not-specified values shown in italic gray — matches v1 pattern */
+  /* Inactive / not-specified values shown in italic gray — matches v1 */
   .text-inactive {
     color: hsl(var(--muted-foreground));
     font-style: italic;

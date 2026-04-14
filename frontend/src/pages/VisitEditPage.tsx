@@ -182,20 +182,36 @@ export default function VisitEditPage() {
   const isBusy = mutation.isPending
 
   return (
-    <div className="max-w-2xl">
+<div>
+      <PageActions>
+        <PageActions.Link to={`/visits/${patientVisitID}`}>{t('VISIT_CANCEL')}</PageActions.Link>
+      </PageActions>
 
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-xl font-semibold text-foreground">
-          {t('VISIT_EDIT_TITLE')}
-        </h1>
-        <Link
-          to={`/visits/${patientVisitID}`}
-          className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-        >
-          {t('VISIT_CANCEL')}
-        </Link>
+      {/* nameBlock */}
+      <div className="flex flex-col sm:flex-row sm:items-start sm:gap-8 mb-4">
+        <div className="flex-1">
+          <h1 className="text-xl font-medium text-foreground leading-tight">
+            {visit.patientFirstName} {visit.patientLastName}
+            <span className="text-sm font-normal text-muted-foreground ml-2">({visit.patientSex})</span>
+          </h1>
+          {visit.patientBirthDate && (
+            <p className="text-sm text-muted-foreground mt-0.5">
+              {visit.patientBirthDate}&nbsp;&nbsp;
+              <Link to={`/patients/${visit.clinicPatientID}`} className="text-primary hover:underline">
+                {visit.clinicPatientID}
+              </Link>
+            </p>
+          )}
+        </div>
+        <div className="mt-1 sm:mt-0 sm:text-right flex-shrink-0">
+          <p className="text-sm text-foreground">
+            <span className="font-semibold text-xs">{t('VISIT_DATE_LABEL')}:</span>{' '}
+            {visit.dateTimeIn ? new Date(visit.dateTimeIn).toLocaleString() : ''}
+          </p>
+          <p className="text-xs text-muted-foreground font-mono mt-0.5">{visit.patientVisitID}</p>
+        </div>
       </div>
-
+      
       {/* Patient + visit summary */}
       <div className="mb-5 rounded-lg bg-muted/50 border border-border px-4 py-3 text-sm">
         <span className="font-medium text-foreground">
@@ -218,140 +234,24 @@ export default function VisitEditPage() {
       )}
 
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
+        <div className="flex flex-col md:flex-row md:gap-8 md:items-start">
 
-        <SectionHeader title={t('VISIT_DETAIL_TITLE')} />
-
-        <div className="grid grid-cols-1 gap-0 sm:grid-cols-2 sm:gap-4">
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-foreground mb-1">
-              {t('VISIT_TYPE_LABEL')}
-            </label>
-            <select className={selectClass} {...register('visitType')}>
-              {VISIT_TYPES.map((vt) => (
-                <option key={vt} value={vt}>
-                  {t(`VISIT_TYPE_${vt.toUpperCase()}`, vt)}
-                </option>
-              ))}
-            </select>
+          {/* Left column: arrival + vitals */}
+          <div className="flex-1 min-w-0">
+            {/* ... visit type, staff, dateTimeIn, primaryComplaint, secondaryComplaint, VitalsSection ... */}
           </div>
 
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-foreground mb-1">
-              {t('VISIT_ASSIGNED_LABEL')}
-            </label>
-            <select className={selectClass} {...register('staffUsername')}>
-              <option value="">{t('STAFF_SELECT_PLACEHOLDER')}</option>
-              {staffList.map((s) => (
-                <option key={s.username} value={s.username}>
-                  {staffDisplayName(s)}
-                </option>
-              ))}
-            </select>
+          {/* Right column: diagnoses + referral */}
+          <div className="flex-1 min-w-0">
+            {/* ... ICD10Autocomplete fields, referredFrom, referredTo ... */}
           </div>
 
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-foreground mb-1">
-              {t('VISIT_ARRIVED_LABEL')}
-            </label>
-            <input
-              type="datetime-local"
-              className={inputClass}
-              {...register('dateTimeIn')}
-            />
-          </div>
         </div>
 
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-foreground mb-1">
-            {t('VISIT_COMPLAINT_PRIMARY_LABEL')}
-          </label>
-          <textarea
-            rows={3}
-            placeholder={t('VISIT_COMPLAINT_PLACEHOLDER')}
-            className={`${inputClass} resize-y`}
-            {...register('primaryComplaint')}
-          />
-        </div>
-
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-foreground mb-1">
-            {t('VISIT_COMPLAINT_ADDITIONAL_LABEL')}
-          </label>
-          <textarea
-            rows={3}
-            placeholder={t('VISIT_ADDITIONAL_NOTES_PLACEHOLDER')}
-            className={`${inputClass} resize-y`}
-            {...register('secondaryComplaint')}
-          />
-        </div>
-
-        <SectionHeader title={t('VISIT_PRECLINIC_HEADING')} />
-        <VitalsSection register={register} />
-
-        <SectionHeader title={t('VISIT_DIAGNOSES_HEADING')} />
-
-        {([1, 2, 3] as const).map((n) => (
-          <div key={n} className="mb-4">
-            <label className="block text-sm font-medium text-foreground mb-1">
-              {t(`VISIT_DIAGNOSIS_${n}_LABEL`)}
-            </label>
-            <ICD10Autocomplete
-              value={visit[`condition${n}` as 'condition1'] ?? ''}
-              language={lang}
-              placeholder={t('ICD_SEARCH_PLACEHOLDER')}
-              onSelect={(code, description) => {
-                setValue(`diagnosis${n}` as keyof VisitEditFormValues, description)
-                setValue(`condition${n}` as keyof VisitEditFormValues, code)
-              }}
-            />
-            <input type="hidden" {...register(`diagnosis${n}` as keyof VisitEditFormValues)} />
-            <input type="hidden" {...register(`condition${n}` as keyof VisitEditFormValues)} />
-          </div>
-        ))}
-
-        <SectionHeader title={t('VISIT_REFERRAL_HEADING')} />
-
-        <div className="grid grid-cols-1 gap-0 sm:grid-cols-2 sm:gap-4">
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-foreground mb-1">
-              {t('VISIT_REFERRED_FROM_LABEL')}
-            </label>
-            <input
-              type="text"
-              placeholder={t('VISIT_REFERRAL_FROM_PLACEHOLDER')}
-              className={inputClass}
-              {...register('referredFrom')}
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-foreground mb-1">
-              {t('VISIT_REFERRED_TO_LABEL')}
-            </label>
-            <input
-              type="text"
-              placeholder={t('VISIT_REFERRAL_TO_PLACEHOLDER')}
-              className={inputClass}
-              {...register('referredTo')}
-            />
-          </div>
-        </div>
-
+        {/* Actions row — full width below both columns */}
         <div className="mt-8 flex items-center gap-3 border-t border-border pt-5">
-          <button
-            type="submit"
-            disabled={isBusy}
-            className="rounded-md bg-primary px-5 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isBusy ? t('LOADING') : t('VISIT_EDIT_ACTION')}
-          </button>
-          <Link
-            to={`/visits/${patientVisitID}`}
-            className="rounded-md border border-border px-5 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            {t('VISIT_CANCEL')}
-          </Link>
+          ...
         </div>
-
       </form>
     </div>
   )

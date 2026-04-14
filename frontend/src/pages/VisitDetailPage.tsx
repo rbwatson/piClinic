@@ -1,76 +1,54 @@
 /**
  * VisitDetailPage.tsx
  *
- * Read-only display of a single visit record. Matches v1 visitInfo.php.
- * Route: /visits/:id
+ * Read-only visit display. Matches v1 visitInfo.php.
  *
- * Reached from:
- *   - Dashboard action links (View)
- *   - PatientDetailPage visit history table
- *   - VisitEditPage on successful save
- *
- * Actions (Open visits only): Edit, Discharge
- * Always available: Back to patient
+ * Layout:
+ *   - PageActions strip: patient search + actions
+ *   - nameBlock: patient name (h1) + DOB + patient ID link | visit date + visit ID
+ *   - optionMenu: Discharge | Print | Edit (conditional on Open status)
+ *   - Status badge (gray bg box like v1 .currentVisitList)
+ *   - Two-column responsive layout at md:
+ *       Left:  Arrival info + Pre-Clinic vitals
+ *       Right: Additional notes + Discharge/Diagnosis section
  */
 
 import { Link, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useVisit } from '@/api/visits'
-
-// ---------------------------------------------------------------------------
-// Sub-components
-// ---------------------------------------------------------------------------
+import PageActions from '@/components/PageActions'
 
 function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
-  if (!value && value !== 0) return null
   return (
-    <div className="flex gap-2 py-1.5 border-b border-border last:border-0">
-      <span className="w-40 flex-shrink-0 text-xs font-medium text-muted-foreground">
-        {label}
+    <div className="flex gap-2 py-0.5">
+      <span className="w-40 flex-shrink-0 text-xs font-semibold text-foreground">{label}:</span>
+      <span className="text-sm text-foreground">
+        {value ?? <span className="italic text-muted-foreground">—</span>}
       </span>
-      <span className="text-sm text-foreground">{value}</span>
     </div>
   )
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function SectionHeading({ title, extra }: { title: string; extra?: React.ReactNode }) {
   return (
-    <div className="bg-card border border-border rounded-lg p-5 mb-4">
-      <h2 className="text-sm font-semibold text-foreground mb-3">{title}</h2>
-      {children}
-    </div>
+    <h2 className="text-base font-medium text-foreground mt-4 mb-2 flex items-baseline gap-3">
+      {title}
+      {extra && <span className="text-xs font-normal">{extra}</span>}
+    </h2>
   )
 }
-
-function VitalValue({
-  value,
-  units,
-}: {
-  value: number | null
-  units: string | null
-}) {
-  if (value == null) return null
-  return <>{value}{units ? ` ${units}` : ''}</>
-}
-
-// ---------------------------------------------------------------------------
-// Page
-// ---------------------------------------------------------------------------
 
 export default function VisitDetailPage() {
-  const { t }  = useTranslation()
+  const { t } = useTranslation()
   const { id } = useParams<{ id: string }>()
 
   const patientVisitID = id ?? ''
   const { data: visit, isLoading, isError } = useVisit(patientVisitID)
 
-  if (isLoading) {
-    return <p className="text-sm text-muted-foreground">{t('LOADING')}</p>
-  }
-
+  if (isLoading) return <p className="text-sm text-muted-foreground">{t('LOADING')}</p>
   if (isError || !visit) {
     return (
-      <div className="rounded-md bg-destructive/10 border border-destructive/30 px-4 py-3 text-sm text-destructive">
+      <div className="rounded bg-destructive/10 border border-destructive/30 px-4 py-3 text-sm text-destructive">
         {t('ERROR_NOT_FOUND')}
       </div>
     )
@@ -79,185 +57,154 @@ export default function VisitDetailPage() {
   const isOpen = visit.visitStatus === 'Open'
 
   const hasVitals =
-    visit.height      != null || visit.weight    != null ||
-    visit.temp        != null || visit.bpSystolic != null ||
-    visit.pulse       != null || visit.glucose   != null
+    visit.height != null || visit.weight != null || visit.temp != null ||
+    visit.bpSystolic != null || visit.pulse != null || visit.glucose != null
 
-  const hasDiagnoses =
-    visit.diagnosis1 || visit.diagnosis2 || visit.diagnosis3
-
-  const hasReferral = visit.referredFrom || visit.referredTo
+  const hasDiagnoses = visit.diagnosis1 || visit.diagnosis2 || visit.diagnosis3
 
   return (
-    <div className="max-w-3xl">
+    <div>
+      {/* PageActions */}
+      <PageActions>
+        <PageActions.Link to="/patients">{t('PATIENT_FIND_ANOTHER')}</PageActions.Link>
+        {isOpen && (
+          <>
+            <PageActions.Link to={`/visits/${patientVisitID}/close`}>{t('VISIT_CLOSE_ACTION')}</PageActions.Link>
+            <PageActions.Link to={`/visits/${patientVisitID}/edit`}>{t('VISIT_EDIT_ACTION')}</PageActions.Link>
+          </>
+        )}
+      </PageActions>
 
-      {/* Header */}
-      <div className="flex items-center justify-between mb-5 gap-4 flex-wrap">
-        <div className="flex items-center gap-2 text-sm">
-          <Link
-            to={`/patients/${visit.clinicPatientID}`}
-            className="text-muted-foreground hover:text-foreground transition-colors"
-          >
+      {/* nameBlock — patient name + DOB + ID on left, visit date + ID on right */}
+      <div className="flex flex-col sm:flex-row sm:items-start sm:gap-8 mb-3">
+        <div className="flex-1">
+          <h1 className="text-xl font-medium text-foreground leading-tight">
             {visit.patientFirstName} {visit.patientLastName}
-          </Link>
-          <span className="text-border">/</span>
-          <span className="text-foreground font-medium">
-            {visit.dateTimeIn
-              ? new Date(visit.dateTimeIn).toLocaleDateString()
-              : t('VISIT_DATE_LABEL')}
-          </span>
-        </div>
-
-        <div className="flex items-center gap-2">
-          {/* Status badge */}
-          <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${
-            isOpen
-              ? 'bg-primary/10 text-primary'
-              : 'bg-muted text-muted-foreground'
-          }`}>
-            {isOpen ? t('VISIT_STATUS_OPEN') : t('VISIT_STATUS_CLOSED')}
-          </span>
-
-          {isOpen && (
-            <>
-              <Link
-                to={`/visits/${patientVisitID}/edit`}
-                className="rounded-md border border-border px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
-              >
-                {t('VISIT_EDIT_ACTION')}
+            <span className="text-sm font-normal text-muted-foreground ml-2">
+              ({visit.patientSex})
+            </span>
+          </h1>
+          {visit.patientBirthDate && (
+            <p className="text-sm text-muted-foreground mt-0.5">
+              {visit.patientBirthDate}&nbsp;&nbsp;
+              <Link to={`/patients/${visit.clinicPatientID}`} className="text-primary hover:underline">
+                {visit.clinicPatientID}
               </Link>
-              <Link
-                to={`/visits/${patientVisitID}/close`}
-                className="rounded-md bg-destructive px-3 py-1.5 text-sm font-medium text-white hover:opacity-90 transition-opacity"
-              >
-                {t('VISIT_CLOSE_ACTION')}
-              </Link>
-            </>
+            </p>
           )}
+        </div>
+        <div className="mt-1 sm:mt-0 sm:text-right flex-shrink-0">
+          {visit.dateTimeIn && (
+            <p className="text-sm text-foreground">
+              <span className="font-semibold text-xs">{t('VISIT_DATE_LABEL')}:</span>{' '}
+              {new Date(visit.dateTimeIn).toLocaleString()}
+            </p>
+          )}
+          <p className="text-xs text-muted-foreground font-mono mt-0.5">{visit.patientVisitID}</p>
         </div>
       </div>
 
-      {/* Visit info */}
-      <Section title={t('VISIT_DETAIL_TITLE')}>
-        <InfoRow
-          label={t('PATIENT_NAME_LABEL')}
-          value={`${visit.patientFirstName} ${visit.patientLastName}`}
-        />
-        <InfoRow label={t('PATIENT_ID_LABEL')}      value={visit.clinicPatientID} />
-        <InfoRow label={t('VISIT_TYPE_LABEL')}      value={visit.visitType} />
-        <InfoRow label={t('VISIT_ASSIGNED_LABEL')}  value={visit.staffName} />
-        <InfoRow
-          label={t('VISIT_ARRIVED_LABEL')}
-          value={visit.dateTimeIn
-            ? new Date(visit.dateTimeIn).toLocaleString()
-            : null}
-        />
-        {!isOpen && (
-          <InfoRow
-            label={t('VISIT_DISCHARGED_LABEL')}
-            value={visit.dateTimeOut
-              ? new Date(visit.dateTimeOut).toLocaleString()
-              : null}
-          />
+      {/* Status badge — gray box like v1 .currentVisitList */}
+      <div className="bg-muted border border-border rounded px-4 py-2 mb-4 flex items-center gap-3">
+        <span className="text-xs font-semibold text-foreground">{t('VISIT_STATUS_LABEL')}:</span>
+        <span className={`text-sm font-medium ${isOpen ? 'text-primary' : 'text-muted-foreground'}`}>
+          {isOpen ? t('VISIT_STATUS_OPEN') : t('VISIT_STATUS_CLOSED')}
+        </span>
+        {visit.dateTimeOut && !isOpen && (
+          <span className="text-xs text-muted-foreground ml-2">
+            {t('VISIT_DISCHARGED_LABEL')}: {new Date(visit.dateTimeOut).toLocaleString()}
+          </span>
         )}
-        {visit.payment && (
-          <InfoRow label={t('VISIT_PAYMENT_LABEL')} value={visit.payment} />
-        )}
-      </Section>
+      </div>
 
-      {/* Complaints */}
-      {(visit.primaryComplaint || visit.secondaryComplaint) && (
-        <Section title={t('VISIT_COMPLAINT_PRIMARY_LABEL')}>
-          <InfoRow
-            label={t('VISIT_COMPLAINT_PRIMARY_LABEL')}
-            value={visit.primaryComplaint}
-          />
-          <InfoRow
-            label={t('VISIT_COMPLAINT_ADDITIONAL_LABEL')}
-            value={visit.secondaryComplaint}
-          />
-        </Section>
-      )}
+      {/* Two-column content */}
+      <div className="flex flex-col md:flex-row md:gap-8 md:items-start">
 
-      {/* Vitals */}
-      {hasVitals && (
-        <Section title={t('VISIT_PRECLINIC_HEADING')}>
-          <InfoRow
-            label={t('VISIT_HEIGHT_LABEL')}
-            value={<VitalValue value={visit.height} units={visit.heightUnits} />}
-          />
-          <InfoRow
-            label={t('VISIT_WEIGHT_LABEL')}
-            value={<VitalValue value={visit.weight} units={visit.weightUnits} />}
-          />
-          <InfoRow
-            label={t('VISIT_TEMP_LABEL')}
-            value={<VitalValue value={visit.temp} units={visit.tempUnits} />}
-          />
-          {(visit.bpSystolic != null || visit.bpDiastolic != null) && (
-            <InfoRow
-              label={t('VISIT_BP_LABEL')}
-              value={`${visit.bpSystolic ?? '?'} / ${visit.bpDiastolic ?? '?'}`}
-            />
-          )}
-          <InfoRow
-            label={t('VISIT_PULSE_LABEL')}
-            value={<VitalValue value={visit.pulse} units={null} />}
-          />
-          <InfoRow
-            label={t('VISIT_GLUCOSE_LABEL')}
-            value={<VitalValue value={visit.glucose} units={visit.glucoseUnits} />}
-          />
-        </Section>
-      )}
-
-      {/* Diagnoses */}
-      {hasDiagnoses && (
-        <Section title={t('VISIT_DIAGNOSES_HEADING')}>
-          {visit.condition1 && (
-            <InfoRow
-              label={t('VISIT_DIAGNOSIS_1_LABEL')}
-              value={
-                <span>
-                  <span className="font-mono text-xs mr-2">{visit.condition1}</span>
-                  {visit.diagnosis1}
-                </span>
-              }
-            />
-          )}
-          {visit.condition2 && (
-            <InfoRow
-              label={t('VISIT_DIAGNOSIS_2_LABEL')}
-              value={
-                <span>
-                  <span className="font-mono text-xs mr-2">{visit.condition2}</span>
-                  {visit.diagnosis2}
-                </span>
-              }
-            />
-          )}
-          {visit.condition3 && (
-            <InfoRow
-              label={t('VISIT_DIAGNOSIS_3_LABEL')}
-              value={
-                <span>
-                  <span className="font-mono text-xs mr-2">{visit.condition3}</span>
-                  {visit.diagnosis3}
-                </span>
-              }
-            />
-          )}
-        </Section>
-      )}
-
-      {/* Referral */}
-      {hasReferral && (
-        <Section title={t('VISIT_REFERRAL_HEADING')}>
+        {/* Left: Arrival + Pre-Clinic */}
+        <div className="flex-1 min-w-0">
+          <SectionHeading title={t('VISIT_ARRIVED_LABEL')} />
+          <InfoRow label={t('VISIT_ARRIVED_LABEL')}
+            value={visit.dateTimeIn ? new Date(visit.dateTimeIn).toLocaleString() : null} />
+          <InfoRow label={t('VISIT_TYPE_LABEL')}          value={visit.visitType} />
           <InfoRow label={t('VISIT_REFERRED_FROM_LABEL')} value={visit.referredFrom} />
-          <InfoRow label={t('VISIT_REFERRED_TO_LABEL')}   value={visit.referredTo} />
-        </Section>
-      )}
+          <InfoRow label={t('VISIT_COMPLAINT_PRIMARY_LABEL')} value={visit.primaryComplaint} />
+          <InfoRow label={t('VISIT_PAYMENT_LABEL')}       value={visit.payment} />
+          <InfoRow label={t('VISIT_ASSIGNED_LABEL')}      value={visit.staffName} />
 
+          {hasVitals && (
+            <>
+              <SectionHeading title={t('VISIT_PRECLINIC_HEADING')} />
+              <table className="w-full text-sm border-collapse">
+                <thead>
+                  <tr className="border-b border-border">
+                    {[
+                      t('VISIT_HEIGHT_LABEL'), t('VISIT_WEIGHT_LABEL'),
+                      t('VISIT_TEMP_LABEL'), t('VISIT_BP_LABEL'),
+                      t('VISIT_PULSE_LABEL'), t('VISIT_GLUCOSE_LABEL'),
+                    ].map((h) => (
+                      <th key={h} className="text-left text-xs font-semibold pb-1 pr-3">{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td className="py-1 pr-3 text-sm">
+                      {visit.height != null ? `${visit.height} ${visit.heightUnits ?? ''}` : '—'}
+                    </td>
+                    <td className="py-1 pr-3 text-sm">
+                      {visit.weight != null ? `${visit.weight} ${visit.weightUnits ?? ''}` : '—'}
+                    </td>
+                    <td className="py-1 pr-3 text-sm">
+                      {visit.temp != null ? `${visit.temp}° ${visit.tempUnits ?? ''}` : '—'}
+                    </td>
+                    <td className="py-1 pr-3 text-sm">
+                      {visit.bpSystolic != null ? `${visit.bpSystolic}/${visit.bpDiastolic ?? '?'}` : '—'}
+                    </td>
+                    <td className="py-1 pr-3 text-sm">{visit.pulse ?? '—'}</td>
+                    <td className="py-1 text-sm">
+                      {visit.glucose != null ? `${visit.glucose} ${visit.glucoseUnits ?? ''}` : '—'}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </>
+          )}
+        </div>
+
+        {/* Right: Notes + Discharge/Diagnosis */}
+        <div className="flex-1 min-w-0 mt-6 md:mt-0">
+          {visit.secondaryComplaint && (
+            <>
+              <SectionHeading title={t('VISIT_COMPLAINT_ADDITIONAL_LABEL')} />
+              <p className="text-sm text-foreground whitespace-pre-wrap">{visit.secondaryComplaint}</p>
+            </>
+          )}
+
+          <SectionHeading title={t('VISIT_DIAGNOSES_HEADING')} />
+          <InfoRow label={t('VISIT_DISCHARGED_LABEL')}
+            value={visit.dateTimeOut ? new Date(visit.dateTimeOut).toLocaleString() : null} />
+
+          {[1, 2, 3].map((n) => {
+            const condition = visit[`condition${n}` as 'condition1']
+            const diagnosis = visit[`diagnosis${n}` as 'diagnosis1']
+            return (
+              <InfoRow
+                key={n}
+                label={t(`VISIT_DIAGNOSIS_${n}_LABEL`)}
+                value={condition
+                  ? <span><span className="font-mono text-xs mr-1">{condition}</span>{diagnosis}</span>
+                  : null}
+              />
+            )
+          })}
+
+          <InfoRow label={t('VISIT_REFERRED_TO_LABEL')} value={visit.referredTo} />
+          {visit.payment && (
+            <InfoRow label={t('VISIT_PAYMENT_LABEL')} value={visit.payment} />
+          )}
+        </div>
+
+      </div>
     </div>
   )
 }

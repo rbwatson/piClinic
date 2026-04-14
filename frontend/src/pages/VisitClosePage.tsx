@@ -189,19 +189,34 @@ export default function VisitClosePage() {
         </Link>
       </div>
 
-      {/* Visit summary — read-only */}
-      <div className="bg-card border border-border rounded-lg p-4 mb-5">
-        <InfoRow
-          label={t('PATIENT_NAME_LABEL')}
-          value={`${visit.patientFirstName} ${visit.patientLastName}`}
-        />
-        <InfoRow label={t('PATIENT_ID_LABEL')}    value={visit.clinicPatientID} />
-        <InfoRow label={t('VISIT_ARRIVED_LABEL')}
-          value={visit.dateTimeIn
-            ? new Date(visit.dateTimeIn).toLocaleString()
-            : '—'}
-        />
-        <InfoRow label={t('VISIT_TYPE_LABEL')}    value={visit.visitType} />
+      {/* Read-only arrival summary — gray box like v1 */}
+      <div className="bg-muted border border-border rounded px-4 py-3 mb-4 text-sm">
+        <div className="flex flex-wrap gap-x-6 gap-y-1">
+          <span>
+            <span className="font-semibold text-xs">{t('VISIT_ARRIVED_LABEL')}:</span>{' '}
+            {visit.dateTimeIn ? new Date(visit.dateTimeIn).toLocaleString() : '—'}
+          </span>
+          <span>
+            <span className="font-semibold text-xs">{t('VISIT_TYPE_LABEL')}:</span>{' '}
+            {visit.visitType}
+          </span>
+          {visit.primaryComplaint && (
+            <span>
+              <span className="font-semibold text-xs">{t('VISIT_COMPLAINT_PRIMARY_LABEL')}:</span>{' '}
+              {visit.primaryComplaint}
+            </span>
+          )}
+        </div>
+        {/* Vitals read-only row */}
+        {(visit.height || visit.weight || visit.temp || visit.bpSystolic || visit.pulse) && (
+          <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+            {visit.height && <span>{t('VISIT_HEIGHT_LABEL')}: {visit.height} {visit.heightUnits}</span>}
+            {visit.weight && <span>{t('VISIT_WEIGHT_LABEL')}: {visit.weight} {visit.weightUnits}</span>}
+            {visit.temp   && <span>{t('VISIT_TEMP_LABEL')}: {visit.temp}° {visit.tempUnits}</span>}
+            {visit.bpSystolic && <span>{t('VISIT_BP_LABEL')}: {visit.bpSystolic}/{visit.bpDiastolic}</span>}
+            {visit.pulse  && <span>{t('VISIT_PULSE_LABEL')}: {visit.pulse}</span>}
+          </div>
+        )}
       </div>
 
       {/* Discharge confirmation banner */}
