@@ -4,14 +4,12 @@
  * Persistent layout wrapper for all authenticated pages.
  *
  * Layout:
- *   Always shows a left sidebar. On small screens the sidebar collapses
- *   to a top bar + hamburger drawer.
+ *   Desktop (>=768px): fixed-width left sidebar + scrollable content area
+ *   Mobile  (<768px):  collapsible top bar + drawer
  *
- * The sidebar contains:
- *   - App name
- *   - Patient quick-search (always visible)
- *   - Nav links (role-filtered)
- *   - Language toggle + logout
+ * Uses inline styles throughout to avoid Tailwind v4 responsive-prefix
+ * resolution issues. Responsive breakpoint is handled via CSS media queries
+ * in globals.css (.hidden-mobile, .mobile-topbar, .mobile-spacer).
  */
 
 import { useState } from 'react'
@@ -43,8 +41,14 @@ function hasRole(userRole: string, minRole: string): boolean {
   return (ROLE_ORDER[userRole] ?? 0) >= (ROLE_ORDER[minRole] ?? 0)
 }
 
+// Sidebar colours — use literal HSL values so they are independent of
+// Tailwind utility resolution
+const SIDEBAR_BG     = 'hsl(213, 60%, 58%)'
+const SIDEBAR_BORDER = 'hsl(213, 60%, 45%)'
+const SIDEBAR_HOVER  = 'hsl(213, 60%, 45%)'
+
 // ---------------------------------------------------------------------------
-// Sidebar content — shared between desktop sidebar and mobile drawer
+// Sidebar content
 // ---------------------------------------------------------------------------
 
 function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
@@ -67,16 +71,17 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
+
       {/* App name */}
-      <div style={{ padding: '12px 16px', borderBottom: '1px solid hsl(213 60% 45%)' }}>
+      <div style={{ padding: '12px 16px', borderBottom: `1px solid ${SIDEBAR_BORDER}`, flexShrink: 0 }}>
         <span style={{ fontSize: '1rem', fontWeight: 700, fontStyle: 'italic', color: '#fff' }}>
           {t('APP_NAME')}
         </span>
       </div>
 
       {/* Patient quick-search */}
-      <div style={{ padding: '8px 12px', borderBottom: '1px solid hsl(213 60% 45%)' }}>
+      <div style={{ padding: '8px 12px', borderBottom: `1px solid ${SIDEBAR_BORDER}`, flexShrink: 0 }}>
         <form onSubmit={handleSearchSubmit} style={{ display: 'flex', gap: '4px' }}>
           <input
             type="search"
@@ -105,7 +110,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
       </div>
 
       {/* Nav links */}
-      <nav style={{ flex: 1, padding: '8px' }}>
+      <nav style={{ flex: 1, padding: '8px', overflowY: 'auto' }}>
         {visibleNavItems.map((item) => (
           <NavLink
             key={item.to}
@@ -120,7 +125,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
               fontSize: '14px',
               textDecoration: 'none',
               marginBottom: '2px',
-              background: isActive ? 'hsl(213 60% 45%)' : 'transparent',
+              background: isActive ? SIDEBAR_HOVER : 'transparent',
               color: '#fff',
               fontWeight: isActive ? 600 : 400,
             })}
@@ -133,9 +138,10 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
       {/* Session info + controls */}
       <div style={{
         padding: '12px 16px',
-        borderTop: '1px solid hsl(213 60% 45%)',
+        borderTop: `1px solid ${SIDEBAR_BORDER}`,
         fontSize: '12px',
         color: 'rgba(255,255,255,0.75)',
+        flexShrink: 0,
       }}>
         {user && (
           <p style={{ margin: '0 0 6px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -145,29 +151,22 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
         )}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', gap: '8px' }}>
-            <button
-              onClick={() => i18n.changeLanguage('en')}
-              style={{
-                background: 'none', border: 'none', cursor: 'pointer', padding: 0,
-                fontSize: '12px',
-                color: i18n.language === 'en' ? '#fff' : 'rgba(255,255,255,0.6)',
-                fontWeight: i18n.language === 'en' ? 600 : 400,
-              }}
-            >
-              EN
-            </button>
-            <span style={{ color: 'rgba(255,255,255,0.4)' }}>|</span>
-            <button
-              onClick={() => i18n.changeLanguage('es')}
-              style={{
-                background: 'none', border: 'none', cursor: 'pointer', padding: 0,
-                fontSize: '12px',
-                color: i18n.language === 'es' ? '#fff' : 'rgba(255,255,255,0.6)',
-                fontWeight: i18n.language === 'es' ? 600 : 400,
-              }}
-            >
-              ES
-            </button>
+            {(['en', 'es'] as const).map((lang, i) => (
+              <span key={lang} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                {i > 0 && <span style={{ color: 'rgba(255,255,255,0.4)' }}>|</span>}
+                <button
+                  onClick={() => i18n.changeLanguage(lang)}
+                  style={{
+                    background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+                    fontSize: '12px',
+                    color: i18n.language === lang ? '#fff' : 'rgba(255,255,255,0.6)',
+                    fontWeight: i18n.language === lang ? 600 : 400,
+                  }}
+                >
+                  {lang.toUpperCase()}
+                </button>
+              </span>
+            ))}
           </div>
           <button
             onClick={logout}
@@ -180,6 +179,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           </button>
         </div>
       </div>
+
     </div>
   )
 }
@@ -188,48 +188,46 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
 // AppShell
 // ---------------------------------------------------------------------------
 
-const SIDEBAR_WIDTH = 208 // px — matches v1's nav area width
-const MOBILE_BREAKPOINT = 768 // px
-
 export default function AppShell() {
   const [mobileOpen, setMobileOpen] = useState(false)
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: 'hsl(var(--background))' }}>
+    // Outer flex row: sidebar + content side by side
+    // flex: 1 so it fills the #root flex column
+    <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
 
-      {/* ── Desktop sidebar — visible above 768px ── */}
+      {/* ── Desktop sidebar — hidden below 768px via .hidden-mobile CSS class ── */}
       <aside
+        className="hidden-mobile"
         style={{
-          width: `${SIDEBAR_WIDTH}px`,
+          width: '208px',
           flexShrink: 0,
-          background: 'hsl(213 60% 58%)',
+          background: SIDEBAR_BG,
+          borderRight: `1px solid ${SIDEBAR_BORDER}`,
           display: 'flex',
           flexDirection: 'column',
-          borderRight: '1px solid hsl(213 60% 45%)',
+          height: '100%',
+          overflow: 'hidden',
         }}
-        className="hidden-mobile"
       >
         <SidebarContent />
       </aside>
 
-      {/* ── Mobile top bar — visible below 768px ── */}
+      {/* ── Mobile top bar — hidden above 768px via .mobile-topbar CSS class ── */}
       <div
         className="mobile-topbar"
         style={{
           position: 'fixed', top: 0, left: 0, right: 0, zIndex: 40,
           display: 'flex', alignItems: 'center',
-          background: 'hsl(213 60% 58%)',
+          background: SIDEBAR_BG,
           padding: '8px 12px',
-          borderBottom: '1px solid hsl(213 60% 45%)',
+          borderBottom: `1px solid ${SIDEBAR_BORDER}`,
         }}
       >
         <button
           onClick={() => setMobileOpen(true)}
           aria-label="Open menu"
-          style={{
-            background: 'none', border: 'none', cursor: 'pointer',
-            color: '#fff', padding: '4px', marginRight: '12px',
-          }}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#fff', padding: '4px', marginRight: '12px' }}
         >
           <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
@@ -238,29 +236,23 @@ export default function AppShell() {
         <span style={{ fontSize: '1rem', fontWeight: 700, fontStyle: 'italic', color: '#fff' }}>piClinic</span>
       </div>
 
-      {/* ── Mobile drawer overlay ── */}
+      {/* ── Mobile drawer ── */}
       {mobileOpen && (
-        <div
-          style={{
-            position: 'fixed', inset: 0, zIndex: 50, display: 'flex',
-          }}
-        >
+        <div style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex' }}>
           <div
             style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)' }}
             onClick={() => setMobileOpen(false)}
           />
-          <aside
-            style={{
-              position: 'relative', zIndex: 10,
-              width: '256px', height: '100%',
-              background: 'hsl(213 60% 58%)',
-              boxShadow: '4px 0 16px rgba(0,0,0,0.3)',
-              display: 'flex', flexDirection: 'column',
-            }}
-          >
+          <aside style={{
+            position: 'relative', zIndex: 10,
+            width: '256px', height: '100%',
+            background: SIDEBAR_BG,
+            boxShadow: '4px 0 16px rgba(0,0,0,0.3)',
+            display: 'flex', flexDirection: 'column',
+          }}>
             <div style={{
               display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              padding: '12px 16px', borderBottom: '1px solid hsl(213 60% 45%)',
+              padding: '12px 16px', borderBottom: `1px solid ${SIDEBAR_BORDER}`,
             }}>
               <span style={{ fontSize: '1rem', fontWeight: 700, fontStyle: 'italic', color: '#fff' }}>piClinic</span>
               <button
@@ -280,10 +272,10 @@ export default function AppShell() {
         </div>
       )}
 
-      {/* ── Main content ── */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-        {/* Spacer for mobile top bar */}
-        <div className="mobile-spacer" style={{ height: '44px' }} />
+      {/* ── Main content area ── */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, overflow: 'hidden' }}>
+        {/* Spacer for mobile top bar — hidden above 768px via .mobile-spacer CSS class */}
+        <div className="mobile-spacer" style={{ height: '44px', flexShrink: 0 }} />
         <main style={{ flex: 1, padding: '24px', overflowY: 'auto' }}>
           <Outlet />
         </main>
