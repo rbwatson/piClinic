@@ -2,8 +2,6 @@
  * VisitDetailPage.test.tsx
  *
  * Component tests for VisitDetailPage.
- * Verifies loading/error states, visit info display, conditional
- * action buttons, and vitals/diagnosis section visibility.
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
@@ -83,16 +81,15 @@ describe('VisitDetailPage', () => {
     expect(screen.getByText('ERROR_NOT_FOUND')).toBeInTheDocument()
   })
 
-  it('shows patient name and visit type', async () => {
+  it('shows patient name and patient ID link', async () => {
     vi.spyOn(visitsApi, 'useVisit').mockReturnValue({
       data: BASE_VISIT, isLoading: false, isError: false,
     } as unknown as ReturnType<typeof visitsApi.useVisit>)
     renderDetailPage()
     await waitFor(() => {
-        // There should be two instances of the patient's name on the page:
-        // their display name and the link to their patient detail page.
-      const nameElements = screen.queryAllByText(/Yamel/);
-      expect(nameElements).toHaveLength(2);
+      // Patient name appears in the h1
+      expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Yamel')
+      // Patient ID appears as a link
       expect(screen.getByText('PT-GEN-000001')).toBeInTheDocument()
     })
   })
@@ -107,7 +104,7 @@ describe('VisitDetailPage', () => {
     })
   })
 
-  it('shows Edit and Discharge action buttons for open visits', async () => {
+  it('shows Edit and Discharge action links for open visits', async () => {
     vi.spyOn(visitsApi, 'useVisit').mockReturnValue({
       data: BASE_VISIT, isLoading: false, isError: false,
     } as unknown as ReturnType<typeof visitsApi.useVisit>)
@@ -118,7 +115,7 @@ describe('VisitDetailPage', () => {
     })
   })
 
-  it('does not show Edit/Discharge buttons for closed visits', async () => {
+  it('does not show Edit/Discharge links for closed visits', async () => {
     vi.spyOn(visitsApi, 'useVisit').mockReturnValue({
       data: { ...BASE_VISIT, visitStatus: 'Closed', dateTimeOut: '2026-04-13 11:00:00' },
       isLoading: false, isError: false,
@@ -151,13 +148,9 @@ describe('VisitDetailPage', () => {
     })
   })
 
-  it('shows diagnosis section with ICD code when diagnosis is present', async () => {
+  it('shows ICD code and description when diagnosis is present', async () => {
     vi.spyOn(visitsApi, 'useVisit').mockReturnValue({
-      data: {
-        ...BASE_VISIT,
-        condition1: 'J06.9',
-        diagnosis1: 'Acute upper respiratory infection',
-      },
+      data: { ...BASE_VISIT, condition1: 'J06.9', diagnosis1: 'Acute upper respiratory infection' },
       isLoading: false, isError: false,
     } as unknown as ReturnType<typeof visitsApi.useVisit>)
     renderDetailPage()
@@ -167,13 +160,15 @@ describe('VisitDetailPage', () => {
     })
   })
 
-  it('does not show diagnoses section when no diagnoses are set', async () => {
+  it('shows diagnoses heading even when no diagnoses are set', async () => {
+    // VISIT_DIAGNOSES_HEADING is always shown in the right column
+    // (discharge date and referred-to also live there)
     vi.spyOn(visitsApi, 'useVisit').mockReturnValue({
       data: BASE_VISIT, isLoading: false, isError: false,
     } as unknown as ReturnType<typeof visitsApi.useVisit>)
     renderDetailPage()
     await waitFor(() => {
-      expect(screen.queryByText('VISIT_DIAGNOSES_HEADING')).not.toBeInTheDocument()
+      expect(screen.getByText('VISIT_DIAGNOSES_HEADING')).toBeInTheDocument()
     })
   })
 })

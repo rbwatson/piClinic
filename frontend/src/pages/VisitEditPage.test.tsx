@@ -2,9 +2,6 @@
  * VisitEditPage.test.tsx
  *
  * Component tests for VisitEditPage.
- * Verifies loading state, visit summary display, and error banner.
- * The full form pre-population is covered by the useVisit hook
- * which is mocked here.
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
@@ -90,24 +87,34 @@ describe('VisitEditPage', () => {
     expect(screen.getByText('ERROR_NOT_FOUND')).toBeInTheDocument()
   })
 
-  it('shows patient name and ID in the visit summary', async () => {
+  it('shows patient name in the nameBlock heading', async () => {
     vi.spyOn(visitsApi, 'useVisit').mockReturnValue({
       data: MOCK_VISIT, isLoading: false, isError: false,
     } as unknown as ReturnType<typeof visitsApi.useVisit>)
     renderEditPage()
     await waitFor(() => {
-      expect(screen.getByText(/Yamel/)).toBeInTheDocument()
+      expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Yamel')
       expect(screen.getByText('PT-GEN-000001')).toBeInTheDocument()
     })
   })
 
-  it('renders the edit form title', async () => {
+  it('shows the cancel link back to visit detail', async () => {
     vi.spyOn(visitsApi, 'useVisit').mockReturnValue({
       data: MOCK_VISIT, isLoading: false, isError: false,
     } as unknown as ReturnType<typeof visitsApi.useVisit>)
     renderEditPage()
     await waitFor(() => {
-      expect(screen.getByText('VISIT_EDIT_TITLE')).toBeInTheDocument()
+      expect(screen.getByText('VISIT_CANCEL')).toBeInTheDocument()
+    })
+  })
+
+  it('shows the save button', async () => {
+    vi.spyOn(visitsApi, 'useVisit').mockReturnValue({
+      data: MOCK_VISIT, isLoading: false, isError: false,
+    } as unknown as ReturnType<typeof visitsApi.useVisit>)
+    renderEditPage()
+    await waitFor(() => {
+      expect(screen.getByText('VISIT_EDIT_ACTION')).toBeInTheDocument()
     })
   })
 })
