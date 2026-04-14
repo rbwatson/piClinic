@@ -60,8 +60,6 @@ export default function VisitDetailPage() {
     visit.height != null || visit.weight != null || visit.temp != null ||
     visit.bpSystolic != null || visit.pulse != null || visit.glucose != null
 
-  const hasDiagnoses = visit.diagnosis1 || visit.diagnosis2 || visit.diagnosis3
-
   return (
     <div>
       {/* PageActions */}
