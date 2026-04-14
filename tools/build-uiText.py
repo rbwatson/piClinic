@@ -154,7 +154,6 @@ def scan_source_for_t_calls(srcpath):
                        t(`...`) or t(variable) patterns
     """
     static_re  = re.compile(r"""t\(\s*['"]([A-Z][A-Z0-9_]+)['"]\s*\)""")
-    ## save: t\(\`([A-Z_]+\$\{n\}\_[A-Z_]+)\`\)
     dynamic_re = re.compile(r"""t\(`([^`]*\$\{[^`]*\}[^`]*)`\)""")
 
     static_keys   = set()
