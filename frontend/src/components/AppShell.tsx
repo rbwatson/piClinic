@@ -4,18 +4,14 @@
  * Persistent layout wrapper for all authenticated pages.
  *
  * Layout:
- *   Mobile (<md): top bar with hamburger, collapsible nav drawer
- *   Tablet/Desktop (>=md): fixed left sidebar, scrollable content area
+ *   Always shows a left sidebar. On small screens the sidebar collapses
+ *   to a top bar + hamburger drawer.
  *
- * Sidebar contains:
+ * The sidebar contains:
  *   - App name
- *   - Patient quick-search (always visible — supports looking up a patient
- *     from any page without losing current context)
+ *   - Patient quick-search (always visible)
  *   - Nav links (role-filtered)
  *   - Language toggle + logout
- *
- * Quick-search submits to /patients?q=... matching the v1 inline search
- * that appeared on every authenticated page.
  */
 
 import { useState } from 'react'
@@ -48,7 +44,7 @@ function hasRole(userRole: string, minRole: string): boolean {
 }
 
 // ---------------------------------------------------------------------------
-// Sidebar content (shared between desktop sidebar and mobile drawer)
+// Sidebar content — shared between desktop sidebar and mobile drawer
 // ---------------------------------------------------------------------------
 
 function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
@@ -71,27 +67,37 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   }
 
   return (
-    <>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       {/* App name */}
-      <div className="px-4 py-3 border-b border-sidebar-border">
-        <span className="text-base font-bold italic text-white tracking-tight">
+      <div style={{ padding: '12px 16px', borderBottom: '1px solid hsl(213 60% 45%)' }}>
+        <span style={{ fontSize: '1rem', fontWeight: 700, fontStyle: 'italic', color: '#fff' }}>
           {t('APP_NAME')}
         </span>
       </div>
 
       {/* Patient quick-search */}
-      <div className="px-3 py-2 border-b border-sidebar-border">
-        <form onSubmit={handleSearchSubmit} className="flex gap-1">
+      <div style={{ padding: '8px 12px', borderBottom: '1px solid hsl(213 60% 45%)' }}>
+        <form onSubmit={handleSearchSubmit} style={{ display: 'flex', gap: '4px' }}>
           <input
             type="search"
             value={searchValue}
             onChange={(e) => setSearchValue(e.target.value)}
             placeholder={t('PATIENT_SEARCH_ID_LABEL')}
-            className="flex-1 min-w-0 rounded px-2 py-1 text-xs bg-white/10 text-white placeholder:text-white/60 border border-white/20 focus:outline-none focus:border-white/60"
+            style={{
+              flex: 1, minWidth: 0, borderRadius: '4px',
+              padding: '4px 8px', fontSize: '12px',
+              background: 'rgba(255,255,255,0.15)',
+              color: '#fff', border: '1px solid rgba(255,255,255,0.3)',
+              outline: 'none',
+            }}
           />
           <button
             type="submit"
-            className="px-2 py-1 rounded text-xs bg-white/20 text-white hover:bg-white/30 transition-colors flex-shrink-0"
+            style={{
+              padding: '4px 8px', borderRadius: '4px', fontSize: '12px',
+              background: 'rgba(255,255,255,0.25)', color: '#fff',
+              border: 'none', cursor: 'pointer', flexShrink: 0,
+            }}
           >
             {t('ACTION_SEARCH')}
           </button>
@@ -99,21 +105,25 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
       </div>
 
       {/* Nav links */}
-      <nav className="flex-1 px-2 py-2 space-y-0.5">
+      <nav style={{ flex: 1, padding: '8px' }}>
         {visibleNavItems.map((item) => (
           <NavLink
             key={item.to}
             to={item.to}
             end={item.to === '/'}
             onClick={onNavigate}
-            className={({ isActive }) =>
-              [
-                'flex items-center px-3 py-2 rounded text-sm transition-colors',
-                isActive
-                  ? 'bg-sidebar-accent text-white font-medium'
-                  : 'text-white/90 hover:bg-white/15',
-              ].join(' ')
-            }
+            style={({ isActive }) => ({
+              display: 'flex',
+              alignItems: 'center',
+              padding: '8px 12px',
+              borderRadius: '4px',
+              fontSize: '14px',
+              textDecoration: 'none',
+              marginBottom: '2px',
+              background: isActive ? 'hsl(213 60% 45%)' : 'transparent',
+              color: '#fff',
+              fontWeight: isActive ? 600 : 400,
+            })}
           >
             {t(item.labelKey)}
           </NavLink>
@@ -121,48 +131,56 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
       </nav>
 
       {/* Session info + controls */}
-      <div className="px-4 py-3 border-t border-sidebar-border text-xs text-white/75 space-y-2">
+      <div style={{
+        padding: '12px 16px',
+        borderTop: '1px solid hsl(213 60% 45%)',
+        fontSize: '12px',
+        color: 'rgba(255,255,255,0.75)',
+      }}>
         {user && (
-          <p className="truncate">
+          <p style={{ margin: '0 0 6px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {t('SESSION_LOGGED_IN_AS')}{' '}
-            <span className="font-medium text-white">{user.username}</span>
+            <span style={{ fontWeight: 600, color: '#fff' }}>{user.username}</span>
           </p>
         )}
-        <div className="flex items-center justify-between">
-          {/* Language toggle */}
-          <div className="flex gap-2">
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', gap: '8px' }}>
             <button
               onClick={() => i18n.changeLanguage('en')}
-              className={`transition-colors ${
-                i18n.language === 'en'
-                  ? 'text-white font-medium'
-                  : 'text-white/60 hover:text-white'
-              }`}
+              style={{
+                background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+                fontSize: '12px',
+                color: i18n.language === 'en' ? '#fff' : 'rgba(255,255,255,0.6)',
+                fontWeight: i18n.language === 'en' ? 600 : 400,
+              }}
             >
               EN
             </button>
-            <span className="text-white/40">|</span>
+            <span style={{ color: 'rgba(255,255,255,0.4)' }}>|</span>
             <button
               onClick={() => i18n.changeLanguage('es')}
-              className={`transition-colors ${
-                i18n.language === 'es'
-                  ? 'text-white font-medium'
-                  : 'text-white/60 hover:text-white'
-              }`}
+              style={{
+                background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+                fontSize: '12px',
+                color: i18n.language === 'es' ? '#fff' : 'rgba(255,255,255,0.6)',
+                fontWeight: i18n.language === 'es' ? 600 : 400,
+              }}
             >
               ES
             </button>
           </div>
-          {/* Logout */}
           <button
             onClick={logout}
-            className="text-white/75 hover:text-white transition-colors"
+            style={{
+              background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+              fontSize: '12px', color: 'rgba(255,255,255,0.75)',
+            }}
           >
             {t('SESSION_LOGOUT')}
           </button>
         </div>
       </div>
-    </>
+    </div>
   )
 }
 
@@ -170,55 +188,92 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
 // AppShell
 // ---------------------------------------------------------------------------
 
+const SIDEBAR_WIDTH = 208 // px — matches v1's nav area width
+const MOBILE_BREAKPOINT = 768 // px
+
 export default function AppShell() {
   const [mobileOpen, setMobileOpen] = useState(false)
 
   return (
-    <div className="flex min-h-screen bg-background">
+    <div style={{ display: 'flex', minHeight: '100vh', background: 'hsl(var(--background))' }}>
 
-      {/* ── Desktop sidebar (md+) ── */}
-      <aside className="hidden md:flex w-52 flex-shrink-0 bg-sidebar flex-col border-r border-sidebar-border">
+      {/* ── Desktop sidebar — visible above 768px ── */}
+      <aside
+        style={{
+          width: `${SIDEBAR_WIDTH}px`,
+          flexShrink: 0,
+          background: 'hsl(213 60% 58%)',
+          display: 'flex',
+          flexDirection: 'column',
+          borderRight: '1px solid hsl(213 60% 45%)',
+        }}
+        className="hidden-mobile"
+      >
         <SidebarContent />
       </aside>
 
-      {/* ── Mobile top bar (<md) ── */}
-      <div className="md:hidden fixed top-0 left-0 right-0 z-40 flex items-center bg-sidebar px-3 py-2 border-b border-sidebar-border">
+      {/* ── Mobile top bar — visible below 768px ── */}
+      <div
+        className="mobile-topbar"
+        style={{
+          position: 'fixed', top: 0, left: 0, right: 0, zIndex: 40,
+          display: 'flex', alignItems: 'center',
+          background: 'hsl(213 60% 58%)',
+          padding: '8px 12px',
+          borderBottom: '1px solid hsl(213 60% 45%)',
+        }}
+      >
         <button
           onClick={() => setMobileOpen(true)}
-          className="text-white p-1 mr-3"
           aria-label="Open menu"
+          style={{
+            background: 'none', border: 'none', cursor: 'pointer',
+            color: '#fff', padding: '4px', marginRight: '12px',
+          }}
         >
-          {/* Hamburger */}
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+          <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
           </svg>
         </button>
-        <span className="text-base font-bold italic text-white flex-1">piClinic</span>
+        <span style={{ fontSize: '1rem', fontWeight: 700, fontStyle: 'italic', color: '#fff' }}>piClinic</span>
       </div>
 
       {/* ── Mobile drawer overlay ── */}
       {mobileOpen && (
-        <div className="md:hidden fixed inset-0 z-50 flex">
-          {/* Backdrop */}
+        <div
+          style={{
+            position: 'fixed', inset: 0, zIndex: 50, display: 'flex',
+          }}
+        >
           <div
-            className="absolute inset-0 bg-black/50"
+            style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)' }}
             onClick={() => setMobileOpen(false)}
           />
-          {/* Drawer */}
-          <aside className="relative z-10 flex flex-col w-64 bg-sidebar h-full shadow-xl">
-            <div className="flex items-center justify-between px-4 py-3 border-b border-sidebar-border">
-              <span className="text-base font-bold italic text-white">piClinic</span>
+          <aside
+            style={{
+              position: 'relative', zIndex: 10,
+              width: '256px', height: '100%',
+              background: 'hsl(213 60% 58%)',
+              boxShadow: '4px 0 16px rgba(0,0,0,0.3)',
+              display: 'flex', flexDirection: 'column',
+            }}
+          >
+            <div style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              padding: '12px 16px', borderBottom: '1px solid hsl(213 60% 45%)',
+            }}>
+              <span style={{ fontSize: '1rem', fontWeight: 700, fontStyle: 'italic', color: '#fff' }}>piClinic</span>
               <button
                 onClick={() => setMobileOpen(false)}
-                className="text-white/75 hover:text-white"
                 aria-label="Close menu"
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.75)' }}
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
             </div>
-            <div className="flex flex-col flex-1 overflow-y-auto">
+            <div style={{ flex: 1, overflowY: 'auto' }}>
               <SidebarContent onNavigate={() => setMobileOpen(false)} />
             </div>
           </aside>
@@ -226,10 +281,10 @@ export default function AppShell() {
       )}
 
       {/* ── Main content ── */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
         {/* Spacer for mobile top bar */}
-        <div className="md:hidden h-11 flex-shrink-0" />
-        <main className="flex-1 p-4 md:p-6 overflow-auto">
+        <div className="mobile-spacer" style={{ height: '44px' }} />
+        <main style={{ flex: 1, padding: '24px', overflowY: 'auto' }}>
           <Outlet />
         </main>
       </div>

@@ -12,19 +12,11 @@
  *   Dark text:   #111111  -> hsl(0 0% 7%)
  *
  * No dark mode — v1 had none; v2 follows the same approach.
- *
- * CSS variables are declared at the top level (outside @layer base) so that
- * Tailwind v4 can resolve them when generating utility classes. Declaring
- * them inside @layer base defers them past the point where Tailwind processes
- * color utilities like bg-primary, bg-sidebar, text-muted-foreground, etc.
  */
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* ── CSS custom properties ─────────────────────────────────────────────── */
-/* Declared outside @layer so Tailwind v4 resolves them during utility gen  */
 
 :root {
   /* Typography */
@@ -44,7 +36,7 @@
   --popover:            0 0% 100%;
   --popover-foreground: 0 0% 7%;
 
-  /* Muted — subdued backgrounds and secondary text */
+  /* Muted */
   --muted:              0 0% 93%;
   --muted-foreground:   0 0% 43%;
 
@@ -52,15 +44,15 @@
   --primary:            213 60% 58%;
   --primary-foreground: 0 0% 100%;
 
-  /* Secondary — light neutral */
+  /* Secondary */
   --secondary:          0 0% 93%;
   --secondary-foreground: 0 0% 7%;
 
-  /* Destructive — red for errors and warnings */
+  /* Destructive */
   --destructive:        0 84% 40%;
   --destructive-foreground: 0 0% 100%;
 
-  /* Accent — same as primary */
+  /* Accent */
   --accent:             213 60% 58%;
   --accent-foreground:  0 0% 100%;
 
@@ -69,7 +61,7 @@
   --input:              0 0% 80%;
   --ring:               213 60% 58%;
 
-  /* Sidebar — brand blue matching v1 banner */
+  /* Sidebar */
   --sidebar:                    213 60% 58%;
   --sidebar-foreground:          0 0% 100%;
   --sidebar-border:             213 60% 45%;
@@ -77,12 +69,10 @@
   --sidebar-accent-foreground:   0 0% 100%;
 }
 
-/* ── Base styles ────────────────────────────────────────────────────────── */
-
-/* Set default border color directly — avoids Tailwind v4 @apply
-   resolution issue with CSS-variable-backed utilities in @layer base */
+/* Default border color */
 * {
   border-color: hsl(var(--border));
+  box-sizing: border-box;
 }
 
 body {
@@ -93,14 +83,15 @@ body {
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  margin: 0;
 }
 
 h1, h2, h3, h4, h5, h6 {
   color: hsl(var(--foreground));
   font-weight: 500;
+  margin-top: 0;
 }
 
-/* Links match the v1 brand blue throughout */
 a {
   color: hsl(var(--primary));
   text-decoration: none;
@@ -109,8 +100,24 @@ a:hover {
   text-decoration: underline;
 }
 
-/* Inactive / not-specified values shown in italic gray — matches v1 */
 .text-inactive {
   color: hsl(var(--muted-foreground));
   font-style: italic;
+}
+
+/* ── Responsive sidebar helpers ── */
+/* Below 768px: hide the desktop sidebar, show mobile elements */
+@media (max-width: 767px) {
+  .hidden-mobile {
+    display: none !important;
+  }
+}
+/* Above 768px: hide mobile-only elements */
+@media (min-width: 768px) {
+  .mobile-topbar {
+    display: none !important;
+  }
+  .mobile-spacer {
+    display: none !important;
+  }
 }
