@@ -1,17 +1,17 @@
 /*
  * globals.css
- * shadcn/ui-compatible CSS variables mapped from the existing piClinic
- * color scheme. All hue/saturation/lightness values are derived from
- * the original hex tokens in index.css so the visual output is identical
- * until branding work begins in a later phase.
+ * CSS custom properties for the piClinic v2 React SPA.
  *
- * Token reference:
- *   Original #6b6375  -> hsl(282 8% 43%)   body text (muted)
- *   Original #08060d  -> hsl(258 54%  5%)   headings (foreground)
- *   Original #ffffff  -> hsl(0 0% 100%)     background
- *   Original #e5e4e7  -> hsl(270 4% 90%)    border
- *   Original #aa3bff  -> hsl(275 100% 61%)  accent / primary
- *   Original #f4f3ec  -> hsl(55 18% 93%)    code / muted bg
+ * Colors are derived from the v1 piClinic stylesheet (piClinic.css):
+ *   Brand blue:  #558ED5  -> hsl(213 60% 58%)
+ *   White:       #FFFFFF  -> hsl(0 0% 100%)
+ *   Light gray:  #EEEEEE  -> hsl(0 0% 93%)   backgrounds, muted
+ *   Border gray: #CCCCCC  -> hsl(0 0% 80%)   borders, dividers
+ *   Error red:   #FF0000  -> hsl(0 100% 50%) destructive actions
+ *   Inactive:    #AAAAAA  -> hsl(0 0% 67%)   muted text
+ *   Dark text:   #111111  -> hsl(0 0% 7%)    foreground
+ *
+ * No dark mode — v1 had none; v2 follows the same approach.
  *
  * Note: @apply border-border is intentionally avoided inside @layer base
  * because Tailwind v4 cannot resolve CSS-variable-backed utilities during
@@ -25,88 +25,53 @@
 @layer base {
   :root {
     /* Typography */
-    --font-sans: system-ui, 'Segoe UI', Roboto, sans-serif;
+    --font-sans: Helvetica, 'Helvetica Neue', Arial, sans-serif;
     --font-mono: ui-monospace, Consolas, monospace;
 
     /* Layout */
-    --radius: 0.5rem;
+    --radius: 0.375rem;
 
     /* Core surfaces */
-    --background:       0 0% 100%;
-    --foreground:       258 54% 5%;
+    --background:         0 0% 100%;
+    --foreground:         0 0% 7%;
 
-    /* Cards and popovers sit on the background */
-    --card:             0 0% 100%;
-    --card-foreground:  258 54% 5%;
-    --popover:          0 0% 100%;
-    --popover-foreground: 258 54% 5%;
+    /* Cards and popovers */
+    --card:               0 0% 100%;
+    --card-foreground:    0 0% 7%;
+    --popover:            0 0% 100%;
+    --popover-foreground: 0 0% 7%;
 
-    /* Muted — used for secondary text and subdued backgrounds */
-    --muted:            55 18% 93%;
-    --muted-foreground: 282 8% 43%;
+    /* Muted — subdued backgrounds and secondary text */
+    --muted:              0 0% 93%;
+    --muted-foreground:   0 0% 43%;
 
-    /* Primary — accent purple carried from index.css */
-    --primary:          275 100% 61%;
+    /* Primary — piClinic brand blue #558ED5 */
+    --primary:            213 60% 58%;
     --primary-foreground: 0 0% 100%;
 
     /* Secondary — light neutral */
-    --secondary:        270 4% 93%;
-    --secondary-foreground: 258 54% 5%;
+    --secondary:          0 0% 93%;
+    --secondary-foreground: 0 0% 7%;
 
     /* Destructive — red for errors and delete actions */
-    --destructive:      0 84% 60%;
+    --destructive:        0 84% 45%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Accent — same purple at lower opacity context */
-    --accent:           275 100% 61%;
-    --accent-foreground: 0 0% 100%;
+    /* Accent — same as primary */
+    --accent:             213 60% 58%;
+    --accent-foreground:  0 0% 100%;
 
     /* Form elements */
-    --border:           270 4% 90%;
-    --input:            270 4% 90%;
-    --ring:             275 100% 61%;
+    --border:             0 0% 80%;
+    --input:              0 0% 80%;
+    --ring:               213 60% 58%;
 
-    /* Sidebar */
-    --sidebar:               258 30% 12%;
-    --sidebar-foreground:    270 4% 85%;
-    --sidebar-border:        258 20% 20%;
-    --sidebar-accent:        275 100% 61%;
-    --sidebar-accent-foreground: 0 0% 100%;
-  }
-
-  .dark {
-    --background:       240 10% 11%;
-    --foreground:       220 13% 95%;
-
-    --card:             240 10% 11%;
-    --card-foreground:  220 13% 95%;
-    --popover:          240 10% 11%;
-    --popover-foreground: 220 13% 95%;
-
-    --muted:            240 8% 13%;
-    --muted-foreground: 220 9% 64%;
-
-    --primary:          280 89% 74%;
-    --primary-foreground: 258 54% 5%;
-
-    --secondary:        240 8% 18%;
-    --secondary-foreground: 220 13% 95%;
-
-    --destructive:      0 72% 51%;
-    --destructive-foreground: 0 0% 100%;
-
-    --accent:           280 89% 74%;
-    --accent-foreground: 258 54% 5%;
-
-    --border:           240 8% 18%;
-    --input:            240 8% 18%;
-    --ring:             280 89% 74%;
-
-    --sidebar:               240 12% 8%;
-    --sidebar-foreground:    220 9% 75%;
-    --sidebar-border:        240 8% 14%;
-    --sidebar-accent:        280 89% 74%;
-    --sidebar-accent-foreground: 258 54% 5%;
+    /* Sidebar — brand blue matching v1 banner */
+    --sidebar:                    213 60% 58%;
+    --sidebar-foreground:          0 0% 100%;
+    --sidebar-border:             213 60% 45%;
+    --sidebar-accent:             213 60% 45%;
+    --sidebar-accent-foreground:   0 0% 100%;
   }
 
   /* Set default border color directly — avoids Tailwind v4 @apply
@@ -128,5 +93,20 @@
   h1, h2, h3, h4, h5, h6 {
     color: hsl(var(--foreground));
     font-weight: 500;
+  }
+
+  /* Links match the v1 brand blue throughout */
+  a {
+    color: hsl(var(--primary));
+    text-decoration: none;
+  }
+  a:hover {
+    text-decoration: underline;
+  }
+
+  /* Inactive / not-specified values shown in italic gray — matches v1 pattern */
+  .text-inactive {
+    color: hsl(var(--muted-foreground));
+    font-style: italic;
   }
 }
