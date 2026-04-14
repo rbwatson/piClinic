@@ -8,6 +8,9 @@
 #   version         Required. One of: v1, v2
 #
 # Options:
+#   --skip-build            v2 only: skip the npm build and dist copy step.
+#                           Use when you have already run 'npm run build'
+#                           and copied the output to www_v2/html/ manually.
 #   --dry-run               Show what would be copied without making changes
 #   --backup                Back up current deployment before deploying
 #                           (uses default backup dir: /var/backups/piclinic)
@@ -20,13 +23,16 @@
 #        www/pass/      -> /var/www/pass/   (conditional: skip if already present)
 #        www/scripts/   -> /var/www/scripts/
 #
-#   v2:  www_v2/html/       -> /var/www/html/      (React build + PHP v2 API)
-#        www_v2/html/api/  -> /var/www/html/api/  (PHP v2 API, inside html tree)
-#        www/pass/         -> /var/www/pass/       (shared with v1; conditional)
-#        www/scripts/      -> /var/www/scripts/    (shared with v1)
+#   v2:  frontend/           -> npm run build -> frontend/dist/
+#        frontend/dist/      -> www_v2/html/  (auto-copied after build)
+#        www_v2/html/        -> /var/www/html/ (React build + PHP v2 API)
+#        www/pass/           -> /var/www/pass/  (shared with v1; conditional)
+#        www/scripts/        -> /var/www/scripts/ (shared with v1)
 #
 # Examples:
 #   ./tools/deploy.sh v1
+#   ./tools/deploy.sh v2
+#   ./tools/deploy.sh v2 --skip-build
 #   ./tools/deploy.sh v2 --dry-run
 #   ./tools/deploy.sh v1 --backup
 #   ./tools/deploy.sh v2 --backup --backup-dir /home/user/backups
@@ -52,6 +58,7 @@ BACKUP_DIR=""
 VERSION=""
 DRY_RUN=false
 DO_BACKUP=false
+SKIP_BUILD=false
 APACHE_WAS_RUNNING=false
 
 # ---------------------------------------------------------------------------
@@ -127,6 +134,48 @@ do_backup() {
   sudo mkdir -p "$target_dir" || die "Cannot create backup directory: ${target_dir}"
   sudo cp -a "$WEB_ROOT" "$backup_path" || die "Backup failed"
   info "Backup saved to: ${backup_path}"
+}
+
+# ---------------------------------------------------------------------------
+# Build and copy frontend (v2 only)
+# Runs npm run build in frontend/, then copies dist/ to www_v2/html/
+# Skipped if --skip-build is passed.
+# ---------------------------------------------------------------------------
+build_and_copy_frontend() {
+  local frontend_dir="${REPO_ROOT}/frontend"
+  local dist_dir="${frontend_dir}/dist"
+  local dest_dir="${REPO_ROOT}/www_v2/html"
+
+  if $SKIP_BUILD; then
+    info "--skip-build: skipping npm build and dist copy"
+    return
+  fi
+
+  # Verify frontend directory exists
+  [[ -d "$frontend_dir" ]] || die "frontend/ directory not found at ${frontend_dir}"
+  [[ -f "${frontend_dir}/package.json" ]] || die "package.json not found in ${frontend_dir}"
+
+  if $DRY_RUN; then
+    info "[dry-run] Would run: npm run build (in ${frontend_dir})"
+    info "[dry-run] Would copy: ${dist_dir}/ -> ${dest_dir}/"
+    return
+  fi
+
+  log "Building frontend..."
+  (cd "$frontend_dir" && npm run build) \
+    || die "npm run build failed - deployment aborted"
+
+  # Confirm dist/ was actually produced
+  [[ -d "$dist_dir" ]] || die "Build succeeded but dist/ not found at ${dist_dir}"
+  [[ -n "$(ls -A "$dist_dir" 2>/dev/null)" ]] || die "Build produced an empty dist/ directory"
+
+  log "Copying dist/ to www_v2/html/..."
+  mkdir -p "$dest_dir"
+  rsync -a --delete --exclude='.gitkeep' --exclude='api/' \
+    "${dist_dir}/" "${dest_dir}/" \
+    || die "Failed to copy dist/ to www_v2/html/"
+
+  info "Frontend build copied to ${dest_dir}"
 }
 
 # ---------------------------------------------------------------------------
@@ -240,7 +289,6 @@ deploy_pass() {
   fi
 
   if ! sudo test -d "$dest" 2>/dev/null; then
-    # First-time install: copy template files and flag for configuration
     log "pass/ not found at ${dest} - copying template files..."
     sudo mkdir -p "$dest"
     sudo rsync -av "${src}/" "${dest}/" \
@@ -252,7 +300,6 @@ deploy_pass() {
   else
     info "pass/ already present at ${dest} - leaving existing files in place"
 
-    # Verify all expected pass files are present
     local src_file dest_file
     local missing=false
     for src_file in "${src}"/*; do
@@ -305,7 +352,6 @@ deploy_scripts() {
 
   sudo chown -R www-data:www-data "${dest}"
   sudo find "${dest}" -type d -exec chmod 755 {} \;
-  # Shell scripts need execute permission; other files do not
   sudo find "${dest}" -type f -name "*.sh" -exec chmod 755 {} \;
   sudo find "${dest}" -type f ! -name "*.sh" -exec chmod 644 {} \;
 }
@@ -362,15 +408,22 @@ deploy_v1() {
 
 # ---------------------------------------------------------------------------
 # Deploy v2
-# Source: www_v2/html/ (React build) www_v2/api/ www/pass/ www/scripts/
+# 1. Build frontend (unless --skip-build)
+# 2. Copy dist/ to www_v2/html/
+# 3. Deploy www_v2/html/ to /var/www/html/
+# 4. Run composer install
+# 5. Deploy pass/ and scripts/
 # ---------------------------------------------------------------------------
 deploy_v2() {
   local frontend_src="${REPO_ROOT}/www_v2/html"
 
-  # Frontend build is required for v2
+  # Build and copy frontend first (unless --skip-build)
+  build_and_copy_frontend
+
+  # After build (or skip), verify www_v2/html/ has content
   if [[ ! -d "$frontend_src" ]] || \
      [[ -z "$(ls -A "$frontend_src" 2>/dev/null | grep -v '.gitkeep')" ]]; then
-    die "Frontend build not found at ${frontend_src}. Run 'npm run build' in the frontend/ directory and copy the output to www_v2/html/ first."
+    die "www_v2/html/ is empty. Run without --skip-build, or manually copy the build output."
   fi
 
   log "Deploying v2..."
@@ -397,6 +450,10 @@ while [[ $# -gt 0 ]]; do
   case "$1" in
     v1|v2)
       VERSION="$1"
+      shift
+      ;;
+    --skip-build)
+      SKIP_BUILD=true
       shift
       ;;
     --dry-run)
@@ -429,18 +486,26 @@ done
 
 [[ -n "$VERSION" ]] || die "Version argument required (v1 or v2). Run with --help for usage."
 
+# Warn if --skip-build is used with v1 (it's silently ignored but confusing)
+if $SKIP_BUILD && [[ "$VERSION" == "v1" ]]; then
+  warn "--skip-build has no effect for v1 deployments"
+fi
+
 # ---------------------------------------------------------------------------
 # Pre-flight checks
 # ---------------------------------------------------------------------------
 if ! $DRY_RUN; then
   command -v rsync >/dev/null 2>&1 || die "rsync is required but not installed"
   command -v sudo  >/dev/null 2>&1 || die "sudo is required"
+  if [[ "$VERSION" == "v2" ]] && ! $SKIP_BUILD; then
+    command -v npm >/dev/null 2>&1 || die "npm is required for v2 builds. Use --skip-build if the frontend is already built."
+  fi
 fi
 
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
-log "Starting deploy: version=${VERSION}, web-root=${WEB_ROOT}, dry-run=${DRY_RUN}, backup=${DO_BACKUP}"
+log "Starting deploy: version=${VERSION}, web-root=${WEB_ROOT}, dry-run=${DRY_RUN}, backup=${DO_BACKUP}, skip-build=${SKIP_BUILD}"
 
 # Record Apache state before touching anything
 if apache_is_running; then
