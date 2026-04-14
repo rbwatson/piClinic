@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head>
+<meta http-equiv="refresh" content="1440; url=/uihelp/endUiSession.php?msg=SESSION_TIMEOUT"><title>Información de la clínica</title>
+<meta charset="utf-8"/><link href="/assets/css/piClinic.css" rel="stylesheet">
+</head>
+<body>
+    <!-- "token": "203a3dc2_0b5a_4e70_a95a_d2b9fdc4eceb" -->
+	<script>0</script><div id="piClinicBannerDiv" class="noprint">
+<p class="piClinicBannerText">piClinic</p>
+</div>
+	<div id="sessionMenu" class="noprint"><div id="sessionDiv" class="noprint"><p>Inscrito como: SystemAdmin&nbsp;&nbsp;|&nbsp;&nbsp;<a href="/staffAddEdit.php?useredit=true" title="Actualizar la configuración y la contraseña de la cuenta del usuario ">Configuración del usuario</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="/uihelp/endUiSession.php" title="Cerrar sesión" >Cerrar sesión</a></p></div><div id="sessionPageMenu" class="noprint"><p>Mostrar esta pantalla en: <a href="/clinicDash.php?lang=en" class="langLing">Inglés</a></p></div></div><div class="clearFloat"></div>		<div id="topLinkMenuDiv" class="noprint"><div id="appMenu">
+<ul class="topLinkMenuList">
+<li class="currentPage firstLink">
+Página principal</li>
+<li>
+<a class="a_mainReports" href="/reportHome.php?fromLink=clinicDash.php-a_mainReports">Informes</a>
+</li>
+<li>
+<a class="a_mainAdmin" href="/adminHome.php?fromLink=clinicDash.php-a_mainAdmin">Admin</a>
+</li>
+<li>
+<a class="a_mainHelp" href="/helpHome.php?fromLink=clinicDash.php-a_mainHelp">Ayuda</a>
+</li>
+</ul></div>
+<div id="commentMenu">
+<a class="a_mainComment" href="/userComment.php?fromLink=clinicDash.php-a_mainComment" title="Hacer un comentario de esta página">Comentario</a>
+</div></div><div class="clearFloat"></div>	<div class="pageBody">
+	<div id="PatientLookupDiv" class="noprint">
+		<form enctype="application/x-www-form-urlencoded" action="/ptResults.php" method="get">
+			<p><label class="close">Número del paciente, visita, o familia:</label>
+				<input type="text" id="qInputId" name="q" value="" autofocus="autofocus" placeholder="El nombre o número para encontrar" class="piClinicEdit" maxlength="255">			<button class="btn_ptSearch" type="submit">Buscar</button>
+			</p>
+            <input type="hidden" id="WorkflowID" name="workflow" value="HF_PT_SEARCH_299e23b4_feee_42c9_ab31_caa825e2319f" >
+            <input type="hidden" id="SearchBtnTag" name="fromLink" value="clinicDash.php-btn_ptSearch">
+		</form>
+	<hr>
+	</div>
+	<div id="ClinicVisitsDiv">
+<h2 id="visitListHeading">Pacientes admitidos a la clínica</h2><p class="openVisits">*Visitas de una fecha anterior</p><table class="piClinicList"><tr><th><a href="/clinicDash.php?sort=name" title="Ordenar por esta columna">Nombre</a></th><th>Llegó</th><th><a href="/clinicDash.php?sort=doctor" title="Ordenar por esta columna">Médico</a></th><th>Motivo de la visita</th><th>Acciones de la visita</th></tr><tr><td class="nowrap"><a class="a_ptedit" href="/ptInfo.php?clinicPatientID=PT-GEN-000080&fromLink=clinicDash.php-a_ptedit&workflow=HF_PT_VIEW_808741e9_04d7_4c7b_86c3_0c590309749e" title="Mostrar los detalles del paciente">Calderón Guerrero,&nbsp;Hildegunda&nbsp;(M)</a></td><td class="nowrap notToday" title="18-06-2022 12:04">*12:04</td><td class="nowrap">Corral, Test</td><td>visita del año</td><td class="nowrap"><a class="a_visitview" href="/visitInfo.php?patientVisitID=0000000000802022061802&clinicPatientID=PT-GEN-000080&fromLink=clinicDash.php-a_visitview&workflow=HF_VISIT_VIEW_72aa4ee1_d0fe_49e7_853a_96fac6345cb1" title="Mostrar los detalles de la visita">Ver</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a class="a_visitedit" href="/visitEdit.php?patientVisitID=0000000000802022061802&clinicPatientID=PT-GEN-000080&fromLink=clinicDash.php-a_visitedit&workflow=HF_VISIT_EDIT_4ded73f9_d5ca_46d1_b6e6_2dfa88cf812d" title="Actualizar esta visita">Actualizar</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a class="a_visitclose" href="/visitClose.php?patientVisitID=0000000000802022061802&clinicPatientID=PT-GEN-000080&fromLink=clinicDash.php-a_visitclose&workflow=HF_VISIT_CLOSE_3f481e79_fc12_4d44_bbce_913fa981c0df" title="Dar de alta este paciente">Dar de alta</a></td></tr><tr><td class="nowrap"><a class="a_ptedit" href="/ptInfo.php?clinicPatientID=PT-GEN-000079&fromLink=clinicDash.php-a_ptedit&workflow=HF_PT_VIEW_1685566f_becc_40a1_8916_f423cef3c6e9" title="Mostrar los detalles del paciente">López,&nbsp;Marga&nbsp;(M)</a></td><td class="nowrap notToday" title="18-06-2022 12:26">*12:26</td><td class="nowrap">Saavedra, Test</td><td>nueva paciente</td><td class="nowrap"><a class="a_visitview" href="/visitInfo.php?patientVisitID=0000000000792022061801&clinicPatientID=PT-GEN-000079&fromLink=clinicDash.php-a_visitview&workflow=HF_VISIT_VIEW_7f913102_863b_498b_b88d_0ed8b70fcde9" title="Mostrar los detalles de la visita">Ver</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a class="a_visitedit" href="/visitEdit.php?patientVisitID=0000000000792022061801&clinicPatientID=PT-GEN-000079&fromLink=clinicDash.php-a_visitedit&workflow=HF_VISIT_EDIT_350b1642_4264_4d7c_a231_0276fef6f144" title="Actualizar esta visita">Actualizar</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a class="a_visitclose" href="/visitClose.php?patientVisitID=0000000000792022061801&clinicPatientID=PT-GEN-000079&fromLink=clinicDash.php-a_visitclose&workflow=HF_VISIT_CLOSE_317efa31_5d2c_4db0_977c_5f0fbc9f7ee2" title="Dar de alta este paciente">Dar de alta</a></td></tr></table>	</div>
+	</div>
+    <style>p.openVisits {display:inline; } </style>
+    <style>h2 {margin-bottom: 0; } </style>
+</body>
+</html>

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head>
+<meta http-equiv="refresh" content="86400; url=/uihelp/endUiSession.php?msg=SESSION_TIMEOUT"><title>Clinic login</title>
+<meta charset="utf-8"/><link href="/assets/css/piClinic.css" rel="stylesheet">
+</head>
+<body>
+	<script>0</script><div id="piClinicBannerDiv" class="noprint">
+<p class="piClinicBannerText">piClinic</p>
+</div>
+	<div id="sessionMenu"><p>&nbsp;</p><!-- placeholder for this page --></div>
+		<div id="loginDiv">
+		<p class="piClinicPageTitle">Clinic login</p>
+		<form enctype="multipart/form-data" action="/uihelp/startUiSession.php" method="post">
+			<p><label class="piClinicFieldLabel">Username:</label><br>
+				<input type="text" id="usernameInputId" name="username" value="" autofocus="autofocus" autocomplete="username" placeholder="Username" class="piClinicEdit" maxlength="64">			</p>
+			<p><label class="piClinicFieldLabel">Password:</label><br>
+				<input type="password" id="passwordInputId" name="password" value="" autocomplete="current-password" placeholder="Password" class="piClinicEdit"  required maxlength="128">			</p>
+			<input type="hidden" id="langField" name="lang" value="en" >			<p class="piClinicButton"><button type="submit">Login</button></p>
+		</form>
+	</div>
+</body>
+</html>
