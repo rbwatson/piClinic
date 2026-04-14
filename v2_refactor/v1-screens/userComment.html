@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head>
+<meta http-equiv="refresh" content="1440; url=/uihelp/endUiSession.php?msg=SESSION_TIMEOUT"><title>Comentarios de los usuarios</title>
+<meta charset="utf-8"/><link href="/assets/css/piClinic.css" rel="stylesheet">
+</head>
+<body>
+	<script>0</script><div id="piClinicBannerDiv" class="noprint">
+<p class="piClinicBannerText">piClinic</p>
+</div>
+	<div id="sessionMenu" class="noprint"><div id="sessionDiv" class="noprint"><p>Inscrito como: SystemAdmin&nbsp;&nbsp;|&nbsp;&nbsp;<a href="/staffAddEdit.php?useredit=true" title="Actualizar la configuración y la contraseña de la cuenta del usuario ">Configuración del usuario</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="/uihelp/endUiSession.php" title="Cerrar sesión" >Cerrar sesión</a></p></div><div id="sessionPageMenu" class="noprint"><p>Mostrar esta pantalla en: <a href="/userComment.php?lang=en" class="langLing">Inglés</a></p></div></div><div class="clearFloat"></div>		<div id="topLinkMenuDiv" class="noprint"><div id="appMenu">
+<ul class="topLinkMenuList">
+<li class="firstLink">
+<a class="a_mainHome" href="/clinicDash.php?fromLink=userComment.php-a_mainHome">Página principal</a>
+</li>
+<li>
+<a class="a_mainReports" href="/reportHome.php?fromLink=userComment.php-a_mainReports">Informes</a>
+</li>
+<li>
+<a class="a_mainAdmin" href="/adminHome.php?fromLink=userComment.php-a_mainAdmin">Admin</a>
+</li>
+<li>
+<a class="a_mainHelp" href="/helpHome.php?fromLink=userComment.php-a_mainHelp">Ayuda</a>
+</li>
+</ul></div>
+<div id="commentMenu">
+<a class="a_mainComment" href="/userComment.php?fromLink=userComment.php-a_mainComment" title="Hacer un comentario de esta página">Comentario</a>
+</div></div><div class="clearFloat"></div>	<div id="topicMenuDiv">
+<ul class="topLinkMenuList">
+<li class="firstLink"><a href="https://dev.piclinic.org/staffAddEdit.php?username=TestSA&fromLink=userComment.php-Cancel">Cancelar</a></li>
+</ul></div>
+	<div class="pageBody">
+	<div id="commentDiv">
+		<h1 class="pageHeading">Comentarios de los usuarios</h1>
+		<form enctype="multipart/form-data" action="/uihelp/addComment.php" method="post">
+			<p><label>Cancelar:</label><br>
+			<textarea name="commentText" id="CommentTextEdit" class="commentTextEdit" placeholder="Entrar su comentario del piClinic aquí" maxlength="2048"></textarea>
+			</p>
+			<input type="hidden" id="CommentDateField" name="commentDate" value="2026-04-14 12:21:33">
+			<input type="hidden" id="UsernameField" name="username" value="SystemAdmin">
+			<input type="hidden" id="ReferringUrlField" name="referringUrl" value="https://dev.piclinic.org/staffAddEdit.php?username=TestSA">
+			<input type="hidden" id="ReferringPageField" name="referringPage" value="/staffAddEdit.php">
+			<input type="hidden" id="ReturnUrlField" name="returnUrl" value="https://dev.piclinic.org/staffAddEdit.php?username=TestSA">
+            <input type="hidden" id="SubmitBtnTag" name="fromLink" value="userComment.php-btn_submit">
+			<p><button class="btn_submit" type="submit">Entregar</button></p>
+		</form>
+	</div>
+	</div>
+</body>
+</html>

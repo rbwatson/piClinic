@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head>
+<meta http-equiv="refresh" content="1440; url=/uihelp/endUiSession.php?msg=SESSION_TIMEOUT"><title>Actualizar los datos personales</title>
+<meta charset="utf-8"/><link href="/assets/css/piClinic.css" rel="stylesheet">
+</head>
+<body>
+	<script>0</script><div id="piClinicBannerDiv" class="noprint">
+<p class="piClinicBannerText">piClinic</p>
+</div>
+	<div id="sessionMenu" class="noprint"><div id="sessionDiv" class="noprint"><p>Inscrito como: SystemAdmin&nbsp;&nbsp;|&nbsp;&nbsp;<a href="/staffAddEdit.php?useredit=true" title="Actualizar la configuración y la contraseña de la cuenta del usuario ">Configuración del usuario</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="/uihelp/endUiSession.php" title="Cerrar sesión" >Cerrar sesión</a></p></div><div id="sessionPageMenu" class="noprint"><p>Mostrar esta pantalla en: <a href="/staffAddEdit.php?username=TestSA&lang=en" class="langLing">Inglés</a></p></div></div><div class="clearFloat"></div>		<div id="topLinkMenuDiv" class="noprint"><div id="appMenu">
+<ul class="topLinkMenuList">
+<li class="firstLink">
+<a class="a_mainHome" href="/clinicDash.php?fromLink=staffAddEdit.php-a_mainHome">Página principal</a>
+</li>
+<li>
+<a class="a_mainReports" href="/reportHome.php?fromLink=staffAddEdit.php-a_mainReports">Informes</a>
+</li>
+<li>
+<a class="a_mainAdmin" href="/adminHome.php?fromLink=staffAddEdit.php-a_mainAdmin">Admin</a>
+</li>
+<li>
+<a class="a_mainHelp" href="/helpHome.php?fromLink=staffAddEdit.php-a_mainHelp">Ayuda</a>
+</li>
+</ul></div>
+<div id="commentMenu">
+<a class="a_mainComment" href="/userComment.php?fromLink=staffAddEdit.php-a_mainComment" title="Hacer un comentario de esta página">Comentario</a>
+</div></div><div class="clearFloat"></div>	<div class="pageBody">
+	<div id="topicMenuDiv">
+<ul class="topLinkMenuList">
+<li class="firstLink"><a class="a_cancel" href="https://dev.piclinic.org/adminShowUsers.php?fromLink=staffAddEdit.php-a_cancel">Cancelar</a></li>
+</ul></div>
+	<div id="staffDataDiv">
+		<div class="nameBlock">
+			<h1 class="pageHeading noBottomPad">Actualizar los datos personales</h1>
+		</div>
+		<div class="clearFloat"></div>
+		<form enctype="multipart/form-data" action="/uihelp/addStaff.php" method="post">
+			<h2>Información del usuario</h2>
+			<div id="accountInfo" class="indent1">
+				<p ><label class="close">Estado de la cuenta:</label>&nbsp;
+						<select id="activeField" name="active" class="requiredField">
+							<option value="" >Seleccione</option>
+							<option value="1" selected>Activo</option>
+							<option value="0" >Inactivo</option>
+						</select>
+				</p>
+				<p><label>Usuario/Contraseña:</label><br>
+					<label>TestSA</label>&nbsp;&nbsp;<input type="hidden" id="usernameField" name="username" value="TestSA">					<input type="text" id="passwordInputId" name="password" value="" placeholder="Su contraseña nueva" class="piClinicEdit" maxlength="255">				</p>
+				<p><label>Profesional:</label><br>
+					<input type="text" id="lastNameInputId" name="lastName" value="Test" placeholder="Apellido" class="piClinicEdit"  required maxlength="255">,&nbsp;
+					<input type="text" id="firstNameInputId" name="firstName" value="SystemAdmin" placeholder="Nombre" class="piClinicEdit"  required maxlength="255"><br>
+				</p>
+				<p><label>Como contactar esa persona:</label><br>
+					<input type="text" id="contactInfoInputId" name="contactInfo" value="" placeholder="Dirección de email o número telefónico" class="piClinicEdit" maxlength="255">&nbsp; &nbsp;
+                    <input type="text" id="altContactInfoInputId" name="altContactInfo" value="" placeholder="Alt. dirección de email o número telefónico" class="piClinicEdit" maxlength="255">				</p>
+                <p><label class="close">Idioma de la pantalla:</label>&nbsp;
+                    <select id="preferredLanguageField" name="preferredLanguage" class="requiredField">
+                        <option value="" >Seleccione</option>
+                        <option value="en" selected>Inglés</option>
+                        <option value="es" >Español</option>
+                    </select>
+                </p>
+			</div>
+			<h2 >Información de la clínica</h2>
+			<div id="clinicInfo" class="indent1 ">
+				<p><label>ID de la clínica:</label><br>
+					<input type="text" id="memberIDInputId" name="memberID" value="Test SystemAdmin" placeholder="ID de la clínica" class="piClinicEdit" maxlength="32">				</p>
+				<p><label class="close">Permiso para ingresar a los datos del sistema piClinic:</label>&nbsp;
+						<select id="accessGrantedField" name="accessGranted" class="requiredField">
+							<option value="" >Seleccione</option>
+							<option value="ClinicReadOnly" >Usuario autorizado</option>
+							<option value="ClinicStaff" >Personal de la clínica</option>
+							<option value="ClinicAdmin" >Administrador de la clínica</option>
+							<option value="SystemAdmin" selected>Administrador del sistema</option>
+						</select>
+				</p>
+				<p><label class="close">Puesto en la clínica:</label>&nbsp;
+						<select id="positionField" name="position" class="requiredField">
+							<option value="" >Seleccione</option>
+                            <option value="Nurse" >Enfermera-profesional</option><option value="NursesAid" >Enfermera-auxiliar</option><option value="DoctorGeneral" >Médico-general</option><option value="DoctorSpecialist" >Médico-especialista</option><option value="NursingStudent" >Estudiante de enfermería</option><option value="MedicalStudent" >Estudiante de medicina</option><option value="ClinicStaff" selected>Personal clínico</option><option value="Other" >Otro personal</option>						</select>
+				</p>
+				<input type="hidden" id="modeField" name="mode" value="edit">
+								<input type="hidden" id="methodField" name="_method" value="PATCH">
+                <input type="hidden" id="SubmitBtnTag" name="fromLink" value="staffAddEdit.php-btn_submit">
+			</div>
+			<p><button class="btn_submit" type="submit">Actualizar información</button></p>
+		</form>
+	</div>
+	</div>
+</body>
+</html>

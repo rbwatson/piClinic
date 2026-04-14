@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head>
+<meta http-equiv="refresh" content="1440; url=/uihelp/endUiSession.php?msg=SESSION_TIMEOUT"><title>Mostrar los errores y eventos del sistema</title>
+<meta charset="utf-8"/><link href="/assets/css/piClinic.css" rel="stylesheet">
+</head>
+<body>
+	<script>0</script><div id="piClinicBannerDiv" class="noprint">
+<p class="piClinicBannerText">piClinic</p>
+</div>
+	<div id="sessionMenu" class="noprint"><div id="sessionDiv" class="noprint"><p>Inscrito como: SystemAdmin&nbsp;&nbsp;|&nbsp;&nbsp;<a href="/staffAddEdit.php?useredit=true" title="Actualizar la configuración y la contraseña de la cuenta del usuario ">Configuración del usuario</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="/uihelp/endUiSession.php" title="Cerrar sesión" >Cerrar sesión</a></p></div><div id="sessionPageMenu" class="noprint"><p>Mostrar esta pantalla en: <a href="/adminLogViewer.php?lang=en" class="langLing">Inglés</a></p></div></div><div class="clearFloat"></div>		<div id="topLinkMenuDiv" class="noprint"><div id="appMenu">
+<ul class="topLinkMenuList">
+<li class="firstLink">
+<a class="a_mainHome" href="/clinicDash.php?fromLink=adminLogViewer.php-a_mainHome">Página principal</a>
+</li>
+<li>
+<a class="a_mainReports" href="/reportHome.php?fromLink=adminLogViewer.php-a_mainReports">Informes</a>
+</li>
+<li>
+<a class="a_mainAdmin" href="/adminHome.php?fromLink=adminLogViewer.php-a_mainAdmin">Admin</a>
+</li>
+<li>
+<a class="a_mainHelp" href="/helpHome.php?fromLink=adminLogViewer.php-a_mainHelp">Ayuda</a>
+</li>
+</ul></div>
+<div id="commentMenu">
+<a class="a_mainComment" href="/userComment.php?fromLink=adminLogViewer.php-a_mainComment" title="Hacer un comentario de esta página">Comentario</a>
+</div></div><div class="clearFloat"></div>	<div class="pageBody">
+	<h1 class="pageHeading">Mostrar los errores y eventos del sistema</h1>
+	<div id="logSelectorDiv" class="noprint ">
+		<form enctype="application/x-www-form-urlencoded" action="/adminLogViewer.php"  method="get">
+            <div class="infoBlock">
+            <label class="close">Acción</label>:
+                <select name="logAction" >
+                    <option value="">Seleccione</option>
+<option value="DELETE">DELETE</option>
+<option value="GET">GET</option>
+<option value="PATCH">PATCH</option>
+<option value="POST">POST</option>
+                </select>
+
+            <label class="close">Clase</label>:
+            <select name="logClass" >
+                <option value="">Seleccione</option>
+<option value="API">API</option>
+<option value="AUTOTEST">AUTOTEST</option>
+            </select>
+
+            <label class="close">Status</label>:
+            <select name="logStatusCode" >
+                <option value="">Seleccione</option>
+<option value="200">200</option>
+<option value="201">201</option>
+<option value="401">401</option>
+<option value="404">404</option>
+            </select>
+
+            <label class="close">Table</label>:
+            <select name="logTable" >
+                <option value="">Seleccione</option>
+<option value="comment">comment</option>
+<option value="icd">icd</option>
+<option value="log">log</option>
+<option value="session">session</option>
+<option value="staff">staff</option>
+<option value="textmsg">textmsg</option>
+<option value="visit">visit</option>
+<option value="_TEST_">_TEST_</option>
+            </select>
+
+            <label class="close">Source</label>:
+            <select name="sourceModule" >
+                <option value="">Seleccione</option>
+<option value="/var/www/html/api/comment.php">/var/www/html/api/comment.php</option>
+<option value="/var/www/html/api/icd.php">/var/www/html/api/icd.php</option>
+<option value="/var/www/html/api/log.php">/var/www/html/api/log.php</option>
+<option value="/var/www/html/api/session.php">/var/www/html/api/session.php</option>
+<option value="/var/www/html/api/session_delete.php">/var/www/html/api/session_delete.php</option>
+<option value="/var/www/html/api/session_patch.php">/var/www/html/api/session_patch.php</option>
+<option value="/var/www/html/api/session_post.php">/var/www/html/api/session_post.php</option>
+<option value="/var/www/html/api/staff.php">/var/www/html/api/staff.php</option>
+<option value="/var/www/html/api/staff_patch.php">/var/www/html/api/staff_patch.php</option>
+<option value="/var/www/html/api/staff_post.php">/var/www/html/api/staff_post.php</option>
+<option value="/var/www/html/api/textmsg.php">/var/www/html/api/textmsg.php</option>
+<option value="/var/www/html/api/textmsg_delete.php">/var/www/html/api/textmsg_delete.php</option>
+<option value="/var/www/html/api/textmsg_patch.php">/var/www/html/api/textmsg_patch.php</option>
+<option value="/var/www/html/api/visit_patch.php">/var/www/html/api/visit_patch.php</option>
+<option value="/var/www/html/api/visit_post.php">/var/www/html/api/visit_post.php</option>
+<option value="_TEST_">_TEST_</option>
+            </select>
+
+            <label class="close">Token</label>:
+            <select name="userToken" >
+                <option value="">Seleccione</option>
+<option value="0ca8ffac_7640_4082_b7d6_51da28b5ca58">0ca8ffac_7640_4082_b7d6_51da28b5ca58</option>
+<option value="00ccfe73_bd1b_4668_b0e9_c9d2f207ed3c">00ccfe73_bd1b_4668_b0e9_c9d2f207ed3c</option>
+<option value="00e9e278_8967_4c49_a6f7_abd0a14e2124">00e9e278_8967_4c49_a6f7_abd0a14e2124</option>
+<option value="0ea2ac5f_e2b2_418a_8cdd_1acc632289b4">0ea2ac5f_e2b2_418a_8cdd_1acc632289b4</option>
+<option value="0ee7c7d9_90a0_4e24_a24c_010517ccf539">0ee7c7d9_90a0_4e24_a24c_010517ccf539</option>
+<option value="1a96a7ec_22f3_462b_853e_f701c5141f9e">1a96a7ec_22f3_462b_853e_f701c5141f9e</option>
+<option value="1a5485c3_143f_4d61_bef6_36c35e4c0c44">1a5485c3_143f_4d61_bef6_36c35e4c0c44</option>
+<option value="1ac5c086_5dfb_467c_a975_bd1dc0c9d5c1">1ac5c086_5dfb_467c_a975_bd1dc0c9d5c1</option>
+<option value="1af7b13c_8588_4510_85aa_1c9d2faaec71">1af7b13c_8588_4510_85aa_1c9d2faaec71</option>
+<option value="1bc8271d_ea44_491a_a919_dbb07b04f849">1bc8271d_ea44_491a_a919_dbb07b04f849</option>
+<option value="1c8e7f03_edc2_450a_9d5d_a5fba952ee25">1c8e7f03_edc2_450a_9d5d_a5fba952ee25</option>
+<option value="1c57a451_8767_4829_ac82_dbf052aa6a1b">1c57a451_8767_4829_ac82_dbf052aa6a1b</option>
+<option value="1cb29734_f3b9_49b2_93ae_12612557e108">1cb29734_f3b9_49b2_93ae_12612557e108</option>
+<option value="1cd8a642_b53b_4adc_8429_8820ef50999a">1cd8a642_b53b_4adc_8429_8820ef50999a</option>
+<option value="1d062d62_6d01_437a_af98_54ca30b3026f">1d062d62_6d01_437a_af98_54ca30b3026f</option>
+<option value="1e0af3cf_a70f_4271_aabb_47e50d52bfb0">1e0af3cf_a70f_4271_aabb_47e50d52bfb0</option>
+<option value="1e559a54_e65d_4ef5_b4e8_c09ff15ca0f5">1e559a54_e65d_4ef5_b4e8_c09ff15ca0f5</option>
+<option value="1e5058fc_e77c_45b9_958d_27e2ec27e715">1e5058fc_e77c_45b9_958d_27e2ec27e715</option>
+<option value="1fb65f5f_1f5c_4787_ac35_3608eaab97d4">1fb65f5f_1f5c_4787_ac35_3608eaab97d4</option>
+<option value="1fd2983d_d11a_4bf8_b5e2_81bb2a09362a">1fd2983d_d11a_4bf8_b5e2_81bb2a09362a</option>
+<option value="2a6a8ae1_76d9_432f_8a66_5c38d83824b8">2a6a8ae1_76d9_432f_8a66_5c38d83824b8</option>
+<option value="2b653851_cbce_4a9a_9736_60cc15f7edf6">2b653851_cbce_4a9a_9736_60cc15f7edf6</option>
+<option value="2df19f87_cfd0_4b07_84c4_3a0c4c08adc3">2df19f87_cfd0_4b07_84c4_3a0c4c08adc3</option>
+<option value="2edbc51c_0285_4cc0_80f0_59fd86e9c266">2edbc51c_0285_4cc0_80f0_59fd86e9c266</option>
+<option value="2ede364b_7bf0_442e_b2e8_0440e10b9566">2ede364b_7bf0_442e_b2e8_0440e10b9566</option>
+<option value="2efb7857_8f7c_4a00_8464_867ebd93ab71">2efb7857_8f7c_4a00_8464_867ebd93ab71</option>
+<option value="2f7ccee3_83bc_45be_9384_26274c628171">2f7ccee3_83bc_45be_9384_26274c628171</option>
+<option value="3a0b0865_ca8c_4cc5_b8a6_7c1c9df5e170">3a0b0865_ca8c_4cc5_b8a6_7c1c9df5e170</option>
+<option value="3a572e76_c592_4e53_93e2_1618700c7f4d">3a572e76_c592_4e53_93e2_1618700c7f4d</option>
+<option value="3a643629_699e_4600_a264_566f51444035">3a643629_699e_4600_a264_566f51444035</option>
+<option value="3be2aefe_ef00_4480_b07d_19789e5f75e0">3be2aefe_ef00_4480_b07d_19789e5f75e0</option>
+<option value="3bf10e13_eacb_40e0_b6f8_dddf8837884e">3bf10e13_eacb_40e0_b6f8_dddf8837884e</option>
+<option value="3c99efd2_f485_46d9_9b69_016d42505e34">3c99efd2_f485_46d9_9b69_016d42505e34</option>
+<option value="3c565684_6c98_402f_b4e2_74fb66f581f3">3c565684_6c98_402f_b4e2_74fb66f581f3</option>
+<option value="3cf1ad16_8d95_4120_af72_ed6cb0478f71">3cf1ad16_8d95_4120_af72_ed6cb0478f71</option>
+<option value="03d33b1a_0530_4b04_bb14_1c6b6d49c25b">03d33b1a_0530_4b04_bb14_1c6b6d49c25b</option>
+<option value="3dca6985_078a_44dd_a403_536cab42e0e9">3dca6985_078a_44dd_a403_536cab42e0e9</option>
+<option value="3dfe53c2_c879_482f_b612_87096c5daaa1">3dfe53c2_c879_482f_b612_87096c5daaa1</option>
+<option value="3f38e848_18e8_4c27_90ab_d1764834514d">3f38e848_18e8_4c27_90ab_d1764834514d</option>
+<option value="3f185324_ae0e_4b8d_a059_c89b945c1e27">3f185324_ae0e_4b8d_a059_c89b945c1e27</option>
+<option value="4a3b92a8_d4e1_4af4_8027_f782a827aab8">4a3b92a8_d4e1_4af4_8027_f782a827aab8</option>
+<option value="4a7cc409_7840_4c4d_b8d7_da8c5764ea6e">4a7cc409_7840_4c4d_b8d7_da8c5764ea6e</option>
+<option value="4a217060_59d9_4092_a797_9fa3fdf99120">4a217060_59d9_4092_a797_9fa3fdf99120</option>
+<option value="4a949902_8410_475d_a4a1_f093316ac44e">4a949902_8410_475d_a4a1_f093316ac44e</option>
+<option value="4cb9292c_7aa0_486b_8324_1f4f32067f95">4cb9292c_7aa0_486b_8324_1f4f32067f95</option>
+<option value="04dfa022_0e2f_4b89_abf9_e090bdbe9fd5">04dfa022_0e2f_4b89_abf9_e090bdbe9fd5</option>
+<option value="4e7b076c_d0aa_46e3_ba96_3668a48d501b">4e7b076c_d0aa_46e3_ba96_3668a48d501b</option>
+<option value="4e270eac_1d9e_4cff_bd46_a45576637529">4e270eac_1d9e_4cff_bd46_a45576637529</option>
+<option value="4e4288f2_0977_4c92_8904_a32a48dd5188">4e4288f2_0977_4c92_8904_a32a48dd5188</option>
+<option value="4f9fd216_1775_44f6_8695_61c0b6f741c3">4f9fd216_1775_44f6_8695_61c0b6f741c3</option>
+<option value="4f227cef_68e9_49a4_b7a9_f5241cd9151b">4f227cef_68e9_49a4_b7a9_f5241cd9151b</option>
+<option value="4fe877c7_5ac8_411b_9867_414384e8fbfb">4fe877c7_5ac8_411b_9867_414384e8fbfb</option>
+<option value="5ab79bb2_94f8_4b15_a39d_fded90021b44">5ab79bb2_94f8_4b15_a39d_fded90021b44</option>
+<option value="5b60fb61_a439_4c3c_91f9_c1ed05e67726">5b60fb61_a439_4c3c_91f9_c1ed05e67726</option>
+<option value="5b91d9c6_bb49_4f63_9808_ce612a73e91e">5b91d9c6_bb49_4f63_9808_ce612a73e91e</option>
+<option value="5be04165_17b3_4121_9be1_a2dc178ed609">5be04165_17b3_4121_9be1_a2dc178ed609</option>
+<option value="5cf50038_effc_445d_a509_1b749df2f09b">5cf50038_effc_445d_a509_1b749df2f09b</option>
+<option value="5e48ddb5_be87_4d61_9f33_538a3d396689">5e48ddb5_be87_4d61_9f33_538a3d396689</option>
+<option value="5f4caafd_93a9_4c6c_8f76_3b3803597630">5f4caafd_93a9_4c6c_8f76_3b3803597630</option>
+<option value="05f4cb8e_f96e_4534_a0a4_30de9b95ffd0">05f4cb8e_f96e_4534_a0a4_30de9b95ffd0</option>
+<option value="5f52f16f_046b_4bcc_b227_18b2c184d4a8">5f52f16f_046b_4bcc_b227_18b2c184d4a8</option>
+<option value="5f192ac0_d21f_4f08_8d8c_961486301c5c">5f192ac0_d21f_4f08_8d8c_961486301c5c</option>
+<option value="5fe28478_aedf_4a92_87e7_b6ca9512e546">5fe28478_aedf_4a92_87e7_b6ca9512e546</option>
+<option value="6ada02f6_7ff5_4b5f_9a7d_74edffedadc9">6ada02f6_7ff5_4b5f_9a7d_74edffedadc9</option>
+<option value="6b0d6474_c349_4f2d_a20f_26ecb7239b0b">6b0d6474_c349_4f2d_a20f_26ecb7239b0b</option>
+<option value="6c9ebd54_9891_4fa9_8c87_3e1f48bf2f74">6c9ebd54_9891_4fa9_8c87_3e1f48bf2f74</option>
+<option value="6c297304_cc97_4497_ba7d_5be00966048c">6c297304_cc97_4497_ba7d_5be00966048c</option>
+<option value="06e5bd38_c807_4084_a960_aa9e4d39e1ca">06e5bd38_c807_4084_a960_aa9e4d39e1ca</option>
+<option value="06e356fd_dd31_4b91_acca_4fcece1c1b7c">06e356fd_dd31_4b91_acca_4fcece1c1b7c</option>
+<option value="6ef9fdf0_0987_490a_aa92_aa01142d06af">6ef9fdf0_0987_490a_aa92_aa01142d06af</option>
+<option value="6f0c52ce_38c9_42f3_9f72_ae1abb981536">6f0c52ce_38c9_42f3_9f72_ae1abb981536</option>
+<option value="7be35828_3c8b_41f5_a0cc_17a79ff6a15a">7be35828_3c8b_41f5_a0cc_17a79ff6a15a</option>
+<option value="7c6ecc5f_b91c_4151_972f_8eaa95621360">7c6ecc5f_b91c_4151_972f_8eaa95621360</option>
+<option value="7c61691d_4c7a_4eff_b43b_436f5af35aab">7c61691d_4c7a_4eff_b43b_436f5af35aab</option>
+<option value="7dfa3142_56ca_4d31_9a13_78ee17f058a2">7dfa3142_56ca_4d31_9a13_78ee17f058a2</option>
+<option value="7dfaff4d_0ee4_4f33_aa42_2d4bb5deb16c">7dfaff4d_0ee4_4f33_aa42_2d4bb5deb16c</option>
+<option value="7f7c05f5_02bb_4aa6_8970_717982892f66">7f7c05f5_02bb_4aa6_8970_717982892f66</option>
+<option value="7fe69151_a0fb_40b9_8eb4_42ffc0d90d1b">7fe69151_a0fb_40b9_8eb4_42ffc0d90d1b</option>
+<option value="8c4fc5e7_8834_4549_a07f_3ca1c957d215">8c4fc5e7_8834_4549_a07f_3ca1c957d215</option>
+<option value="8d1986d3_43d4_4cce_8c1f_d4e15294db50">8d1986d3_43d4_4cce_8c1f_d4e15294db50</option>
+<option value="8e97407a_7e7f_409c_8dd3_a2ac9d368001">8e97407a_7e7f_409c_8dd3_a2ac9d368001</option>
+<option value="8fcec718_cadb_4bd4_bc9b_160a06f8e250">8fcec718_cadb_4bd4_bc9b_160a06f8e250</option>
+<option value="9a26072d_669a_47d1_a2b8_368c6c788503">9a26072d_669a_47d1_a2b8_368c6c788503</option>
+<option value="9b7455a8_ac7e_49b0_8b57_02faf3fab846">9b7455a8_ac7e_49b0_8b57_02faf3fab846</option>
+<option value="09beec92_1ad1_4ba2_9496_9cc9ce59edb6">09beec92_1ad1_4ba2_9496_9cc9ce59edb6</option>
+<option value="9c935c4f_c570_46c1_a89f_67a822434103">9c935c4f_c570_46c1_a89f_67a822434103</option>
+<option value="9d502c5e_706a_4e6f_a32b_7cf23f83a89b">9d502c5e_706a_4e6f_a32b_7cf23f83a89b</option>
+<option value="9eb594f3_4b4f_4d00_8a95_0be6fb0e3701">9eb594f3_4b4f_4d00_8a95_0be6fb0e3701</option>
+<option value="9f92ebd6_cce7_4b23_bea1_175fbfc92c37">9f92ebd6_cce7_4b23_bea1_175fbfc92c37</option>
+<option value="9f216a12_a4e0_4e0b_a040_ea819211f91b">9f216a12_a4e0_4e0b_a040_ea819211f91b</option>
+<option value="9fad3a0b_3e47_4a06_9e3d_619642cf3ffd">9fad3a0b_3e47_4a06_9e3d_619642cf3ffd</option>
+<option value="11b7df79_a2db_4071_b2aa_3f67355ddff8">11b7df79_a2db_4071_b2aa_3f67355ddff8</option>
+<option value="12f19e11_10f8_4f7f_9507_f9997329a855">12f19e11_10f8_4f7f_9507_f9997329a855</option>
+<option value="14ca5edc_37d5_45d0_994d_1419c11f2f2a">14ca5edc_37d5_45d0_994d_1419c11f2f2a</option>
+<option value="14fde854_efa3_45a0_b587_1b6d949aa312">14fde854_efa3_45a0_b587_1b6d949aa312</option>
+<option value="15bc4029_9ed1_40c4_a017_3f1c7f9f9358">15bc4029_9ed1_40c4_a017_3f1c7f9f9358</option>
+<option value="15fdaf1a_ad09_4712_a0f8_c30cd8db3c3e">15fdaf1a_ad09_4712_a0f8_c30cd8db3c3e</option>
+<option value="16b06de6_8a8a_4e15_b71b_f6ce36c2e14b">16b06de6_8a8a_4e15_b71b_f6ce36c2e14b</option>
+<option value="16c18b67_b586_4374_9096_6736083d18b4">16c18b67_b586_4374_9096_6736083d18b4</option>
+<option value="16e3c570_ad3f_45fb_8c1d_cd59b0bf7c8d">16e3c570_ad3f_45fb_8c1d_cd59b0bf7c8d</option>
+<option value="18bf1a15_dcc6_4ab6_8977_d1c4bf54a956">18bf1a15_dcc6_4ab6_8977_d1c4bf54a956</option>
+<option value="21b14801_5506_4597_a317_f89685ecb00a">21b14801_5506_4597_a317_f89685ecb00a</option>
+<option value="22d03b23_4dad_4bab_a4ce_8fb6603aa723">22d03b23_4dad_4bab_a4ce_8fb6603aa723</option>
+<option value="22f27ae4_a022_4814_8491_8dfdfd04dfcb">22f27ae4_a022_4814_8491_8dfdfd04dfcb</option>
+<option value="24f7ce47_40a0_4439_b10d_7b8ea9d2b06f">24f7ce47_40a0_4439_b10d_7b8ea9d2b06f</option>
+<option value="25b9927c_1c63_4a69_9ac6_aafb778984a8">25b9927c_1c63_4a69_9ac6_aafb778984a8</option>
+<option value="25eadb0b_29c9_435a_bf11_0d13235411d4">25eadb0b_29c9_435a_bf11_0d13235411d4</option>
+<option value="26a6676f_ebb2_4b4b_a52f_46544467662c">26a6676f_ebb2_4b4b_a52f_46544467662c</option>
+<option value="027b04e3_f5d8_4851_bf7c_7fac60c532f4">027b04e3_f5d8_4851_bf7c_7fac60c532f4</option>
+<option value="27b38a6b_f803_48d3_85bd_5e289224a3f8">27b38a6b_f803_48d3_85bd_5e289224a3f8</option>
+<option value="32a92a9b_526d_44f0_885c_f77ca99bc996">32a92a9b_526d_44f0_885c_f77ca99bc996</option>
+<option value="34e1de14_d4c0_4597_a03a_4a589a8f1b1f">34e1de14_d4c0_4597_a03a_4a589a8f1b1f</option>
+<option value="34e1effa_4b94_43dc_9624_37872ef6f4d5">34e1effa_4b94_43dc_9624_37872ef6f4d5</option>
+<option value="35a8f169_65a4_4a3c_bc22_42da3286f83f">35a8f169_65a4_4a3c_bc22_42da3286f83f</option>
+<option value="38c3c973_3da1_4aa0_b8e7_57d88a9545e8">38c3c973_3da1_4aa0_b8e7_57d88a9545e8</option>
+<option value="39d7057b_e5ac_49e4_8877_62cfe8a2bfec">39d7057b_e5ac_49e4_8877_62cfe8a2bfec</option>
+<option value="40c3cb92_70ab_44ad_b3ed_142e3170fe20">40c3cb92_70ab_44ad_b3ed_142e3170fe20</option>
+<option value="40d6a2b0_cad3_4f7c_8eed_2b1e16ba4186">40d6a2b0_cad3_4f7c_8eed_2b1e16ba4186</option>
+<option value="41f3177a_ed99_421c_83a6_68ea41cbd706">41f3177a_ed99_421c_83a6_68ea41cbd706</option>
+<option value="43ddfdea_37dc_4549_99cb_ad0d5886fd7a">43ddfdea_37dc_4549_99cb_ad0d5886fd7a</option>
+<option value="44b9fa0b_d2fb_4af1_8db2_c40d45531f5a">44b9fa0b_d2fb_4af1_8db2_c40d45531f5a</option>
+<option value="44d5ca2c_c69e_4ce7_9692_a0c698fb479e">44d5ca2c_c69e_4ce7_9692_a0c698fb479e</option>
+<option value="46be1a01_1e01_4776_9126_2a03dcb946f4">46be1a01_1e01_4776_9126_2a03dcb946f4</option>
+<option value="47c35db7_f000_4b24_a22f_baf9c9a1ca11">47c35db7_f000_4b24_a22f_baf9c9a1ca11</option>
+<option value="47da97c0_45d2_4db4_810c_585fe5511509">47da97c0_45d2_4db4_810c_585fe5511509</option>
+<option value="48b84898_2d46_4585_b03d_9a9b59e058c7">48b84898_2d46_4585_b03d_9a9b59e058c7</option>
+<option value="49e0da8e_3a3e_4830_b02a_b3f6b17c61b3">49e0da8e_3a3e_4830_b02a_b3f6b17c61b3</option>
+<option value="52b742b0_ccec_40b9_9815_c679e78a9aa2">52b742b0_ccec_40b9_9815_c679e78a9aa2</option>
+<option value="54a0faa6_cc64_4c30_8699_b6869e3deec3">54a0faa6_cc64_4c30_8699_b6869e3deec3</option>
+<option value="56ebbeaf_26fb_4407_9e00_958cb1bb6e06">56ebbeaf_26fb_4407_9e00_958cb1bb6e06</option>
+<option value="57eadf8d_648e_4308_957e_c9bec7e9abb0">57eadf8d_648e_4308_957e_c9bec7e9abb0</option>
+<option value="58d4c19e_9a33_448f_b9b7_fa888abe5fd7">58d4c19e_9a33_448f_b9b7_fa888abe5fd7</option>
+<option value="59ffb5ec_f577_409c_8b61_8fd34289ff96">59ffb5ec_f577_409c_8b61_8fd34289ff96</option>
+<option value="62d5dfaf_6363_41fa_862f_29bdead85997">62d5dfaf_6363_41fa_862f_29bdead85997</option>
+<option value="62d969e1_2503_4dda_b0d5_4f573ddb2c1c">62d969e1_2503_4dda_b0d5_4f573ddb2c1c</option>
+<option value="62fabb25_4ce4_41ab_8a3a_f5613d9b93cc">62fabb25_4ce4_41ab_8a3a_f5613d9b93cc</option>
+<option value="63f1e9f5_83ff_4c9a_ba2f_26c5a42ce3a2">63f1e9f5_83ff_4c9a_ba2f_26c5a42ce3a2</option>
+<option value="63fc2da5_8ce1_431c_af43_55cc783e374a">63fc2da5_8ce1_431c_af43_55cc783e374a</option>
+<option value="65d61995_b97d_4b93_8acf_f91017112997">65d61995_b97d_4b93_8acf_f91017112997</option>
+<option value="65ff511f_59fe_4113_91c5_6f211457c0d3">65ff511f_59fe_4113_91c5_6f211457c0d3</option>
+<option value="67d8cf7c_bf3e_4d32_883b_48ad8c8a7cc0">67d8cf7c_bf3e_4d32_883b_48ad8c8a7cc0</option>
+<option value="68b1650b_61f6_4d40_9366_3eafa01af030">68b1650b_61f6_4d40_9366_3eafa01af030</option>
+<option value="70e8643a_0ed1_4c06_aca2_29fa3a1e50bb">70e8643a_0ed1_4c06_aca2_29fa3a1e50bb</option>
+<option value="72f1cf8a_47bd_44f2_a120_e04e3eb58473">72f1cf8a_47bd_44f2_a120_e04e3eb58473</option>
+<option value="74a1617c_1449_44d7_a745_924860ec0ab6">74a1617c_1449_44d7_a745_924860ec0ab6</option>
+<option value="75d48a2e_a4a9_402c_a954_15e3691609f5">75d48a2e_a4a9_402c_a954_15e3691609f5</option>
+<option value="76bd09c6_5893_4617_be23_69ab816ce00c">76bd09c6_5893_4617_be23_69ab816ce00c</option>
+<option value="77aebc55_7668_419c_b2c8_452276acf5a6">77aebc55_7668_419c_b2c8_452276acf5a6</option>
+<option value="77d8ec5c_52ac_43a2_88d4_b08cc7b91bd9">77d8ec5c_52ac_43a2_88d4_b08cc7b91bd9</option>
+<option value="78a9850c_5bca_4a80_8cf1_76e903f2d6c7">78a9850c_5bca_4a80_8cf1_76e903f2d6c7</option>
+<option value="80f8280c_3cc2_4b03_9507_7538e1002875">80f8280c_3cc2_4b03_9507_7538e1002875</option>
+<option value="081ab7c3_bed1_4d77_91d9_534cfb29469d">081ab7c3_bed1_4d77_91d9_534cfb29469d</option>
+<option value="82a43dc5_18a8_41c9_8208_ef10770b8fdc">82a43dc5_18a8_41c9_8208_ef10770b8fdc</option>
+<option value="82a157a1_2a8d_4de3_bfd4_3094fbd5d98b">82a157a1_2a8d_4de3_bfd4_3094fbd5d98b</option>
+<option value="82a303f2_f3ed_4358_b693_4529efd4d2b8">82a303f2_f3ed_4358_b693_4529efd4d2b8</option>
+<option value="082c1728_ea78_4e80_896a_7c698cf8dcd2">082c1728_ea78_4e80_896a_7c698cf8dcd2</option>
+<option value="83b08451_44bb_43a9_84fa_beb8e9b0cab6">83b08451_44bb_43a9_84fa_beb8e9b0cab6</option>
+<option value="84b4a0b1_5307_41f7_beac_cdf0c4a938a0">84b4a0b1_5307_41f7_beac_cdf0c4a938a0</option>
+<option value="84e585ad_3e67_4372_84f3_7a1158fca71f">84e585ad_3e67_4372_84f3_7a1158fca71f</option>
+<option value="86c0b97e_e442_41ba_a5e5_e056cbc7949f">86c0b97e_e442_41ba_a5e5_e056cbc7949f</option>
+<option value="87ba3da8_c86b_4508_b845_9b1def51c52a">87ba3da8_c86b_4508_b845_9b1def51c52a</option>
+<option value="87e3d017_7f62_41dd_88f2_7d1b3bbdd895">87e3d017_7f62_41dd_88f2_7d1b3bbdd895</option>
+<option value="092cb7ea_fc79_4f24_adeb_f4d1b37af9bf">092cb7ea_fc79_4f24_adeb_f4d1b37af9bf</option>
+<option value="92d02637_2b9d_493c_941d_a228bd929658">92d02637_2b9d_493c_941d_a228bd929658</option>
+<option value="95a00de7_e056_48bf_b2fe_1b6fb5aab123">95a00de7_e056_48bf_b2fe_1b6fb5aab123</option>
+<option value="95ebad9b_4250_4829_b47f_fc6438df58c0">95ebad9b_4250_4829_b47f_fc6438df58c0</option>
+<option value="115b8274_bb4c_41df_b712_07c70d7dcb88">115b8274_bb4c_41df_b712_07c70d7dcb88</option>
+<option value="214e800b_7b8d_41c1_971a_ce23f13e5d2c">214e800b_7b8d_41c1_971a_ce23f13e5d2c</option>
+<option value="238d94c4_c182_4864_b68b_854b93426dc7">238d94c4_c182_4864_b68b_854b93426dc7</option>
+<option value="239d6302_9302_4873_ae4f_62dacc934807">239d6302_9302_4873_ae4f_62dacc934807</option>
+<option value="272fd8f9_221e_4c48_b487_337df62c7e19">272fd8f9_221e_4c48_b487_337df62c7e19</option>
+<option value="277e0ec5_de47_4e58_807a_998e48f3f9a2">277e0ec5_de47_4e58_807a_998e48f3f9a2</option>
+<option value="287b1d63_adac_497d_9043_7ae32e21e31d">287b1d63_adac_497d_9043_7ae32e21e31d</option>
+<option value="303ec1d9_5b33_41e0_878d_8c00005c73a1">303ec1d9_5b33_41e0_878d_8c00005c73a1</option>
+<option value="307e239f_d65b_41ff_b7b0_1c1e9823f58e">307e239f_d65b_41ff_b7b0_1c1e9823f58e</option>
+<option value="313add9a_dcde_45eb_a001_274e809df53f">313add9a_dcde_45eb_a001_274e809df53f</option>
+<option value="332b81c6_35aa_4ecc_b396_d87e25753222">332b81c6_35aa_4ecc_b396_d87e25753222</option>
+<option value="416e8e16_3940_4702_ba9e_200333eb0258">416e8e16_3940_4702_ba9e_200333eb0258</option>
+<option value="467b5c79_e0b7_4863_b927_05b24d84167d">467b5c79_e0b7_4863_b927_05b24d84167d</option>
+<option value="476aae7f_3049_4f5f_93b6_8ae92b569150">476aae7f_3049_4f5f_93b6_8ae92b569150</option>
+<option value="483f41dc_f43f_4243_8615_6d637005a7f2">483f41dc_f43f_4243_8615_6d637005a7f2</option>
+<option value="581bccdb_7d19_4637_97b7_7a630267e49d">581bccdb_7d19_4637_97b7_7a630267e49d</option>
+<option value="587f13bd_e1fc_48d0_bf7e_9ab78e4679b9">587f13bd_e1fc_48d0_bf7e_9ab78e4679b9</option>
+<option value="592ca419_44bd_4a19_8616_70151989643f">592ca419_44bd_4a19_8616_70151989643f</option>
+<option value="715f931e_c65a_4aca_b22f_1dde6437ad40">715f931e_c65a_4aca_b22f_1dde6437ad40</option>
+<option value="729e7ad9_01ec_4e7d_9751_5f31b6c710d0">729e7ad9_01ec_4e7d_9751_5f31b6c710d0</option>
+<option value="734b65bc_d8fe_4d39_ada3_f075366cd005">734b65bc_d8fe_4d39_ada3_f075366cd005</option>
+<option value="758c9049_07e8_43d6_8645_6f8d77dc611b">758c9049_07e8_43d6_8645_6f8d77dc611b</option>
+<option value="777dd328_fabc_45f4_86c7_85f274326b1b">777dd328_fabc_45f4_86c7_85f274326b1b</option>
+<option value="787d8752_7bfe_4c03_884d_75e3a15c4fd8">787d8752_7bfe_4c03_884d_75e3a15c4fd8</option>
+<option value="804ec0bb_73da_4d2f_a8ef_c603282652fd">804ec0bb_73da_4d2f_a8ef_c603282652fd</option>
+<option value="858c0213_3226_4b05_aa7c_0a2a2462f348">858c0213_3226_4b05_aa7c_0a2a2462f348</option>
+<option value="863b0091_822b_48ef_a5ab_139fc74e1c64">863b0091_822b_48ef_a5ab_139fc74e1c64</option>
+<option value="903eef06_c2d8_4d98_984c_45694278e5c5">903eef06_c2d8_4d98_984c_45694278e5c5</option>
+<option value="942bf51c_b2e9_4aa6_925f_aa1d7e7296cf">942bf51c_b2e9_4aa6_925f_aa1d7e7296cf</option>
+<option value="995b3733_f0ef_4606_98b0_5f5a59b03c36">995b3733_f0ef_4606_98b0_5f5a59b03c36</option>
+<option value="1403db11_8e38_4397_b827_7ff67d023f6c">1403db11_8e38_4397_b827_7ff67d023f6c</option>
+<option value="1621e7f3_c0f2_4d2d_b391_fd4d9838f165">1621e7f3_c0f2_4d2d_b391_fd4d9838f165</option>
+<option value="2343bc57_0343_42a1_91ae_959335ac8daa">2343bc57_0343_42a1_91ae_959335ac8daa</option>
+<option value="2879ccf3_c919_476c_9558_64ee341ff8ac">2879ccf3_c919_476c_9558_64ee341ff8ac</option>
+<option value="3940f2bc_4fe9_4ecb_9837_985605eeac5f">3940f2bc_4fe9_4ecb_9837_985605eeac5f</option>
+<option value="4420e570_5171_486e_935b_e1f8aa525cab">4420e570_5171_486e_935b_e1f8aa525cab</option>
+<option value="4638a317_fe7d_4eff_8449_d199114ba13b">4638a317_fe7d_4eff_8449_d199114ba13b</option>
+<option value="5015a0e3_ea58_49b1_97ad_09313c89cf36">5015a0e3_ea58_49b1_97ad_09313c89cf36</option>
+<option value="00005857_585e_4493_ac55_7f5bd8dee25c">00005857_585e_4493_ac55_7f5bd8dee25c</option>
+<option value="6116fc3f_ce64_4199_a96c_6d26c2781a03">6116fc3f_ce64_4199_a96c_6d26c2781a03</option>
+<option value="06134cd9_e3cd_49ce_825f_f5989e2ce8d6">06134cd9_e3cd_49ce_825f_f5989e2ce8d6</option>
+<option value="6897c88d_899c_4bbe_920f_3d4459ef4295">6897c88d_899c_4bbe_920f_3d4459ef4295</option>
+<option value="7024f48b_7bec_4f46_a0c7_14aa4b2ad5cc">7024f48b_7bec_4f46_a0c7_14aa4b2ad5cc</option>
+<option value="7156a1be_ef41_42c5_bada_4b6fb2f4e81c">7156a1be_ef41_42c5_bada_4b6fb2f4e81c</option>
+<option value="7393e74b_6df4_421c_b7ea_96dbe1d764ef">7393e74b_6df4_421c_b7ea_96dbe1d764ef</option>
+<option value="7409f5fd_c4a8_43ce_84fa_ba3accfaaeda">7409f5fd_c4a8_43ce_84fa_ba3accfaaeda</option>
+<option value="7903e9eb_4133_4da0_8a1c_225af75ea687">7903e9eb_4133_4da0_8a1c_225af75ea687</option>
+<option value="8274e3c2_cd8a_46a6_9a5b_80b205d8be0b">8274e3c2_cd8a_46a6_9a5b_80b205d8be0b</option>
+<option value="08376b3c_998b_46a0_a3e0_273f7fc16b0d">08376b3c_998b_46a0_a3e0_273f7fc16b0d</option>
+<option value="8785b3b8_2918_4abe_b410_dffd0573df05">8785b3b8_2918_4abe_b410_dffd0573df05</option>
+<option value="9045f409_a4a4_4e04_b072_30d9ca3dc828">9045f409_a4a4_4e04_b072_30d9ca3dc828</option>
+<option value="9454a191_bca6_412f_8433_528428e02032">9454a191_bca6_412f_8433_528428e02032</option>
+<option value="10697e70_6770_400b_8941_0c4de5513677">10697e70_6770_400b_8941_0c4de5513677</option>
+<option value="14167f91_78e8_4991_9e0a_31aca15a6342">14167f91_78e8_4991_9e0a_31aca15a6342</option>
+<option value="20171b17_43bf_4117_9ffb_d999bbd99306">20171b17_43bf_4117_9ffb_d999bbd99306</option>
+<option value="20619a9e_7da6_42ec_8f9e_004fd03b90f6">20619a9e_7da6_42ec_8f9e_004fd03b90f6</option>
+<option value="28317d22_70e3_4889_86e5_440d6bfa4bd9">28317d22_70e3_4889_86e5_440d6bfa4bd9</option>
+<option value="31335b11_283f_4381_ab38_7f848efdb261">31335b11_283f_4381_ab38_7f848efdb261</option>
+<option value="31553ae4_ed8a_4cb6_84b3_c2b9c44398f2">31553ae4_ed8a_4cb6_84b3_c2b9c44398f2</option>
+<option value="38569f3d_6eb0_4915_b1fe_e06b635edf4e">38569f3d_6eb0_4915_b1fe_e06b635edf4e</option>
+<option value="40023fcd_ea2e_4b75_96bc_924957f54c15">40023fcd_ea2e_4b75_96bc_924957f54c15</option>
+<option value="42657c1a_2a55_4bfd_b7db_54b054b2c8b0">42657c1a_2a55_4bfd_b7db_54b054b2c8b0</option>
+<option value="47429f4b_f19a_4dce_a51f_4bda58cd3687">47429f4b_f19a_4dce_a51f_4bda58cd3687</option>
+<option value="53443b3d_2f2c_4051_b388_a26a7cc6d4b2">53443b3d_2f2c_4051_b388_a26a7cc6d4b2</option>
+<option value="60606a40_a837_4ce7_b6c8_71769ddc8ec1">60606a40_a837_4ce7_b6c8_71769ddc8ec1</option>
+<option value="064214ae_4a49_4468_b76c_55f94db8f014">064214ae_4a49_4468_b76c_55f94db8f014</option>
+<option value="66074bc1_f1fa_499b_b30b_570f24eeb349">66074bc1_f1fa_499b_b30b_570f24eeb349</option>
+<option value="67157dc0_4d3c_4b20_a45b_6494b1ef69b4">67157dc0_4d3c_4b20_a45b_6494b1ef69b4</option>
+<option value="89023ca6_efe2_4360_87b4_4a4fbb13bcbf">89023ca6_efe2_4360_87b4_4a4fbb13bcbf</option>
+<option value="93111dea_b386_4624_bebd_7dfe8ce0b843">93111dea_b386_4624_bebd_7dfe8ce0b843</option>
+<option value="94787d43_e5a1_4508_ab6d_9b0a6f518ab2">94787d43_e5a1_4508_ab6d_9b0a6f518ab2</option>
+<option value="098800e7_15b0_4299_a903_75e7f5912ca7">098800e7_15b0_4299_a903_75e7f5912ca7</option>
+<option value="0110682e_939f_47ab_bf8b_59154a4cdf95">0110682e_939f_47ab_bf8b_59154a4cdf95</option>
+<option value="298482c8_46de_4385_a37f_05a2d54d0981">298482c8_46de_4385_a37f_05a2d54d0981</option>
+<option value="368515ad_9142_497c_9e35_97f274c57892">368515ad_9142_497c_9e35_97f274c57892</option>
+<option value="381002e7_a1fb_411f_80d6_50d8dffdc21e">381002e7_a1fb_411f_80d6_50d8dffdc21e</option>
+<option value="613588be_783a_4e8b_b606_29e9db02182d">613588be_783a_4e8b_b606_29e9db02182d</option>
+<option value="874831fb_3808_4ed5_bdba_761a2543ac5f">874831fb_3808_4ed5_bdba_761a2543ac5f</option>
+<option value="1043402f_b4e9_4afb_9384_7074d9ff450f">1043402f_b4e9_4afb_9384_7074d9ff450f</option>
+<option value="1858686c_b090_48b0_84fd_075db6cf111a">1858686c_b090_48b0_84fd_075db6cf111a</option>
+<option value="2254931e_2440_4367_a334_c69b78375466">2254931e_2440_4367_a334_c69b78375466</option>
+<option value="4941023f_48b7_4265_9b77_9b4b7e0b1d2b">4941023f_48b7_4265_9b77_9b4b7e0b1d2b</option>
+<option value="5245580c_8277_462e_9e7a_b59f11bcef2b">5245580c_8277_462e_9e7a_b59f11bcef2b</option>
+<option value="7379183b_8199_44f6_b1d6_2bac45a8f6f1">7379183b_8199_44f6_b1d6_2bac45a8f6f1</option>
+<option value="8873125b_6636_4b99_8d08_8b45a7e5defc">8873125b_6636_4b99_8d08_8b45a7e5defc</option>
+<option value="9938041b_ee06_4055_ace0_5a46d5f7ce5f">9938041b_ee06_4055_ace0_5a46d5f7ce5f</option>
+<option value="18610568_18f5_438c_b6f4_b334d9447777">18610568_18f5_438c_b6f4_b334d9447777</option>
+<option value="21664982_0dec_4d12_b51d_0733592d16d2">21664982_0dec_4d12_b51d_0733592d16d2</option>
+<option value="66054452_5c66_4650_8443_ee2c13fb0d19">66054452_5c66_4650_8443_ee2c13fb0d19</option>
+<option value="66111314_e697_4e4f_91c8_7648fbccced9">66111314_e697_4e4f_91c8_7648fbccced9</option>
+<option value="73880646_b563_4c4e_b737_0ae33b444c15">73880646_b563_4c4e_b737_0ae33b444c15</option>
+<option value="75377630_d46a_4603_aebb_db851e279d43">75377630_d46a_4603_aebb_db851e279d43</option>
+<option value="96767526_e026_4919_bc7e_7d7364670003">96767526_e026_4919_bc7e_7d7364670003</option>
+<option value="98944232_2c09_457e_b96f_51a2dc94e40a">98944232_2c09_457e_b96f_51a2dc94e40a</option>
+<option value="a0024b52_c887_4840_8ce2_681297dabcce">a0024b52_c887_4840_8ce2_681297dabcce</option>
+<option value="a052b023_db1a_4508_b855_264b9da18da6">a052b023_db1a_4508_b855_264b9da18da6</option>
+<option value="a1c029a1_76e2_436f_bded_4735a61a1bff">a1c029a1_76e2_436f_bded_4735a61a1bff</option>
+<option value="a1d529f9_a116_467a_baee_db04ba104ef2">a1d529f9_a116_467a_baee_db04ba104ef2</option>
+<option value="a1f3398d_8a78_4f3a_9995_b3a41f73e4a1">a1f3398d_8a78_4f3a_9995_b3a41f73e4a1</option>
+<option value="a3f239fc_8183_44c6_8be7_8fbd0ed159c7">a3f239fc_8183_44c6_8be7_8fbd0ed159c7</option>
+<option value="a3fbee88_f428_4a33_910e_ddd86f7e2422">a3fbee88_f428_4a33_910e_ddd86f7e2422</option>
+<option value="a6d83e1b_05c7_4018_8318_117766432f8f">a6d83e1b_05c7_4018_8318_117766432f8f</option>
+<option value="a7ce748b_f3a7_4701_8947_a71dfe5b2c83">a7ce748b_f3a7_4701_8947_a71dfe5b2c83</option>
+<option value="a8c00c17_51a4_4a08_9d0c_045cabce7102">a8c00c17_51a4_4a08_9d0c_045cabce7102</option>
+<option value="a8ee0446_2474_409e_8044_061b8c3a3ee7">a8ee0446_2474_409e_8044_061b8c3a3ee7</option>
+<option value="a10df358_62ac_477e_a1c8_0ee44dc8bc9b">a10df358_62ac_477e_a1c8_0ee44dc8bc9b</option>
+<option value="a11f26ec_051d_4830_845b_f99a75e6fff4">a11f26ec_051d_4830_845b_f99a75e6fff4</option>
+<option value="a17b090d_41f7_4e81_8e9e_0b5fa855fcc7">a17b090d_41f7_4e81_8e9e_0b5fa855fcc7</option>
+<option value="a27e2a87_84e5_428e_a261_f407804b89d6">a27e2a87_84e5_428e_a261_f407804b89d6</option>
+<option value="a44c202a_b5a8_4e92_bb17_0a780d14280a">a44c202a_b5a8_4e92_bb17_0a780d14280a</option>
+<option value="a402b7a7_2f69_40b0_a5c7_ff778cb2a2e1">a402b7a7_2f69_40b0_a5c7_ff778cb2a2e1</option>
+<option value="a485e8fa_9ab5_4814_bdb7_9e1a7122d74a">a485e8fa_9ab5_4814_bdb7_9e1a7122d74a</option>
+<option value="a2250d73_caa2_4214_8249_018cc5578ace">a2250d73_caa2_4214_8249_018cc5578ace</option>
+<option value="a7791a23_526b_4818_a994_3eaf202f79ae">a7791a23_526b_4818_a994_3eaf202f79ae</option>
+<option value="a9429e36_c258_45ad_9c2c_b9a0c972bdfd">a9429e36_c258_45ad_9c2c_b9a0c972bdfd</option>
+<option value="a857994f_031e_4eda_a364_a26828fbad31">a857994f_031e_4eda_a364_a26828fbad31</option>
+<option value="a1595614_dc41_41c7_8182_94383ebc1f74">a1595614_dc41_41c7_8182_94383ebc1f74</option>
+<option value="a2048943_85c8_4e55_a81f_04d72c147f7b">a2048943_85c8_4e55_a81f_04d72c147f7b</option>
+<option value="aa292048_4633_4973_92fa_07d0a371ecc4">aa292048_4633_4973_92fa_07d0a371ecc4</option>
+<option value="aac62b6e_3e7f_49f8_bd89_e7cfafaa04c8">aac62b6e_3e7f_49f8_bd89_e7cfafaa04c8</option>
+<option value="ab14a1db_50b8_4a18_b252_1c9a6128db7c">ab14a1db_50b8_4a18_b252_1c9a6128db7c</option>
+<option value="abad6d9d_aab1_4011_9386_746fe0c61740">abad6d9d_aab1_4011_9386_746fe0c61740</option>
+<option value="ad204192_1fa3_47f0_be75_350bceab9705">ad204192_1fa3_47f0_be75_350bceab9705</option>
+<option value="admin">admin</option>
+<option value="ae65a76f_7921_4720_95e2_d2125e638a56">ae65a76f_7921_4720_95e2_d2125e638a56</option>
+<option value="afa7a11b_6aa7_465a_a570_8db7a80988f2">afa7a11b_6aa7_465a_a570_8db7a80988f2</option>
+<option value="b0bc768e_e103_4b62_9d2c_f5b60522fed7">b0bc768e_e103_4b62_9d2c_f5b60522fed7</option>
+<option value="b0fb259f_0fcf_4e4c_a19f_0410783dcdfe">b0fb259f_0fcf_4e4c_a19f_0410783dcdfe</option>
+<option value="b0ff6364_7f1b_47a5_88a9_28edeaedc94e">b0ff6364_7f1b_47a5_88a9_28edeaedc94e</option>
+<option value="b1c46cf7_7dbd_430a_b556_a17f76f90e8e">b1c46cf7_7dbd_430a_b556_a17f76f90e8e</option>
+<option value="b1d81c52_4240_4a32_b56d_dadf2ddd4c0a">b1d81c52_4240_4a32_b56d_dadf2ddd4c0a</option>
+<option value="b3f4d0c8_b988_4ae3_b355_dccff480d84a">b3f4d0c8_b988_4ae3_b355_dccff480d84a</option>
+<option value="b6ffc385_a141_41ed_9ab2_f071031f2537">b6ffc385_a141_41ed_9ab2_f071031f2537</option>
+<option value="b19e0c85_003e_4eab_82b2_0c56fe098c3f">b19e0c85_003e_4eab_82b2_0c56fe098c3f</option>
+<option value="b40a712f_e8c3_46f6_9d7d_fa68893f243f">b40a712f_e8c3_46f6_9d7d_fa68893f243f</option>
+<option value="b50f133c_0f31_46d2_90e2_a73b189f8617">b50f133c_0f31_46d2_90e2_a73b189f8617</option>
+<option value="b53d385d_3c7d_4efa_a057_17ceebf1bf4b">b53d385d_3c7d_4efa_a057_17ceebf1bf4b</option>
+<option value="b59d34c3_2f77_40e6_918f_57b1c0b4ce17">b59d34c3_2f77_40e6_918f_57b1c0b4ce17</option>
+<option value="b69dc3b9_eacf_420c_bc56_982814954d82">b69dc3b9_eacf_420c_bc56_982814954d82</option>
+<option value="b85b9b6c_84c6_457c_a598_3150d1a1c66a">b85b9b6c_84c6_457c_a598_3150d1a1c66a</option>
+<option value="b883a6fc_3a31_4352_a3ee_f17112f852c4">b883a6fc_3a31_4352_a3ee_f17112f852c4</option>
+<option value="b6362bc9_17ac_4fa0_a018_40c7c7eab891">b6362bc9_17ac_4fa0_a018_40c7c7eab891</option>
+<option value="b6948cdc_4e3e_495c_93c6_23b9c8385964">b6948cdc_4e3e_495c_93c6_23b9c8385964</option>
+<option value="b8138166_2508_454c_ba86_6c6eab93574a">b8138166_2508_454c_ba86_6c6eab93574a</option>
+<option value="b8213998_bb38_4198_8e85_55f36b4e0a47">b8213998_bb38_4198_8e85_55f36b4e0a47</option>
+<option value="bac68628_09c8_4b32_b3ed_5bc1a48d371e">bac68628_09c8_4b32_b3ed_5bc1a48d371e</option>
+<option value="bad8c491_fc3b_44bd_b3a4_18befd159292">bad8c491_fc3b_44bd_b3a4_18befd159292</option>
+<option value="bb3eb19f_41b3_4d7e_a1ed_971a6e8b1270">bb3eb19f_41b3_4d7e_a1ed_971a6e8b1270</option>
+<option value="bb340514_53f0_4e36_adbc_70b92c6ee846">bb340514_53f0_4e36_adbc_70b92c6ee846</option>
+<option value="bbc8bc6b_ea4c_4121_82ed_4b5da908341c">bbc8bc6b_ea4c_4121_82ed_4b5da908341c</option>
+<option value="bbceb09d_ef42_4386_8bf7_c55e70595482">bbceb09d_ef42_4386_8bf7_c55e70595482</option>
+<option value="bcad625a_7d99_49d8_8d38_a8e22ba4950d">bcad625a_7d99_49d8_8d38_a8e22ba4950d</option>
+<option value="bcf9a5fd_0add_4936_860f_ed52c75baa37">bcf9a5fd_0add_4936_860f_ed52c75baa37</option>
+<option value="bd01e2dc_8323_4fa3_96fb_37ce07ed2bbb">bd01e2dc_8323_4fa3_96fb_37ce07ed2bbb</option>
+<option value="bd3dd475_d984_4ed1_b2fd_2732ded4bd53">bd3dd475_d984_4ed1_b2fd_2732ded4bd53</option>
+<option value="bd79d745_f703_46d8_b776_d49594198d59">bd79d745_f703_46d8_b776_d49594198d59</option>
+<option value="be346eaf_714d_424b_8404_281326363f9f">be346eaf_714d_424b_8404_281326363f9f</option>
+<option value="bf4c1f6d_f7a8_46de_91b8_8cb9d52e05df">bf4c1f6d_f7a8_46de_91b8_8cb9d52e05df</option>
+<option value="bf4fecb2_b09f_423d_9555_1697e1125e3a">bf4fecb2_b09f_423d_9555_1697e1125e3a</option>
+<option value="bf7c1933_eeb6_415e_912d_1804f7ef2e3b">bf7c1933_eeb6_415e_912d_1804f7ef2e3b</option>
+<option value="bfa191e5_9082_4c29_933d_2212a08bab73">bfa191e5_9082_4c29_933d_2212a08bab73</option>
+<option value="Bremen">Bremen</option>
+<option value="c0c2962b_a8b7_4690_afb2_7e835acac437">c0c2962b_a8b7_4690_afb2_7e835acac437</option>
+<option value="c0cc065c_b41d_4334_bb76_1c817e8dd8b8">c0cc065c_b41d_4334_bb76_1c817e8dd8b8</option>
+<option value="c0042a1c_c328_4e49_9cac_1605b212c041">c0042a1c_c328_4e49_9cac_1605b212c041</option>
+<option value="c4c829c0_0d9d_4b1b_887f_5897fa33c55d">c4c829c0_0d9d_4b1b_887f_5897fa33c55d</option>
+<option value="c6a9d27c_0be2_4677_a00b_b2187ada0bfe">c6a9d27c_0be2_4677_a00b_b2187ada0bfe</option>
+<option value="c7a28988_f08d_49ea_bc2c_449db2846917">c7a28988_f08d_49ea_bc2c_449db2846917</option>
+<option value="c7ec4cf3_dd80_4cee_b9e7_bc3bc5a4ac56">c7ec4cf3_dd80_4cee_b9e7_bc3bc5a4ac56</option>
+<option value="c8f8605b_bbaf_4a48_bf1d_32df299171a1">c8f8605b_bbaf_4a48_bf1d_32df299171a1</option>
+<option value="c8fe755d_fd93_4a19_bf65_735f238d74cc">c8fe755d_fd93_4a19_bf65_735f238d74cc</option>
+<option value="c25c2921_ad2f_408c_b22a_10d704ad0935">c25c2921_ad2f_408c_b22a_10d704ad0935</option>
+<option value="c29c0c2d_56b8_4bc5_9d05_ea2c119bf088">c29c0c2d_56b8_4bc5_9d05_ea2c119bf088</option>
+<option value="c57e166b_7e93_4b3a_8f7c_308fe0bafa77">c57e166b_7e93_4b3a_8f7c_308fe0bafa77</option>
+<option value="c193f1db_b806_4fd0_8a45_fd6513cf0466">c193f1db_b806_4fd0_8a45_fd6513cf0466</option>
+<option value="c267c001_b428_4872_8471_d3244c0c1c53">c267c001_b428_4872_8471_d3244c0c1c53</option>
+<option value="c358f2b8_9eeb_41c8_a0b6_abd9ccff29c6">c358f2b8_9eeb_41c8_a0b6_abd9ccff29c6</option>
+<option value="c363ae7f_0fcc_48f1_aee4_7ce52f3c3c17">c363ae7f_0fcc_48f1_aee4_7ce52f3c3c17</option>
+<option value="c660e71a_b4b3_4102_b37b_809017dce75a">c660e71a_b4b3_4102_b37b_809017dce75a</option>
+<option value="c998d7d0_33dc_4c7c_8078_b0d01db456e0">c998d7d0_33dc_4c7c_8078_b0d01db456e0</option>
+<option value="c6516ead_10cf_4a14_8ec9_2c52a7381b3c">c6516ead_10cf_4a14_8ec9_2c52a7381b3c</option>
+<option value="c72677dc_479e_443c_9329_33ab7f3c69c6">c72677dc_479e_443c_9329_33ab7f3c69c6</option>
+<option value="c1765749_ff4e_4bb0_9448_87a86b9d3c70">c1765749_ff4e_4bb0_9448_87a86b9d3c70</option>
+<option value="ca68f974_aff2_408b_bdb5_dfaa3e6f235c">ca68f974_aff2_408b_bdb5_dfaa3e6f235c</option>
+<option value="cadd79d4_83cb_4d01_9162_ef6b8c65313e">cadd79d4_83cb_4d01_9162_ef6b8c65313e</option>
+<option value="cb6ea054_89e1_4a8c_812d_09682e156ee1">cb6ea054_89e1_4a8c_812d_09682e156ee1</option>
+<option value="cb8c38d1_3005_4553_8edd_69ee78b2d47b">cb8c38d1_3005_4553_8edd_69ee78b2d47b</option>
+<option value="cc903fba_7538_4a8c_9321_d0c459d7b252">cc903fba_7538_4a8c_9321_d0c459d7b252</option>
+<option value="cce90a74_c5bf_4295_b54e_c66dbdcf384c">cce90a74_c5bf_4295_b54e_c66dbdcf384c</option>
+<option value="cdac7030_eac9_4fc2_99e8_7737c9dda76a">cdac7030_eac9_4fc2_99e8_7737c9dda76a</option>
+<option value="cdc27cba_501f_4d8a_bf6b_a199681b9825">cdc27cba_501f_4d8a_bf6b_a199681b9825</option>
+<option value="cf1056a3_7226_47ab_b46a_355562378892">cf1056a3_7226_47ab_b46a_355562378892</option>
+<option value="cfacfaba_477f_41c7_9fee_b2ae6218232c">cfacfaba_477f_41c7_9fee_b2ae6218232c</option>
+<option value="cfbbf2a2_c111_43ce_abfa_b05e6710c391">cfbbf2a2_c111_43ce_abfa_b05e6710c391</option>
+<option value="clinic">clinic</option>
+<option value="d0a00a21_33dd_454c_85de_1be7dccf26b9">d0a00a21_33dd_454c_85de_1be7dccf26b9</option>
+<option value="d08579ee_d825_4ecf_8df0_fc7405f0a693">d08579ee_d825_4ecf_8df0_fc7405f0a693</option>
+<option value="d1ce38d0_0fad_4129_982e_c2178f8865d3">d1ce38d0_0fad_4129_982e_c2178f8865d3</option>
+<option value="d3fd3f98_5c1f_4291_8904_ace1c24d4a6e">d3fd3f98_5c1f_4291_8904_ace1c24d4a6e</option>
+<option value="d4b400b0_5648_441f_a9c9_baca096317d7">d4b400b0_5648_441f_a9c9_baca096317d7</option>
+<option value="d4d7e156_a660_40fc_93d1_a6deb494b3e7">d4d7e156_a660_40fc_93d1_a6deb494b3e7</option>
+<option value="d7a02792_e2a1_4a5b_9bae_81ff28318f77">d7a02792_e2a1_4a5b_9bae_81ff28318f77</option>
+<option value="d7d1f963_f2b7_44a8_acfe_b849424e5821">d7d1f963_f2b7_44a8_acfe_b849424e5821</option>
+<option value="d7dfb4fc_2d8d_4051_afe2_5b1d625eec75">d7dfb4fc_2d8d_4051_afe2_5b1d625eec75</option>
+<option value="d9d1d857_56c5_427d_95dc_fd4f222cf762">d9d1d857_56c5_427d_95dc_fd4f222cf762</option>
+<option value="d64a513e_7e8f_4192_b39b_ca99d2d06049">d64a513e_7e8f_4192_b39b_ca99d2d06049</option>
+<option value="d112a713_a235_4caf_bb02_0a00625f98f6">d112a713_a235_4caf_bb02_0a00625f98f6</option>
+<option value="d195ac63_22b8_4c20_a0a4_09ec24619297">d195ac63_22b8_4c20_a0a4_09ec24619297</option>
+<option value="d404f1e9_9adb_4f09_924a_af8f15d83609">d404f1e9_9adb_4f09_924a_af8f15d83609</option>
+<option value="d658d15a_7273_4e84_97d9_8918771f99e0">d658d15a_7273_4e84_97d9_8918771f99e0</option>
+<option value="d818cbd4_6052_4989_a23f_9edbc9bc4f92">d818cbd4_6052_4989_a23f_9edbc9bc4f92</option>
+<option value="d3184bb5_cca5_4a73_9d37_523969fe8d3d">d3184bb5_cca5_4a73_9d37_523969fe8d3d</option>
+<option value="d21990a8_e766_4931_99e7_949c273dfead">d21990a8_e766_4931_99e7_949c273dfead</option>
+<option value="da9f9208_43af_4190_9102_2e3f3c5fdca4">da9f9208_43af_4190_9102_2e3f3c5fdca4</option>
+<option value="dae2cb4b_a8c9_4e41_9308_aacbc5e4d9af">dae2cb4b_a8c9_4e41_9308_aacbc5e4d9af</option>
+<option value="dc1fbbf2_c045_43c0_bd9c_7b730f5f971a">dc1fbbf2_c045_43c0_bd9c_7b730f5f971a</option>
+<option value="dc9792a6_ab5a_4e52_8e23_060dd67c85f3">dc9792a6_ab5a_4e52_8e23_060dd67c85f3</option>
+<option value="dcafdb6b_ef2c_4c9a_a246_483cd3726f05">dcafdb6b_ef2c_4c9a_a246_483cd3726f05</option>
+<option value="dd83d33d_438e_408e_9578_a538f6312495">dd83d33d_438e_408e_9578_a538f6312495</option>
+<option value="dd9093b4_3014_4f47_b503_120f104212e9">dd9093b4_3014_4f47_b503_120f104212e9</option>
+<option value="de4bee29_5e98_4ac6_beb6_1a8fd72aff04">de4bee29_5e98_4ac6_beb6_1a8fd72aff04</option>
+<option value="deeed552_0e4f_46ea_833e_5638b11e3251">deeed552_0e4f_46ea_833e_5638b11e3251</option>
+<option value="df24b2a4_d6ea_4434_8bbd_b907930b6606">df24b2a4_d6ea_4434_8bbd_b907930b6606</option>
+<option value="df41410f_de81_41b1_aae7_631f6a2321a1">df41410f_de81_41b1_aae7_631f6a2321a1</option>
+<option value="e2b23ef6_4d25_42a8_888f_28e75e03192f">e2b23ef6_4d25_42a8_888f_28e75e03192f</option>
+<option value="e3b3c559_e63b_4af7_b7cc_1508589dd444">e3b3c559_e63b_4af7_b7cc_1508589dd444</option>
+<option value="e7b14846_a210_4520_8043_9382b80138b9">e7b14846_a210_4520_8043_9382b80138b9</option>
+<option value="e9de8613_b136_409e_a94b_a9c9df21a546">e9de8613_b136_409e_a94b_a9c9df21a546</option>
+<option value="e38cd210_1c4c_4e46_83ed_5ef938f88fc3">e38cd210_1c4c_4e46_83ed_5ef938f88fc3</option>
+<option value="e67b90dc_269a_467d_a24c_baffa42274b0">e67b90dc_269a_467d_a24c_baffa42274b0</option>
+<option value="e74fda7b_e061_4cc1_b4a1_59972620bab1">e74fda7b_e061_4cc1_b4a1_59972620bab1</option>
+<option value="e98bd88e_a345_40c1_a0a4_3a6ca509ff82">e98bd88e_a345_40c1_a0a4_3a6ca509ff82</option>
+<option value="e102bc57_5567_4b44_ac8c_8feba3de4f7d">e102bc57_5567_4b44_ac8c_8feba3de4f7d</option>
+<option value="e516d745_ab8e_43ea_bcd0_47664595c002">e516d745_ab8e_43ea_bcd0_47664595c002</option>
+<option value="e964f5c5_2715_4044_b9f8_ad41546d43e0">e964f5c5_2715_4044_b9f8_ad41546d43e0</option>
+<option value="e1651a75_1809_4fef_be43_750795572819">e1651a75_1809_4fef_be43_750795572819</option>
+<option value="e969356b_ce93_41fe_87c3_636eb47e4cb0">e969356b_ce93_41fe_87c3_636eb47e4cb0</option>
+<option value="ea087783_b440_4032_9a59_e5d84ecd54ca">ea087783_b440_4032_9a59_e5d84ecd54ca</option>
+<option value="eaab1fa3_0627_48d8_b712_0b680816f8b9">eaab1fa3_0627_48d8_b712_0b680816f8b9</option>
+<option value="eb313dc3_45f8_44c3_a3fb_0f6a1899040d">eb313dc3_45f8_44c3_a3fb_0f6a1899040d</option>
+<option value="ebf83dc3_474b_4faf_8975_e84ba84134ee">ebf83dc3_474b_4faf_8975_e84ba84134ee</option>
+<option value="ec4d973e_b08f_467a_9ff8_ab8f1255677a">ec4d973e_b08f_467a_9ff8_ab8f1255677a</option>
+<option value="ec89cf07_d02d_4d38_8ed4_6226ae47e6e9">ec89cf07_d02d_4d38_8ed4_6226ae47e6e9</option>
+<option value="ed50b6a7_4629_49d0_b4c7_e81a764d54fe">ed50b6a7_4629_49d0_b4c7_e81a764d54fe</option>
+<option value="ed65f958_5e24_481c_83b5_a85c376c80d6">ed65f958_5e24_481c_83b5_a85c376c80d6</option>
+<option value="ed781863_2499_4a98_8fa7_77898ea4a6c9">ed781863_2499_4a98_8fa7_77898ea4a6c9</option>
+<option value="ef78c7a7_a836_4674_9a60_e056fc062bd1">ef78c7a7_a836_4674_9a60_e056fc062bd1</option>
+<option value="efb769bb_e163_4ff3_8ae3_94bd19d4e286">efb769bb_e163_4ff3_8ae3_94bd19d4e286</option>
+<option value="efb71224_5674_47f7_b8d2_7f7c6984ed41">efb71224_5674_47f7_b8d2_7f7c6984ed41</option>
+<option value="f01feb8d_feba_4cd4_a961_2cb3d617a6b9">f01feb8d_feba_4cd4_a961_2cb3d617a6b9</option>
+<option value="f017a05a_829f_41cd_bdfc_0d358246fac6">f017a05a_829f_41cd_bdfc_0d358246fac6</option>
+<option value="f1e4c584_8937_4cd7_9a71_0eb88058e753">f1e4c584_8937_4cd7_9a71_0eb88058e753</option>
+<option value="f2bbcdb2_20a1_411f_8c15_577ff1657c5b">f2bbcdb2_20a1_411f_8c15_577ff1657c5b</option>
+<option value="f5be1b38_f006_4e28_8e1f_d3c7c3a9ff31">f5be1b38_f006_4e28_8e1f_d3c7c3a9ff31</option>
+<option value="f6ce8c16_291f_4763_a40f_5535b14c94cd">f6ce8c16_291f_4763_a40f_5535b14c94cd</option>
+<option value="f6fb558d_2906_4a73_932c_e2417dc5ea6d">f6fb558d_2906_4a73_932c_e2417dc5ea6d</option>
+<option value="f7d7a627_a6d7_45e3_a928_80fcafa02304">f7d7a627_a6d7_45e3_a928_80fcafa02304</option>
+<option value="f27fc672_8ced_4816_8e4b_b6487c6fc0d9">f27fc672_8ced_4816_8e4b_b6487c6fc0d9</option>
+<option value="f45b31a4_bca2_4e37_a8c9_aeada3a0190c">f45b31a4_bca2_4e37_a8c9_aeada3a0190c</option>
+<option value="f62b4952_4278_48f3_817e_c5515cff08fb">f62b4952_4278_48f3_817e_c5515cff08fb</option>
+<option value="f91f132e_cbd2_442d_b418_dbab9bdac645">f91f132e_cbd2_442d_b418_dbab9bdac645</option>
+<option value="f862b77f_f9a8_49d2_82b5_9a23fd77e9ca">f862b77f_f9a8_49d2_82b5_9a23fd77e9ca</option>
+<option value="f995b09e_49d1_42cf_865e_2c2922c42706">f995b09e_49d1_42cf_865e_2c2922c42706</option>
+<option value="f9481b9c_5844_4096_8711_f23181a5809f">f9481b9c_5844_4096_8711_f23181a5809f</option>
+<option value="f61530b7_d969_427f_9dc5_cc7e72291dc7">f61530b7_d969_427f_9dc5_cc7e72291dc7</option>
+<option value="f1005663_ad5e_4927_9441_548fd1cea91d">f1005663_ad5e_4927_9441_548fd1cea91d</option>
+<option value="fa36c8d7_92ce_4240_80d9_fbca96312fa4">fa36c8d7_92ce_4240_80d9_fbca96312fa4</option>
+<option value="fb587f7a_789d_42df_8062_e9ae8457a366">fb587f7a_789d_42df_8062_e9ae8457a366</option>
+<option value="fc83c074_ccd5_4581_897a_702de5a48041">fc83c074_ccd5_4581_897a_702de5a48041</option>
+<option value="fca03928_c832_449a_9cf5_ab161c023c2f">fca03928_c832_449a_9cf5_ab161c023c2f</option>
+<option value="fdd19e84_0d28_492b_8543_7ffea0138042">fdd19e84_0d28_492b_8543_7ffea0138042</option>
+<option value="fe07fca4_6706_40c4_8f7e_2f47deced020">fe07fca4_6706_40c4_8f7e_2f47deced020</option>
+<option value="fe80ec22_f2aa_4cb9_a3b5_51ab15fc9f27">fe80ec22_f2aa_4cb9_a3b5_51ab15fc9f27</option>
+<option value="fe78549f_a66f_45bd_8cbe_42d76c5352cb">fe78549f_a66f_45bd_8cbe_42d76c5352cb</option>
+<option value="fe865331_82b0_4bd8_bca7_738ac0fd4b73">fe865331_82b0_4bd8_bca7_738ac0fd4b73</option>
+<option value="fea21880_dc9b_4428_9e80_05736ae892c4">fea21880_dc9b_4428_9e80_05736ae892c4</option>
+<option value="ff7822c3_085e_4b9c_a1f2_b9b9b8e9af56">ff7822c3_085e_4b9c_a1f2_b9b9b8e9af56</option>
+<option value="ff312362_c4ab_42ab_818b_a487f111ff46">ff312362_c4ab_42ab_818b_a487f111ff46</option>
+<option value="ffe49ffb_f93f_41f4_9eed_7a39bec3bbca">ffe49ffb_f93f_41f4_9eed_7a39bec3bbca</option>
+<option value="fred">fred</option>
+<option value="Nothing yet...">Nothing yet...</option>
+<option value="REPLACE WITH YOUR USERNAME">REPLACE WITH YOUR USERNAME</option>
+<option value="SysAdmin">SysAdmin</option>
+<option value="SystemAdmin">SystemAdmin</option>
+<option value="SystemAdmin3">SystemAdmin3</option>
+<option value="SystemAdminer">SystemAdminer</option>
+<option value="SystemAdminxx">SystemAdminxx</option>
+<option value="TestCS">TestCS</option>
+<option value="TestSA">TestSA</option>
+<option value="twilio">twilio</option>
+<option value="UniValle">UniValle</option>
+<option value="XXXXXXXX_XXXXXX">XXXXXXXX_XXXXXX</option>
+<option value="{{piclinic_token}}">{{piclinic_token}}</option>
+<option value="{{token}}">{{token}}</option>
+            </select>
+            </div>
+            <div class="clearFloat"></div>
+            <div class="infoBlock">
+                <p><button type="submit">Mostrar registro</button></p>
+            </div>
+        </form>
+    </div>
+    <div class="clearFloat"></div>
+    <hr>
+    <div class="infoBlock">
+        <table>
+            <tr>
+                <th>ID</th>
+                <th>Source</th>
+                <th>Token</th>
+                <th>Class</th>
+                <th>Table</th>
+                <th>Acción</th>
+                <th>QUery string</th>
+                <th>Before data</th>
+                <th>After data</th>
+                <th>Status code</th>
+                <th>Status message</th>
+                <th>Fecha</th>
+            </tr>
+            <tr><td>1429</td>
+<td>/api/session_post.php</td>
+<td>SystemAdmin</td>
+<td>API</td>
+<td>session</td>
+<td>POST</td>
+<td>username=SystemAdmin</td>
+<td><pre>null</pre></td>
+<td><pre>{
+    "token": "71c6c611_8cbe_4b65_9fe6_58af08f75d56",
+    "sessionIP": "201.233.206.19",
+    "sessionUA": "PostmanRuntime\/7.53.0",
+    "username": "SystemAdmin",
+    "loggedIn": 1,
+    "accessGranted": "SystemAdmin",
+    "sessionLanguage": "es",
+    "sessionClinicPublicID": null,
+    "createdDate": "2026-04-14 11:54:56",
+    "expiresOnDate": "2026-04-15 11:54:56"
+}</pre></td>
+<td>201</td>
+<td>New session created.</td>
+<td>2026-04-14 11:54:56</td>
+</tr><tr><td>1428</td>
+<td>/api/session_delete.php</td>
+<td>1e559a54_e65d_4ef5_b4e8_c09ff15ca0f5</td>
+<td>API</td>
+<td>session</td>
+<td>DELETE</td>
+<td></td>
+<td><pre>{
+    "sessionID": "680",
+    "username": "SystemAdmin",
+    "token": "1e559a54_e65d_4ef5_b4e8_c09ff15ca0f5",
+    "loggedIn": "1",
+    "accessGranted": "SystemAdmin",
+    "sessionIP": "201.233.206.19",
+    "sessionUA": "PostmanRuntime\/7.53.0",
+    "sessionLanguage": "es",
+    "sessionClinicPublicID": null,
+    "loggedOutDate": null,
+    "expiresOnDate": "2026-04-15 11:49:27",
+    "createdDate": "2026-04-14 11:49:27"
+}</pre></td>
+<td><pre>null</pre></td>
+<td>200</td>
+<td>User session deleted.</td>
+<td>2026-04-14 11:54:34</td>
+</tr><tr><td>1427</td>
+<td>/api/session_post.php</td>
+<td>SystemAdmin</td>
+<td>API</td>
+<td>session</td>
+<td>POST</td>
+<td>username=SystemAdmin</td>
+<td><pre>null</pre></td>
+<td><pre>{
+    "token": "1e559a54_e65d_4ef5_b4e8_c09ff15ca0f5",
+    "sessionIP": "201.233.206.19",
+    "sessionUA": "PostmanRuntime\/7.53.0",
+    "username": "SystemAdmin",
+    "loggedIn": 1,
+    "accessGranted": "SystemAdmin",
+    "sessionLanguage": "es",
+    "sessionClinicPublicID": null,
+    "createdDate": "2026-04-14 11:49:27",
+    "expiresOnDate": "2026-04-15 11:49:27"
+}</pre></td>
+<td>201</td>
+<td>New session created.</td>
+<td>2026-04-14 11:49:27</td>
+</tr><tr><td>1426</td>
+<td>/api/session_post.php</td>
+<td>SystemAdmin</td>
+<td>API</td>
+<td>session</td>
+<td>POST</td>
+<td>username=SystemAdmin</td>
+<td><pre>null</pre></td>
+<td><pre>{
+    "token": "203a3dc2_0b5a_4e70_a95a_d2b9fdc4eceb",
+    "sessionIP": "201.233.206.19",
+    "sessionUA": "Mozilla\/5.0 (Macintosh; Intel Mac OS X 10.15; rv:149.0) Gecko\/20100101 Firefox\/149.0",
+    "username": "SystemAdmin",
+    "loggedIn": 1,
+    "accessGranted": "SystemAdmin",
+    "sessionLanguage": "es",
+    "sessionClinicPublicID": null,
+    "createdDate": "2026-04-14 11:47:54",
+    "expiresOnDate": "2026-04-15 11:47:54"
+}</pre></td>
+<td>201</td>
+<td>New session created.</td>
+<td>2026-04-14 11:47:54</td>
+</tr><tr><td>1425</td>
+<td>/api/session_delete.php</td>
+<td>9fad3a0b_3e47_4a06_9e3d_619642cf3ffd</td>
+<td>API</td>
+<td>session</td>
+<td>GET</td>
+<td>msg=SESSION_TIMEOUT</td>
+<td><pre>{
+    "sessionID": "676",
+    "username": "SystemAdmin",
+    "token": "9fad3a0b_3e47_4a06_9e3d_619642cf3ffd",
+    "loggedIn": "1",
+    "accessGranted": "SystemAdmin",
+    "sessionIP": "201.233.206.19",
+    "sessionUA": "Mozilla\/5.0 (Macintosh; Intel Mac OS X 10.15; rv:149.0) Gecko\/20100101 Firefox\/149.0",
+    "sessionLanguage": "es",
+    "sessionClinicPublicID": null,
+    "loggedOutDate": null,
+    "expiresOnDate": "2026-04-15 11:08:26",
+    "createdDate": "2026-04-14 11:08:26"
+}</pre></td>
+<td><pre>null</pre></td>
+<td>200</td>
+<td>User session deleted.</td>
+<td>2026-04-14 11:39:57</td>
+</tr><tr><td>1424</td>
+<td>/api/session_post.php</td>
+<td>SystemAdmin</td>
+<td>API</td>
+<td>session</td>
+<td>POST</td>
+<td>username=SystemAdmin</td>
+<td><pre>null</pre></td>
+<td><pre>{
+    "token": "6c2a40fd_f367_4480_ad4e_54ccd87c80b1",
+    "sessionIP": "201.233.206.19",
+    "sessionUA": "PostmanRuntime\/7.53.0",
+    "username": "SystemAdmin",
+    "loggedIn": 1,
+    "accessGranted": "SystemAdmin",
+    "sessionLanguage": "es",
+    "sessionClinicPublicID": null,
+    "createdDate": "2026-04-14 11:11:11",
+    "expiresOnDate": "2026-04-15 11:11:11"
+}</pre></td>
+<td>201</td>
+<td>New session created.</td>
+<td>2026-04-14 11:11:11</td>
+</tr><tr><td>1423</td>
+<td>/api/session_post.php</td>
+<td>SystemAdmin</td>
+<td>API</td>
+<td>session</td>
+<td>POST</td>
+<td>username=SystemAdmin</td>
+<td><pre>null</pre></td>
+<td><pre>{
+    "token": "9e730314_28a0_4612_9235_a1f78c165472",
+    "sessionIP": "201.233.206.19",
+    "sessionUA": "PostmanRuntime\/7.53.0",
+    "username": "SystemAdmin",
+    "loggedIn": 1,
+    "accessGranted": "SystemAdmin",
+    "sessionLanguage": "es",
+    "sessionClinicPublicID": null,
+    "createdDate": "2026-04-14 11:09:35",
+    "expiresOnDate": "2026-04-15 11:09:35"
+}</pre></td>
+<td>201</td>
+<td>New session created.</td>
+<td>2026-04-14 11:09:35</td>
+</tr><tr><td>1422</td>
+<td>/api/session_post.php</td>
+<td>SystemAdmin</td>
+<td>API</td>
+<td>session</td>
+<td>POST</td>
+<td>username=SystemAdmin</td>
+<td><pre>null</pre></td>
+<td><pre>{
+    "token": "9fad3a0b_3e47_4a06_9e3d_619642cf3ffd",
+    "sessionIP": "201.233.206.19",
+    "sessionUA": "Mozilla\/5.0 (Macintosh; Intel Mac OS X 10.15; rv:149.0) Gecko\/20100101 Firefox\/149.0",
+    "username": "SystemAdmin",
+    "loggedIn": 1,
+    "accessGranted": "SystemAdmin",
+    "sessionLanguage": "es",
+    "sessionClinicPublicID": null,
+    "createdDate": "2026-04-14 11:08:26",
+    "expiresOnDate": "2026-04-15 11:08:26"
+}</pre></td>
+<td>201</td>
+<td>New session created.</td>
+<td>2026-04-14 11:08:26</td>
+</tr><tr><td>1421</td>
+<td>/api/session_delete.php</td>
+<td>a7791a23_526b_4818_a994_3eaf202f79ae</td>
+<td>API</td>
+<td>session</td>
+<td>GET</td>
+<td></td>
+<td><pre>{
+    "sessionID": "675",
+    "username": "SystemAdmin",
+    "token": "a7791a23_526b_4818_a994_3eaf202f79ae",
+    "loggedIn": "1",
+    "accessGranted": "SystemAdmin",
+    "sessionIP": "201.233.206.19",
+    "sessionUA": "Mozilla\/5.0 (Macintosh; Intel Mac OS X 10.15; rv:149.0) Gecko\/20100101 Firefox\/149.0",
+    "sessionLanguage": "es",
+    "sessionClinicPublicID": null,
+    "loggedOutDate": null,
+    "expiresOnDate": "2026-04-15 11:06:38",
+    "createdDate": "2026-04-14 11:06:38"
+}</pre></td>
+<td><pre>null</pre></td>
+<td>200</td>
+<td>User session deleted.</td>
+<td>2026-04-14 11:08:04</td>
+</tr><tr><td>1420</td>
+<td>/api/session_post.php</td>
+<td>SystemAdmin</td>
+<td>API</td>
+<td>session</td>
+<td>POST</td>
+<td>username=SystemAdmin</td>
+<td><pre>null</pre></td>
+<td><pre>{
+    "token": "a7791a23_526b_4818_a994_3eaf202f79ae",
+    "sessionIP": "201.233.206.19",
+    "sessionUA": "Mozilla\/5.0 (Macintosh; Intel Mac OS X 10.15; rv:149.0) Gecko\/20100101 Firefox\/149.0",
+    "username": "SystemAdmin",
+    "loggedIn": 1,
+    "accessGranted": "SystemAdmin",
+    "sessionLanguage": "es",
+    "sessionClinicPublicID": null,
+    "createdDate": "2026-04-14 11:06:38",
+    "expiresOnDate": "2026-04-15 11:06:38"
+}</pre></td>
+<td>201</td>
+<td>New session created.</td>
+<td>2026-04-14 11:06:38</td>
+</tr><tr><td>1419</td>
+<td>/api/session_delete.php</td>
+<td>7fe69151_a0fb_40b9_8eb4_42ffc0d90d1b</td>
+<td>API</td>
+<td>session</td>
+<td>GET</td>
+<td></td>
+<td><pre>{
+    "sessionID": "674",
+    "username": "SystemAdmin",
+    "token": "7fe69151_a0fb_40b9_8eb4_42ffc0d90d1b",
+    "loggedIn": "1",
+    "accessGranted": "SystemAdmin",
+    "sessionIP": "201.233.206.19",
+    "sessionUA": "Mozilla\/5.0 (Macintosh; Intel Mac OS X 10.15; rv:149.0) Gecko\/20100101 Firefox\/149.0",
+    "sessionLanguage": "es",
+    "sessionClinicPublicID": null,
+    "loggedOutDate": null,
+    "expiresOnDate": "2026-04-15 11:04:20",
+    "createdDate": "2026-04-14 11:04:20"
+}</pre></td>
+<td><pre>null</pre></td>
+<td>200</td>
+<td>User session deleted.</td>
+<td>2026-04-14 11:04:34</td>
+</tr><tr><td>1418</td>
+<td>/api/session_post.php</td>
+<td>SystemAdmin</td>
+<td>API</td>
+<td>session</td>
+<td>POST</td>
+<td>username=SystemAdmin</td>
+<td><pre>null</pre></td>
+<td><pre>{
+    "token": "7fe69151_a0fb_40b9_8eb4_42ffc0d90d1b",
+    "sessionIP": "201.233.206.19",
+    "sessionUA": "Mozilla\/5.0 (Macintosh; Intel Mac OS X 10.15; rv:149.0) Gecko\/20100101 Firefox\/149.0",
+    "username": "SystemAdmin",
+    "loggedIn": 1,
+    "accessGranted": "SystemAdmin",
+    "sessionLanguage": "es",
+    "sessionClinicPublicID": null,
+    "createdDate": "2026-04-14 11:04:20",
+    "expiresOnDate": "2026-04-15 11:04:20"
+}</pre></td>
+<td>201</td>
+<td>New session created.</td>
+<td>2026-04-14 11:04:20</td>
+</tr><tr><td>1417</td>
+<td>/api/session_delete.php</td>
+<td>239d6302_9302_4873_ae4f_62dacc934807</td>
+<td>API</td>
+<td>session</td>
+<td>GET</td>
+<td></td>
+<td><pre>{
+    "sessionID": "673",
+    "username": "SystemAdmin",
+    "token": "239d6302_9302_4873_ae4f_62dacc934807",
+    "loggedIn": "1",
+    "accessGranted": "SystemAdmin",
+    "sessionIP": "201.233.206.19",
+    "sessionUA": "Mozilla\/5.0 (Macintosh; Intel Mac OS X 10.15; rv:149.0) Gecko\/20100101 Firefox\/149.0",
+    "sessionLanguage": "es",
+    "sessionClinicPublicID": null,
+    "loggedOutDate": null,
+    "expiresOnDate": "2026-04-15 10:47:40",
+    "createdDate": "2026-04-14 10:47:40"
+}</pre></td>
+<td><pre>null</pre></td>
+<td>200</td>
+<td>User session deleted.</td>
+<td>2026-04-14 11:04:05</td>
+</tr><tr><td>1416</td>
+<td>/api/session_post.php</td>
+<td>SystemAdmin</td>
+<td>API</td>
+<td>session</td>
+<td>POST</td>
+<td>username=SystemAdmin</td>
+<td><pre>null</pre></td>
+<td><pre>{
+    "token": "239d6302_9302_4873_ae4f_62dacc934807",
+    "sessionIP": "201.233.206.19",
+    "sessionUA": "Mozilla\/5.0 (Macintosh; Intel Mac OS X 10.15; rv:149.0) Gecko\/20100101 Firefox\/149.0",
+    "username": "SystemAdmin",
+    "loggedIn": 1,
+    "accessGranted": "SystemAdmin",
+    "sessionLanguage": "es",
+    "sessionClinicPublicID": null,
+    "createdDate": "2026-04-14 10:47:40",
+    "expiresOnDate": "2026-04-15 10:47:40"
+}</pre></td>
+<td>201</td>
+<td>New session created.</td>
+<td>2026-04-14 10:47:40</td>
+</tr><tr><td>1415</td>
+<td>/api/session_delete.php</td>
+<td>fe78549f_a66f_45bd_8cbe_42d76c5352cb</td>
+<td>API</td>
+<td>session</td>
+<td>GET</td>
+<td>msg=SESSION_TIMEOUT</td>
+<td><pre>{
+    "sessionID": "672",
+    "username": "SystemAdmin",
+    "token": "fe78549f_a66f_45bd_8cbe_42d76c5352cb",
+    "loggedIn": "1",
+    "accessGranted": "SystemAdmin",
+    "sessionIP": "201.233.206.19",
+    "sessionUA": "Mozilla\/5.0 (Macintosh; Intel Mac OS X 10.15; rv:149.0) Gecko\/20100101 Firefox\/149.0",
+    "sessionLanguage": "es",
+    "sessionClinicPublicID": null,
+    "loggedOutDate": null,
+    "expiresOnDate": "2026-04-15 09:35:24",
+    "createdDate": "2026-04-14 09:35:24"
+}</pre></td>
+<td><pre>null</pre></td>
+<td>200</td>
+<td>User session deleted.</td>
+<td>2026-04-14 10:19:01</td>
+</tr><tr><td>1414</td>
+<td>/api/session_post.php</td>
+<td>SystemAdmin</td>
+<td>API</td>
+<td>session</td>
+<td>POST</td>
+<td>username=SystemAdmin</td>
+<td><pre>null</pre></td>
+<td><pre>{
+    "token": "fe78549f_a66f_45bd_8cbe_42d76c5352cb",
+    "sessionIP": "201.233.206.19",
+    "sessionUA": "Mozilla\/5.0 (Macintosh; Intel Mac OS X 10.15; rv:149.0) Gecko\/20100101 Firefox\/149.0",
+    "username": "SystemAdmin",
+    "loggedIn": 1,
+    "accessGranted": "SystemAdmin",
+    "sessionLanguage": "es",
+    "sessionClinicPublicID": null,
+    "createdDate": "2026-04-14 09:35:24",
+    "expiresOnDate": "2026-04-15 09:35:24"
+}</pre></td>
+<td>201</td>
+<td>New session created.</td>
+<td>2026-04-14 09:35:24</td>
+</tr><tr><td>1413</td>
+<td>/api/session_delete.php</td>
+<td>16b06de6_8a8a_4e15_b71b_f6ce36c2e14b</td>
+<td>API</td>
+<td>session</td>
+<td>GET</td>
+<td>msg=SESSION_TIMEOUT</td>
+<td><pre>{
+    "sessionID": "671",
+    "username": "SystemAdmin",
+    "token": "16b06de6_8a8a_4e15_b71b_f6ce36c2e14b",
+    "loggedIn": "1",
+    "accessGranted": "SystemAdmin",
+    "sessionIP": "201.233.206.19",
+    "sessionUA": "Mozilla\/5.0 (Windows NT 10.0; Win64; x64; rv:149.0) Gecko\/20100101 Firefox\/149.0",
+    "sessionLanguage": "es",
+    "sessionClinicPublicID": null,
+    "loggedOutDate": null,
+    "expiresOnDate": "2026-04-14 08:44:39",
+    "createdDate": "2026-04-13 08:44:39"
+}</pre></td>
+<td><pre>null</pre></td>
+<td>200</td>
+<td>User session deleted.</td>
+<td>2026-04-13 09:40:41</td>
+</tr><tr><td>1412</td>
+<td>/api/session_post.php</td>
+<td>SystemAdmin</td>
+<td>API</td>
+<td>session</td>
+<td>POST</td>
+<td>username=SystemAdmin</td>
+<td><pre>null</pre></td>
+<td><pre>{
+    "token": "16b06de6_8a8a_4e15_b71b_f6ce36c2e14b",
+    "sessionIP": "201.233.206.19",
+    "sessionUA": "Mozilla\/5.0 (Windows NT 10.0; Win64; x64; rv:149.0) Gecko\/20100101 Firefox\/149.0",
+    "username": "SystemAdmin",
+    "loggedIn": 1,
+    "accessGranted": "SystemAdmin",
+    "sessionLanguage": "es",
+    "sessionClinicPublicID": null,
+    "createdDate": "2026-04-13 08:44:39",
+    "expiresOnDate": "2026-04-14 08:44:39"
+}</pre></td>
+<td>201</td>
+<td>New session created.</td>
+<td>2026-04-13 08:44:39</td>
+</tr><tr><td>1411</td>
+<td>/api/session_delete.php</td>
+<td>a2048943_85c8_4e55_a81f_04d72c147f7b</td>
+<td>API</td>
+<td>session</td>
+<td>GET</td>
+<td></td>
+<td><pre>{
+    "sessionID": "670",
+    "username": "SystemAdmin",
+    "token": "a2048943_85c8_4e55_a81f_04d72c147f7b",
+    "loggedIn": "1",
+    "accessGranted": "SystemAdmin",
+    "sessionIP": "201.233.206.19",
+    "sessionUA": "Mozilla\/5.0 (Macintosh; Intel Mac OS X 10.15; rv:149.0) Gecko\/20100101 Firefox\/149.0",
+    "sessionLanguage": "es",
+    "sessionClinicPublicID": null,
+    "loggedOutDate": null,
+    "expiresOnDate": "2026-04-13 11:11:50",
+    "createdDate": "2026-04-12 11:11:50"
+}</pre></td>
+<td><pre>null</pre></td>
+<td>200</td>
+<td>User session deleted.</td>
+<td>2026-04-12 11:25:50</td>
+</tr><tr><td>1410</td>
+<td>/api/session_post.php</td>
+<td>SystemAdmin</td>
+<td>API</td>
+<td>session</td>
+<td>POST</td>
+<td>username=SystemAdmin</td>
+<td><pre>null</pre></td>
+<td><pre>{
+    "token": "a2048943_85c8_4e55_a81f_04d72c147f7b",
+    "sessionIP": "201.233.206.19",
+    "sessionUA": "Mozilla\/5.0 (Macintosh; Intel Mac OS X 10.15; rv:149.0) Gecko\/20100101 Firefox\/149.0",
+    "username": "SystemAdmin",
+    "loggedIn": 1,
+    "accessGranted": "SystemAdmin",
+    "sessionLanguage": "es",
+    "sessionClinicPublicID": null,
+    "createdDate": "2026-04-12 11:11:50",
+    "expiresOnDate": "2026-04-13 11:11:50"
+}</pre></td>
+<td>201</td>
+<td>New session created.</td>
+<td>2026-04-12 11:11:50</td>
+</tr><tr><td>1409</td>
+<td>/api/session_delete.php</td>
+<td>d3184bb5_cca5_4a73_9d37_523969fe8d3d</td>
+<td>API</td>
+<td>session</td>
+<td>GET</td>
+<td></td>
+<td><pre>{
+    "sessionID": "669",
+    "username": "SystemAdmin",
+    "token": "d3184bb5_cca5_4a73_9d37_523969fe8d3d",
+    "loggedIn": "1",
+    "accessGranted": "SystemAdmin",
+    "sessionIP": "201.233.206.19",
+    "sessionUA": "Mozilla\/5.0 (Macintosh; Intel Mac OS X 10.15; rv:149.0) Gecko\/20100101 Firefox\/149.0",
+    "sessionLanguage": "es",
+    "sessionClinicPublicID": null,
+    "loggedOutDate": null,
+    "expiresOnDate": "2026-04-13 11:05:01",
+    "createdDate": "2026-04-12 11:05:01"
+}</pre></td>
+<td><pre>null</pre></td>
+<td>200</td>
+<td>User session deleted.</td>
+<td>2026-04-12 11:05:10</td>
+</tr><tr><td>1408</td>
+<td>/api/session_post.php</td>
+<td>SystemAdmin</td>
+<td>API</td>
+<td>session</td>
+<td>POST</td>
+<td>username=SystemAdmin</td>
+<td><pre>null</pre></td>
+<td><pre>{
+    "token": "d3184bb5_cca5_4a73_9d37_523969fe8d3d",
+    "sessionIP": "201.233.206.19",
+    "sessionUA": "Mozilla\/5.0 (Macintosh; Intel Mac OS X 10.15; rv:149.0) Gecko\/20100101 Firefox\/149.0",
+    "username": "SystemAdmin",
+    "loggedIn": 1,
+    "accessGranted": "SystemAdmin",
+    "sessionLanguage": "es",
+    "sessionClinicPublicID": null,
+    "createdDate": "2026-04-12 11:05:01",
+    "expiresOnDate": "2026-04-13 11:05:01"
+}</pre></td>
+<td>201</td>
+<td>New session created.</td>
+<td>2026-04-12 11:05:01</td>
+</tr><tr><td>1407</td>
+<td>/api/session_delete.php</td>
+<td>40023fcd_ea2e_4b75_96bc_924957f54c15</td>
+<td>API</td>
+<td>session</td>
+<td>GET</td>
+<td></td>
+<td><pre>{
+    "sessionID": "668",
+    "username": "SystemAdmin",
+    "token": "40023fcd_ea2e_4b75_96bc_924957f54c15",
+    "loggedIn": "1",
+    "accessGranted": "SystemAdmin",
+    "sessionIP": "201.233.206.19",
+    "sessionUA": "Mozilla\/5.0 (Macintosh; Intel Mac OS X 10.15; rv:149.0) Gecko\/20100101 Firefox\/149.0",
+    "sessionLanguage": "es",
+    "sessionClinicPublicID": null,
+    "loggedOutDate": null,
+    "expiresOnDate": "2026-04-13 10:07:19",
+    "createdDate": "2026-04-12 10:07:19"
+}</pre></td>
+<td><pre>null</pre></td>
+<td>200</td>
+<td>User session deleted.</td>
+<td>2026-04-12 10:07:32</td>
+</tr><tr><td>1406</td>
+<td>/api/session_post.php</td>
+<td>SystemAdmin</td>
+<td>API</td>
+<td>session</td>
+<td>POST</td>
+<td>username=SystemAdmin</td>
+<td><pre>null</pre></td>
+<td><pre>{
+    "token": "40023fcd_ea2e_4b75_96bc_924957f54c15",
+    "sessionIP": "201.233.206.19",
+    "sessionUA": "Mozilla\/5.0 (Macintosh; Intel Mac OS X 10.15; rv:149.0) Gecko\/20100101 Firefox\/149.0",
+    "username": "SystemAdmin",
+    "loggedIn": 1,
+    "accessGranted": "SystemAdmin",
+    "sessionLanguage": "es",
+    "sessionClinicPublicID": null,
+    "createdDate": "2026-04-12 10:07:19",
+    "expiresOnDate": "2026-04-13 10:07:19"
+}</pre></td>
+<td>201</td>
+<td>New session created.</td>
+<td>2026-04-12 10:07:19</td>
+</tr>
+</table>
+    </div>
+    <div class="clearFloat"></div>
+
+	</div>
+</body>
+</html>

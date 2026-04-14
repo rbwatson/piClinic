@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head>
+<meta http-equiv="refresh" content="1440; url=/uihelp/endUiSession.php?msg=SESSION_TIMEOUT"><title>Cerrar la visita</title>
+<meta charset="utf-8"/><link href="/assets/css/piClinic.css" rel="stylesheet">
+</head>
+<body>
+	<script>0</script><div id="piClinicBannerDiv" class="noprint">
+<p class="piClinicBannerText">piClinic</p>
+</div>
+	<div id="sessionMenu" class="noprint"><div id="sessionDiv" class="noprint"><p>Inscrito como: SystemAdmin&nbsp;&nbsp;|&nbsp;&nbsp;<a href="/staffAddEdit.php?useredit=true" title="Actualizar la configuración y la contraseña de la cuenta del usuario ">Configuración del usuario</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="/uihelp/endUiSession.php" title="Cerrar sesión" >Cerrar sesión</a></p></div><div id="sessionPageMenu" class="noprint"><p>Mostrar esta pantalla en: <a href="/visitClose.php?patientVisitID=0000000000802022061802&clinicPatientID=PT-GEN-000080&workflow=HF_VISIT_CLOSE_1b3618d3_c962_45e4_8508_0c8adb6b207e&lang=en" class="langLing">Inglés</a></p></div></div><div class="clearFloat"></div>		<div id="topLinkMenuDiv" class="noprint"><div id="appMenu">
+<ul class="topLinkMenuList">
+<li class="firstLink">
+<a class="a_mainHome" href="/clinicDash.php?fromLink=visitClose.php-a_mainHome">Página principal</a>
+</li>
+<li>
+<a class="a_mainReports" href="/reportHome.php?fromLink=visitClose.php-a_mainReports">Informes</a>
+</li>
+<li>
+<a class="a_mainAdmin" href="/adminHome.php?fromLink=visitClose.php-a_mainAdmin">Admin</a>
+</li>
+<li>
+<a class="a_mainHelp" href="/helpHome.php?fromLink=visitClose.php-a_mainHelp">Ayuda</a>
+</li>
+</ul></div>
+<div id="commentMenu">
+<a class="a_mainComment" href="/userComment.php?fromLink=visitClose.php-a_mainComment" title="Hacer un comentario de esta página">Comentario</a>
+</div></div><div class="clearFloat"></div>	<datalist id="diagData"></datalist>
+	<div class="pageBody">
+	<div id="topicMenuDiv">
+<ul class="topLinkMenuList">
+<li class="firstLink"><a class="a_cancel" href="https://dev.piclinic.org/clinicDash.php?fromLink=visitClose.php-Cancel">Cancelar</a></li></ul></div>
+	<div class="nameBlock">
+		<div class="infoBlock">
+			<h1 class="pageHeading noBottomPad noBottomMargin">Calderón Guerrero, Hildegunda C.				<span class="linkInHeading">&nbsp;&nbsp;(F)</span></h1>
+			<p>24-08-1995&nbsp;(26a)&nbsp;&nbsp;&nbsp;
+			<span class="linkInHeading"><a class="a_patientview" href="/ptInfo.php?clinicPatientID=PT-GEN-000080&fromLink=visitClose.php-a_patientview" title="Mostrar los detalles del paciente">PT-GEN-000080</a></span></p>
+		</div>
+		<div class="infoBlock">
+			<p><label class="close">Fecha de la visita:</label>18-06-2022 12:04</p>
+			<p><label class="close">ID:</label><span class="linkInHeading">0000000000802022061802</span></p>
+		</div>
+	</div>
+	<div class="clearFloat"></div>
+	<div id="PatientVisitView" class="">
+		<div id="optionMenuDiv">
+<ul class="topLinkMenuList"><li class="firstLink"><a class="a_editall" href="/visitEdit.php?patientVisitID=0000000000802022061802&clinicPatientID=PT-GEN-000080&fromLink=visitClose.php-a_editall">Actualizar todos los dato de la visita</a></li></ul></div>		<div id="PatientVisitDataView">
+			<div id="PatientVisitDetails">
+				<form enctype="multipart/form-data" action="/uihelp/updatePatientVisit.php" method="post">
+					<h2>Visita</h2>
+					<div class="indent1">
+						<div id="visitStatus">
+							<p><label class="close">Estatus:</label>
+									<select id="VisitStatusSelect" name="visitStatus" class="requiredField">
+										<option value="Open" >Admitido</option>
+										<option value="Closed" selected>Dado de alta</option>
+									</select>
+								</p>
+						</div>
+					</div>
+					<div class="infoBlock">
+						<h2>Llegada</h2>
+						<div class="indent1">
+							<div class="dataBlock">
+								<p><label class="close">Llegó a la clínica:</label>&nbsp;18-06-2022 12:04								&nbsp;&nbsp;&nbsp;<label class="close">Tipo de la visita:</label>&nbsp;Consulta externa</p>
+							</div>
+							<div class="dataBlock">
+								<p><label class="close">Recibido de:</label>&nbsp;<span class="inactive">(No especificado)</span></p>
+							</div>
+							<div class="dataBlock">
+								<p><label class="close">Primer motivo de la visita:</label>&nbsp;visita del año</p>
+							</div>
+                            <div class="dataBlock bottomSpace">
+                                <p><label class="close">Pago:</label>
+                                    <input type="number" name="payment" id="PaymentEdit" class="paymentEdit" min="0" max="9999999999.99" step="1" placeholder="Pago" value="0.00" />
+                                    HNL                                </p>
+                            </div>
+                            <div class="dataBlock">
+                                <p><label class="close">Doctor(a):</label> &nbsp;
+                                    <select id="StaffUsernameField" name="staffUsername" class="requiredField">
+                                        <option value="" >(Seleccione el profesional de salud)</option>
+                                        <option value="Agosto" >Agosto,Test</option><option value="Alaniz" >Alaniz,Test</option><option value="Corral" selected>Corral,Test</option><option value="García" >García,Test</option><option value="Griego" >Griego,Test</option><option value="MedicalStudent" >MedicalStudent,Test</option><option value="Najera" >Najera,Test</option><option value="NursingStudent" >NursingStudent,Test</option><option value="Saavedra" >Saavedra,Test</option><option value="testUser-130db3e0-976a-45af-aff0-90d6cadd5545" >NewLastName,FirstName</option><option value="testUser-40d6468c-637d-402b-bc36-f3b39f64a9ea" >NewLastName,FirstName</option><option value="testUser-48d448bf-c93d-4c5e-a8b7-89570fc661e9" >NewLastName,FirstName</option><option value="testUser-50bb7dc6-1cae-4bc0-9a4a-59e27b534a9b" >NewLastName,FirstName</option><option value="testUser-c6b3249e-edd1-472e-adc5-c39c4082c009" >NewLastName,FirstName</option><option value="testUser-c79988b5-ee01-45d4-b6cf-6f6909755141" >NewLastName,FirstName</option><option value="testUser-e0155a51-aba0-4fa1-965d-62eca110ddf8" >NewLastName,FirstName</option><option value="Valadez" >Valadez,Test</option><option value="Verduzco" >Verduzco,Test</option>                                    </select>
+                                </p>
+                            </div>
+						</div>
+                        <h2>Pre-Clínica</h2>
+                        <table class="piClinicList">
+                            <tr>
+                                <th class="sixCol"><label>Estatura</label></th>
+                                <th class="sixCol"><label>Peso</label></th>
+                                <th class="sixCol"><label>Temp.</label></th>
+                                <th class="sixCol"><label>P.A.</label></th>
+                                <th class="sixCol"><label>Pulso</label></th>
+                                <th class="sixCol"><label>RBS/FBS</label></th>
+                            </tr>
+                            <tr>
+                                <td class="sixCol">150&nbsp;cm</td>
+                                <td class="sixCol">40&nbsp;kg</td>
+                                <td class="sixCol">37&deg;&nbsp;C</td>
+                                <td class="sixCol">120/79</td>
+                                <td class="sixCol">67</td>
+                                <td class="sixCol">&nbsp;</td>
+                            </tr>
+                        </table>
+					</div>
+                    <div class="infoBlock">
+                        <h2>Notas adicionales de la visita</h2>
+                        <div class="dataBlock">
+                            <p>nada toavia
+something new</p>
+                        </div>
+                    </div>
+                    <div class="infoBlock">
+						<h2>Dar de alta&nbsp;&nbsp;&nbsp;&nbsp;
+                            <span class="linkInHeading"><a class="moreInfo" target="helpIndex" href="/helpHome.php?topic=icd" title="Buscar un código CIE-10 en el libro de referencia">Buscar CIE-10 código</a></span></h2>
+						<div class="indent1">
+							<div class="dataBlock">
+								<p><label class="close">Salió de la clínica (d-m-Y hh:mm)</label>
+									<input class="twoDigitNumeric" type="number"  id="newdateTimeOutDay" name="dateTimeOutDay" placeholder="Día" min="1" max="31" value="14">&nbsp;-&nbsp;<input class="twoDigitNumeric" type="number"  id="newdateTimeOutMonth" name="dateTimeOutMonth" placeholder="Mes" min="1" max="12" value="04">&nbsp;-&nbsp;<input class="fourDigitNumeric" type="number"  id="newdateTimeOutYear" name="dateTimeOutYear" placeholder="Año" min="1900" max="2026" value="2026">&nbsp;&nbsp;<input class="timeNumeric" type="time"  id="newdateTimeOutTime" name="dateTimeOutTime" value="12:22">								</p>
+							</div>
+							<div class="dataBlock">
+                                <div class="dataBlock">
+  <p><label class="close">Diagnóstico 1:</label>
+  <select id="Condition1Select" name="condition1">
+      <option value="" selected>(Seleccione nuevo o subsiguiente)</option>
+	    <option value="NEWDIAG" >Nuevo diagnóstico</option>
+      <option value="SUBSDIAG" >Subsiguiente diagnóstico</option>
+  </select>
+  <br><input type="text" id="diagnosis1InputId" name="diagnosis1Desc" list="diagData" data-last-search="" data-last-list-size="9999" onkeyup="inputKeyUpEventHandler (event, this, 'diagData', '203a3dc2_0b5a_4e70_a95a_d2b9fdc4eceb', 'es')" onchange="setCodeValue(this, 'diagData', 'diagnosis1CodeId', '203a3dc2_0b5a_4e70_a95a_d2b9fdc4eceb', 'es')" value="" placeholder="Ingrese el diagnóstico o el código CIE-10" class="piClinicEdit fullWidth" maxlength="255"/><span class="loading" id="diagnosis1InputIdLoading">Cargando...</span>
+<input type="hidden" id="diagnosis1CodeId" name="diagnosis1" value="" />
+</p>
+</div>
+                                <div class="dataBlock">
+  <p><label class="close">Diagnóstico 2:</label>
+  <select id="Condition2Select" name="condition2">
+      <option value="" selected>(Seleccione nuevo o subsiguiente)</option>
+	    <option value="NEWDIAG" >Nuevo diagnóstico</option>
+      <option value="SUBSDIAG" >Subsiguiente diagnóstico</option>
+  </select>
+  <br><input type="text" id="diagnosis2InputId" name="diagnosis2Desc" list="diagData" data-last-search="" data-last-list-size="9999" onkeyup="inputKeyUpEventHandler (event, this, 'diagData', '203a3dc2_0b5a_4e70_a95a_d2b9fdc4eceb', 'es')" onchange="setCodeValue(this, 'diagData', 'diagnosis2CodeId', '203a3dc2_0b5a_4e70_a95a_d2b9fdc4eceb', 'es')" value="" placeholder="Ingrese el diagnóstico o el código CIE-10" class="piClinicEdit fullWidth" maxlength="255"/><span class="loading" id="diagnosis2InputIdLoading">Cargando...</span>
+<input type="hidden" id="diagnosis2CodeId" name="diagnosis2" value="" />
+</p>
+</div>
+                                <div class="dataBlock">
+  <p><label class="close">Diagnóstico 3:</label>
+  <select id="Condition3Select" name="condition3">
+      <option value="" selected>(Seleccione nuevo o subsiguiente)</option>
+	    <option value="NEWDIAG" >Nuevo diagnóstico</option>
+      <option value="SUBSDIAG" >Subsiguiente diagnóstico</option>
+  </select>
+  <br><input type="text" id="diagnosis3InputId" name="diagnosis3Desc" list="diagData" data-last-search="" data-last-list-size="9999" onkeyup="inputKeyUpEventHandler (event, this, 'diagData', '203a3dc2_0b5a_4e70_a95a_d2b9fdc4eceb', 'es')" onchange="setCodeValue(this, 'diagData', 'diagnosis3CodeId', '203a3dc2_0b5a_4e70_a95a_d2b9fdc4eceb', 'es')" value="" placeholder="Ingrese el diagnóstico o el código CIE-10" class="piClinicEdit fullWidth" maxlength="255"/><span class="loading" id="diagnosis3InputIdLoading">Cargando...</span>
+<input type="hidden" id="diagnosis3CodeId" name="diagnosis3" value="" />
+</p>
+</div>
+                            </div>
+							<div class="dataBlock">
+								<p><label class="close">Enviado a:</label><input type="text" id="referredToInputId" name="referredTo" value="" placeholder="Nombre de la clínica" class="piClinicEdit" maxlength="255"></p>
+							</div>
+						</div>
+					</div>
+					<div class="clearFloat"></div>
+					<input type="hidden" id="PatientVisitIDField" name="patientVisitID" value="0000000000802022061802" >
+					<input type="hidden" id="returnUrlField" name="returnUrl" value="https://dev.piclinic.org/clinicDash.php?fromLink=visitClose.php-Cancel">
+                    <input type="hidden" class="btn_submit" id="SubmitBtnTag" name="fromLink" value="visitClose.php-btn_submit">
+					<p><button type="submit">Dar de alta el paciente</button></p>
+				</form>
+			</div>
+		</div>
+	</div>
+	<script src="/assets/js/icdHelper.js"></script>
+    </div>
+</body>
+</html>

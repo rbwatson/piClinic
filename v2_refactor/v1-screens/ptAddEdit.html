@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head>
+<meta http-equiv="refresh" content="1440; url=/uihelp/endUiSession.php?msg=SESSION_TIMEOUT"><title>Editar Paciente</title>
+<meta charset="utf-8"/><link href="/assets/css/piClinic.css" rel="stylesheet">
+</head>
+<body>
+	<script>0</script><div id="piClinicBannerDiv" class="noprint">
+<p class="piClinicBannerText">piClinic</p>
+</div>
+	<div id="sessionMenu" class="noprint"><div id="sessionDiv" class="noprint"><p>Inscrito como: SystemAdmin&nbsp;&nbsp;|&nbsp;&nbsp;<a href="/staffAddEdit.php?useredit=true" title="Actualizar la configuración y la contraseña de la cuenta del usuario ">Configuración del usuario</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="/uihelp/endUiSession.php" title="Cerrar sesión" >Cerrar sesión</a></p></div><div id="sessionPageMenu" class="noprint"><p>Mostrar esta pantalla en: <a href="/ptAddEdit.php?clinicPatientID=PT-GEN-000031&workflow=SF_PT_EDIT_f7c0ced5_643e_4ae3_842f_9addb4196996&lang=en" class="langLing">Inglés</a></p></div></div><div class="clearFloat"></div>		<div id="topLinkMenuDiv" class="noprint"><div id="appMenu">
+<ul class="topLinkMenuList">
+<li class="firstLink">
+<a class="a_mainHome" href="/clinicDash.php?fromLink=ptAddEdit.php-a_mainHome">Página principal</a>
+</li>
+<li>
+<a class="a_mainReports" href="/reportHome.php?fromLink=ptAddEdit.php-a_mainReports">Informes</a>
+</li>
+<li>
+<a class="a_mainAdmin" href="/adminHome.php?fromLink=ptAddEdit.php-a_mainAdmin">Admin</a>
+</li>
+<li>
+<a class="a_mainHelp" href="/helpHome.php?fromLink=ptAddEdit.php-a_mainHelp">Ayuda</a>
+</li>
+</ul></div>
+<div id="commentMenu">
+<a class="a_mainComment" href="/userComment.php?fromLink=ptAddEdit.php-a_mainComment" title="Hacer un comentario de esta página">Comentario</a>
+</div></div><div class="clearFloat"></div>	<div class="pageBody">
+	<div id="topicMenuDiv">
+<ul class="topLinkMenuList">
+<li class="firstLink"><a class="a_cancel" href="https://dev.piclinic.org/ptInfo.php?clinicPatientID=PT-GEN-000031&fromLink=ptAddEdit.php-a_cancel">Cancelar</a></li>
+</ul></div>
+	<div id="patientDataDiv">
+		<h2>Actualizar la información del paciente</h2>
+		<form enctype="multipart/form-data" action="/uihelp/addPatient.php" method="post">
+			<p>
+                <label class="close">Carpeta (familia):</label>&nbsp;<input type="text" id="familyIDInputId" name="familyID" value="FAM000006" placeholder="ID de la carpeta familiar" class="piClinicEdit" maxlength="255">&nbsp;&nbsp;<label class="close">Identidad del paciente:</label>&nbsp;<span style="display:inline">PT-GEN-000031</span><input type="hidden" id="clinicPatientIDfield" name="clinicPatientID" value="PT-GEN-000031" class="requiredField">&nbsp;&nbsp;				<label class="close">Cédula:</label>&nbsp;
+					<input type="text" id="patientNationalIDInputId" name="patientNationalID" value="0506-0001-00031" placeholder="Número de la cédula del paciente" class="piClinicEdit" maxlength="255">			</p>
+			<p><label>Nombre del paciente:</label><br>
+				<input type="text" id="lastNameInputId" name="lastName" value="Camacho" placeholder="Apellido" class="piClinicEdit"  required maxlength="255">				<input type="text" id="lastName2InputId" name="lastName2" value="" placeholder="Segundo apellido" class="piClinicEdit" maxlength="255">,&nbsp;&nbsp;
+				<input type="text" id="firstNameInputId" name="firstName" value="Verena" placeholder="Primer nombre" class="piClinicEdit"  required maxlength="255">&nbsp;
+				<input type="text" id="middleInitialInputId" name="middleInitial" value="Q" placeholder="Inicial" class="piClinicEdit" maxlength="255">			</p>
+			<h2>Información personal</h2>
+			<p><label class="close">Sexo</label>:&nbsp;
+					<select id="newsex" name="sex" class="requiredField">
+						<option value="" >Seleccione</option>
+						<option value="F" selected>M</option>
+						<option value="M" >H</option>
+						<option value="X" >X</option>
+					</select>&nbsp;&nbsp;
+				<label class="close">Fecha de nacimiento (D-M-A):</label>&nbsp;
+				<input class="twoDigitNumeric" type="number"  id="newbirthDateDay" name="birthDateDay" placeholder="Día" min="1" max="31" value="12">&nbsp;-&nbsp;<input class="twoDigitNumeric" type="number"  id="newbirthDateMonth" name="birthDateMonth" placeholder="Mes" min="1" max="12" value="07">&nbsp;-&nbsp;<input class="fourDigitNumeric" type="number"  id="newbirthDateYear" name="birthDateYear" placeholder="Año" min="1900" max="2026" value="2000">                <label class="close">Próxima fecha de vacunación (D-M-A):</label>&nbsp;
+                <input class="twoDigitNumeric" type="number"  id="newnextVaccinationDateDay" name="nextVaccinationDateDay" placeholder="Día" min="1" max="31" value="">&nbsp;-&nbsp;<input class="twoDigitNumeric" type="number"  id="newnextVaccinationDateMonth" name="nextVaccinationDateMonth" placeholder="Mes" min="1" max="12" value="">&nbsp;-&nbsp;<input class="fourDigitNumeric" type="number"  id="newnextVaccinationDateYear" name="nextVaccinationDateYear" placeholder="Año" min="1900" value="">			</p>
+			<p><label class="close">Tipo de Sangre:</label>&nbsp;
+				<select id="newbloodType" name="bloodType">
+					<option value="" >Seleccione</option>
+					<option value="O+" >O+</option>
+					<option value="O-" >O-</option>
+					<option value="A+" >A+</option>
+					<option value="A-" >A-</option>
+					<option value="B+" selected>B+</option>
+					<option value="B-" >B-</option>
+					<option value="AB+" >AB+</option>
+					<option value="AB-" >AB-</option>
+				</select>&nbsp;&nbsp;
+				<label class="close">¿Donante de órganos?:</label>&nbsp;
+					<select id="neworgonDonor" name="orgonDonor">
+												<option value="" selected>Seleccione</option>
+						<option value="1" >Si</option>
+						<option value="0" >No</option>
+					</select>&nbsp;&nbsp;
+				<label class="close">Idioma preferido:</label>&nbsp;
+					<input type="text" id="newpreferredLanguage" name="preferredLanguage"
+						value="Español" placeholder="Idioma preferido" maxlength="255">
+			</p>
+            <p>
+                <label class="close">Estado civil:</label>
+                <select id="newMaritalStatus" name="maritalStatus">
+                    <option value="" selected>Seleccione</option>
+                    <option value="Single" >Soltero/a</option><option value="Married" >Casado/a</option><option value="LivingTogether" >Unión libre</option><option value="Engaged" >Comprometido/a</option><option value="Divorced" >Divorciado/a</option><option value="Separated" >Separado/a</option><option value="Widowed" >Viudo/a</option><option value="Other" >Otro</option>                </select>&nbsp;&nbsp;
+                <label class="close">Encargado/a:</label>
+                <input type="text" id="newresponsibleParty" name="responsibleParty"
+                       value="" placeholder="Entrar el nombre del encargado" maxlength="255">
+                <label class="close">Ocupación:</label>
+                <input type="text" id="newprofession" name="profession"
+                       value="" placeholder="Entrar la ocupación del paciente" maxlength="255">
+            </p>
+			<p>
+				<label>Alergias conocidas:</label><br>
+								<textarea name="knownAllergies" id="knownAllergiesEdit" class="allergyEdit" style="height: 60pt;" placeholder="Ingrese cada alergia conocida, una alergia por línea"></textarea>
+			</p>
+			<p>
+				<label>Medicamentos actuales:</label><br>
+								<textarea name="currentMedications" id="currentMedicationsEdit" class="currentMedicationsEdit" style="height: 60pt;" placeholder="Ingrese cada medicamento actual, un medicamento y dosis por línea"></textarea>
+			</p>
+			<p><label>Dirección de la casa:</label><br>
+				<input type="text" id="homeAddress1InputId" name="homeAddress1" value="863 Avenida Cacala" placeholder="Dirección de la casa" class="piClinicEdit wide" maxlength="255">			</p>
+			<p>
+				<input type="text" id="homeAddress2InputId" name="homeAddress2" value="Apt. 345" placeholder="Dirección adicional" class="piClinicEdit wide" maxlength="255">			</p>
+			<p>
+				<input type="text" id="homeNeighborhoodInputId" name="homeNeighborhood" value="Puerto Cortés" placeholder="Localidad" class="piClinicEdit" maxlength="255">				<input type="text" id="homeCityInputId" name="homeCity" value="Puerto Cortés" placeholder="Municipio" class="piClinicEdit"  required maxlength="255">				<input type="text" id="homeCountyInputId" name="homeCounty" value="" placeholder="Condado" class="piClinicEdit noshow" maxlength="255">				<input type="text" id="homeStateInputId" name="homeState" value="Cortés" placeholder="Departamento" class="piClinicEdit"  required maxlength="255">			</p>
+			<p><label>Información del contacto:</label><br>
+				<input type="text" id="contactPhoneInputId" name="contactPhone" value="111-111-0031" placeholder="Primer número telefónico" class="piClinicEdit" maxlength="255"></p>
+				<p><input type="text" id="contactAltPhoneInputId" name="contactAltPhone" value="" placeholder="Otro número telefónico" class="piClinicEdit" maxlength="255"></p>
+			<input type="hidden" id="modeField" name="mode" value="edit">
+			<input type="hidden" id="methodField" name="_method" value="PATCH">
+			            <input type="hidden" id="SubmitBtnTag" name="fromLink" value="ptAddEdit.php-btn_submit">
+			<p><button class="btn_submit" type="submit">Actualizar información del paciente</button></p>
+		</form>
+		<hr>
+	</div>
+	</div>
+</body>

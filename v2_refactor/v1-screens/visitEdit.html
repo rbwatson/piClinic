@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head>
+<meta http-equiv="refresh" content="1440; url=/uihelp/endUiSession.php?msg=SESSION_TIMEOUT"><title>Actualizar detalles de la visita</title>
+<meta charset="utf-8"/><link href="/assets/css/piClinic.css" rel="stylesheet">
+</head>
+<body>
+	<script>0</script><div id="piClinicBannerDiv" class="noprint">
+<p class="piClinicBannerText">piClinic</p>
+</div>
+	<div id="sessionMenu" class="noprint"><div id="sessionDiv" class="noprint"><p>Inscrito como: SystemAdmin&nbsp;&nbsp;|&nbsp;&nbsp;<a href="/staffAddEdit.php?useredit=true" title="Actualizar la configuración y la contraseña de la cuenta del usuario ">Configuración del usuario</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="/uihelp/endUiSession.php" title="Cerrar sesión" >Cerrar sesión</a></p></div><div id="sessionPageMenu" class="noprint"><p>Mostrar esta pantalla en: <a href="/visitEdit.php?patientVisitID=0000000000802022061802&clinicPatientID=PT-GEN-000080&workflow=SF_CLINIC_VISIT_EDIT_1feae30f_919f_43f5_be51_3bb0e39f7c79&lang=en" class="langLing">Inglés</a></p></div></div><div class="clearFloat"></div>		<div id="topLinkMenuDiv" class="noprint"><div id="appMenu">
+<ul class="topLinkMenuList">
+<li class="firstLink">
+<a class="a_mainHome" href="/clinicDash.php?fromLink=visitEdit.php-a_mainHome">Página principal</a>
+</li>
+<li>
+<a class="a_mainReports" href="/reportHome.php?fromLink=visitEdit.php-a_mainReports">Informes</a>
+</li>
+<li>
+<a class="a_mainAdmin" href="/adminHome.php?fromLink=visitEdit.php-a_mainAdmin">Admin</a>
+</li>
+<li>
+<a class="a_mainHelp" href="/helpHome.php?fromLink=visitEdit.php-a_mainHelp">Ayuda</a>
+</li>
+</ul></div>
+<div id="commentMenu">
+<a class="a_mainComment" href="/userComment.php?fromLink=visitEdit.php-a_mainComment" title="Hacer un comentario de esta página">Comentario</a>
+</div></div><div class="clearFloat"></div>	<datalist id="diagData"></datalist>
+	<div class="pageBody">
+	<div id="optionMenuDiv">
+<ul class="topLinkMenuList"><li class="firstLink"><a class="a_cancel" href="https://dev.piclinic.org/ptInfo.php?clinicPatientID=PT-GEN-000080&workflow=HF_PT_VIEW_da87cc0d_2df7_4d5a_9bd6_697325d512e6&fromLink=visitEdit.php-a_cancel">Cancelar</a></li></ul></div>	<div class="nameBlock">
+		<div class="infoBlock">
+			<h1 class="pageHeading noBottomPad noBottomMargin">Calderón Guerrero, Hildegunda C.				<span class="linkInHeading">&nbsp;&nbsp;(F)</span></h1>
+			<p>24-08-1995&nbsp;(26a)&nbsp;&nbsp;&nbsp;
+			<span class="linkInHeading"><a href="/ptInfo.php?clinicPatientID=PT-GEN-000080&fromLink=visitEdit.php-PatientView" title="Mostrar los detalles del paciente">PT-GEN-000080</a></span></p>
+		</div>
+		<div class="infoBlock">
+			<p><label class="close">Fecha de la visita:</label>18-06-2022 12:04</p>
+			<p><label class="close">ID:</label><span class="linkInHeading">0000000000802022061802</span></p>
+		</div>
+		<div class="infoBlock hideDiv">
+			<p><label class="close">Borrada o valida:</label>Valida</p>
+		</div>
+	</div>
+    <div class="clearFloat"></div>
+	<div id="PatientVisitView" class="">
+		<div id="PatientVisitDetails">
+			<form enctype="multipart/form-data" action="/uihelp/updatePatientVisit.php" method="post">
+				<h2>Visita</h2>
+				<div class="indent1">
+				<div class="dataBlock">
+					<p><label class="close">Nuevo o Subsiguiente?:</label>
+						<select id="FirstVisitSelect" name="firstVisit" class="requiredField">
+							<option value="YES" selected>Nuevo</option>
+							<option value="NO" >Subsiguiente</option>
+						</select>
+											</p>
+				</div>
+				<div id="visitStatus">
+					<p><label class="close">Estatus:</label>
+							<select id="VisitStatusSelect" name="visitStatus" class="requiredField">
+								<option value="Open" selected>Admitido</option>
+								<option value="Closed" >Dado de alta</option>
+							</select>
+						</p>
+				</div>
+				</div>
+				<div class="infoBlock">
+					<h2>Llegada</h2>
+					<div class="indent1">
+						<div class="dataBlock">
+							<p><label class="close">Llegó a la clínica (d-m-Y hh:mm)</label>
+								<input class="twoDigitNumeric" type="number"  id="newdateTimeInDay" name="dateTimeInDay" placeholder="Día" min="1" max="31" value="18">&nbsp;-&nbsp;<input class="twoDigitNumeric" type="number"  id="newdateTimeInMonth" name="dateTimeInMonth" placeholder="Mes" min="1" max="12" value="06">&nbsp;-&nbsp;<input class="fourDigitNumeric" type="number"  id="newdateTimeInYear" name="dateTimeInYear" placeholder="Año" min="1900" max="2026" value="2022">&nbsp;&nbsp;<input class="timeNumeric" type="time"  id="newdateTimeInTime" name="dateTimeInTime" value="12:04">							</p>
+						</div>
+						<div class="dataBlock">
+							<p><label class="close">Tipo de la visita:</label> &nbsp;
+									<select id="visitTypeField" name="visitType" class="requiredField">
+										<option value="" >(Seleccione el tipo de la atención)</option>
+										<option value="All" >Todos</option><option value="Outpatient" selected>Consulta externa</option><option value="Emergency" >Emergencia</option><option value="Specialist" >Especialista</option><option value="Test" >Prueba</option>									</select>
+							</p>
+						</div>
+						<div class="dataBlock">
+							<p><label class="close">Recibido de:</label><input type="text" id="referredFromInputId" name="referredFrom" value="" placeholder="Nombre de la clínica" class="piClinicEdit" maxlength="255"></p>
+						</div>
+						<div class="dataBlock">
+							<p><label>Primer motivo de la visita:</label><br>
+							<textarea name="primaryComplaint" id="ComplaintPrimaryEdit" class="complaintEdit" placeholder="Primer motivo de la visita" maxlength="2048">visita del año</textarea>
+							</p>
+						</div>
+                        <div class="dataBlock bottomSpace">
+                            <p><label class="close">Pago:</label>
+                                <input type="number" name="payment" id="PaymentEdit" class="paymentEdit" min="0" max="9999999999" step="1" placeholder="Pago" value="0.00" />
+                                HNL                            </p>
+                        </div>
+						<div class="dataBlock bottomSpace">
+							<p><label class="close">Doctor(a):</label> &nbsp;
+								<select id="StaffUsernameField" name="staffUsername" class="requiredField">
+									<option value="" >(Seleccione el profesional de salud)</option>
+									<option value="Agosto" >Agosto,Test</option><option value="Alaniz" >Alaniz,Test</option><option value="Corral" selected>Corral,Test</option><option value="García" >García,Test</option><option value="Griego" >Griego,Test</option><option value="MedicalStudent" >MedicalStudent,Test</option><option value="Najera" >Najera,Test</option><option value="NursingStudent" >NursingStudent,Test</option><option value="Saavedra" >Saavedra,Test</option><option value="testUser-130db3e0-976a-45af-aff0-90d6cadd5545" >NewLastName,FirstName</option><option value="testUser-40d6468c-637d-402b-bc36-f3b39f64a9ea" >NewLastName,FirstName</option><option value="testUser-48d448bf-c93d-4c5e-a8b7-89570fc661e9" >NewLastName,FirstName</option><option value="testUser-50bb7dc6-1cae-4bc0-9a4a-59e27b534a9b" >NewLastName,FirstName</option><option value="testUser-c6b3249e-edd1-472e-adc5-c39c4082c009" >NewLastName,FirstName</option><option value="testUser-c79988b5-ee01-45d4-b6cf-6f6909755141" >NewLastName,FirstName</option><option value="testUser-e0155a51-aba0-4fa1-965d-62eca110ddf8" >NewLastName,FirstName</option><option value="Valadez" >Valadez,Test</option><option value="Verduzco" >Verduzco,Test</option>								</select>
+							</p>
+						</div>
+                    </div>
+                    <h2>Pre-Clínica</h2>
+                    <div class="indent1">
+                        <table class="piClinicList">
+                            <tr>
+                                <th><label>Estatura</label></th>
+                                <th><label>Peso</label></th>
+                                <th><label>Temp.</label></th>
+                            </tr>
+                            <tr>
+                                <td class="nowrap">
+                                    <p>
+                                        <input type="number" name="height" id="HeightEdit" class="vsEdit" min="0" max="999" step="0.1" placeholder="Estatura" value="150" />&nbsp;
+                                        <select id="HeightUnitsSelect" name="heightUnits">
+                                            <option value="in" >in</option>
+                                            <option value="cm" selected>cm</option>
+                                            <option value="mm" >mm</option>
+                                        </select>
+                                    </p>
+                                </td>
+                                <td class="nowrap">
+                                    <p>
+                                        <input type="number" name="weight" id="WeightEdit" class="vsEdit" min="0" max="999" step="0.1" placeholder="Peso" value="40" />&nbsp;
+                                        <select id="WeightUnitsSelect" name="weightUnits">
+                                            <option value="kg" selected>kg</option>
+                                            <option value="lbs" >lb</option>
+                                        </select>
+                                    </p>
+                                </td>
+                                <td class="nowrap">
+                                    <p>
+                                        <input type="number" name="temp" id="TempEdit" class="vsEdit" min="0" max="999" step="0.1" placeholder="Temp." value="37" />&deg;&nbsp;
+                                        <select id="TempUnitsSelect" name="tempUnits">
+                                            <option value="C" selected>C</option>
+                                            <option value="F" >F</option>
+                                        </select>
+                                    </p>
+                                </td>
+                            </tr>
+                        </table>
+                        <table class="piClinicList">
+                            <tr>
+                                <th><label>P.A.</label></th>
+                                <th><label>Pulso</label></th>
+                                <th><label>RBS/FBS</label></th>
+                            </tr>
+                            <tr>
+                                <td class="nowrap">
+                                    <p>
+                                        <input type="number" name="bpSystolic" id="bpSystolicEdit" class="vsEdit" min="0" max="999" step="1" placeholder="Sístole pressure" value="120" />&nbsp;/&nbsp;
+                                        <input type="number" name="bpDiastolic" id="bpDiastolicEdit" class="vsEdit" min="0" max="999" step="1" placeholder="Diástole pressure" value="79" />
+                                    </p>
+                                </td>
+                                <td class="nowrap">
+                                    <p>
+                                        <input type="number" name="pulse" id="PulseEdit" class="vsEdit" min="0" max="999" step="1" placeholder="Pulso" value="67" />
+                                    </p>
+                                </td>
+                                <td class="nowrap">
+                                    <p>
+                                        <select id="GlucoseUnitsSelect" name="glucoseUnits">
+                                            <option value="" selected>(Tipo)</option>
+                                            <option value="RBS" >Aleatoria</option>
+                                            <option value="FBS" >Ayuno</option>
+                                        </select>&nbsp;
+                                        <input type="number" name="glucose" id="GlucoseEdit" class="vsEdit" min="0" max="999" step="1" placeholder="Glucosa" value="" />
+                                    </p>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+				</div>
+                <div class="infoBlock">
+                    <h2>Notas adicionales de la visita</h2>
+                    <div class="indent1">
+                        <p>
+                            <textarea name="secondaryComplaint" id="ComplaintAdditionalEdit" class="complaintEdit" placeholder="Notas adicionales de la visita" maxlength="2048">nada toavia
+something new</textarea>
+                        </p>
+                    </div>
+                </div>
+				<div class="infoBlock">
+					<h2>Dar de alta&nbsp;&nbsp;&nbsp;&nbsp;
+                        <span class="linkInHeading"><a class="moreInfo" target="helpIndex" href="/helpHome.php?topic=icd" title="Buscar un código CIE-10 en el libro de referencia">Buscar CIE-10 código</a></span>
+                    </h2>
+					<div class="indent1">
+						<div class="dataBlock">
+							<p><label class="close">Salió de la clínica (d-m-Y hh:mm)</label>
+								<input class="twoDigitNumeric" type="number"  id="newdateTimeOutDay" name="dateTimeOutDay" placeholder="Día" min="1" max="31" value="">&nbsp;-&nbsp;<input class="twoDigitNumeric" type="number"  id="newdateTimeOutMonth" name="dateTimeOutMonth" placeholder="Mes" min="1" max="12" value="">&nbsp;-&nbsp;<input class="fourDigitNumeric" type="number"  id="newdateTimeOutYear" name="dateTimeOutYear" placeholder="Año" min="1900" max="2026" value="">&nbsp;&nbsp;<input class="timeNumeric" type="time"  id="newdateTimeOutTime" name="dateTimeOutTime" value="">							</p>
+						</div>
+                        <div class="dataBlock">
+  <p><label class="close">Diagnóstico 1:</label>
+  <select id="Condition1Select" name="condition1">
+      <option value="" selected>(Seleccione nuevo o subsiguiente)</option>
+	    <option value="NEWDIAG" >Nuevo diagnóstico</option>
+      <option value="SUBSDIAG" >Subsiguiente diagnóstico</option>
+  </select>
+  <br><input type="text" id="diagnosis1InputId" name="diagnosis1Desc" list="diagData" data-last-search="" data-last-list-size="9999" onkeyup="inputKeyUpEventHandler (event, this, 'diagData', '203a3dc2_0b5a_4e70_a95a_d2b9fdc4eceb', 'es')" onchange="setCodeValue(this, 'diagData', 'diagnosis1CodeId', '203a3dc2_0b5a_4e70_a95a_d2b9fdc4eceb', 'es')" value="" placeholder="Ingrese el diagnóstico o el código CIE-10" class="piClinicEdit fullWidth" maxlength="255"/><span class="loading" id="diagnosis1InputIdLoading">Cargando...</span>
+<input type="hidden" id="diagnosis1CodeId" name="diagnosis1" value="" />
+</p>
+</div>
+                        <div class="dataBlock">
+  <p><label class="close">Diagnóstico 2:</label>
+  <select id="Condition2Select" name="condition2">
+      <option value="" selected>(Seleccione nuevo o subsiguiente)</option>
+	    <option value="NEWDIAG" >Nuevo diagnóstico</option>
+      <option value="SUBSDIAG" >Subsiguiente diagnóstico</option>
+  </select>
+  <br><input type="text" id="diagnosis2InputId" name="diagnosis2Desc" list="diagData" data-last-search="" data-last-list-size="9999" onkeyup="inputKeyUpEventHandler (event, this, 'diagData', '203a3dc2_0b5a_4e70_a95a_d2b9fdc4eceb', 'es')" onchange="setCodeValue(this, 'diagData', 'diagnosis2CodeId', '203a3dc2_0b5a_4e70_a95a_d2b9fdc4eceb', 'es')" value="" placeholder="Ingrese el diagnóstico o el código CIE-10" class="piClinicEdit fullWidth" maxlength="255"/><span class="loading" id="diagnosis2InputIdLoading">Cargando...</span>
+<input type="hidden" id="diagnosis2CodeId" name="diagnosis2" value="" />
+</p>
+</div>
+                        <div class="dataBlock">
+  <p><label class="close">Diagnóstico 3:</label>
+  <select id="Condition3Select" name="condition3">
+      <option value="" selected>(Seleccione nuevo o subsiguiente)</option>
+	    <option value="NEWDIAG" >Nuevo diagnóstico</option>
+      <option value="SUBSDIAG" >Subsiguiente diagnóstico</option>
+  </select>
+  <br><input type="text" id="diagnosis3InputId" name="diagnosis3Desc" list="diagData" data-last-search="" data-last-list-size="9999" onkeyup="inputKeyUpEventHandler (event, this, 'diagData', '203a3dc2_0b5a_4e70_a95a_d2b9fdc4eceb', 'es')" onchange="setCodeValue(this, 'diagData', 'diagnosis3CodeId', '203a3dc2_0b5a_4e70_a95a_d2b9fdc4eceb', 'es')" value="" placeholder="Ingrese el diagnóstico o el código CIE-10" class="piClinicEdit fullWidth" maxlength="255"/><span class="loading" id="diagnosis3InputIdLoading">Cargando...</span>
+<input type="hidden" id="diagnosis3CodeId" name="diagnosis3" value="" />
+</p>
+</div>
+						<div class="dataBlock">
+							<p><label class="close">Enviado a:</label><input type="text" id="referredToInputId" name="referredTo" value="" placeholder="Nombre de la clínica" class="piClinicEdit" maxlength="255"></p>
+						</div>
+					</div>
+				</div>
+				<div class="clearFloat"></div>
+				<div class="infoBlock ninetyWidth">
+					<p class="textAlignRight"><label class="close">Borrada:</label>
+						<select id="DeletedSelect" name="deleted">
+							<option value="0" selected>No</option>
+							<option value="1" >Si</option>
+						</select>
+					</p>
+				</div>
+				<div class="clearFloat"></div>
+				<input type="hidden" id="PatientVisitIDField" name="patientVisitID" value="0000000000802022061802" >
+				<input type="hidden" id="returnUrlField" name="returnUrl" value="https://dev.piclinic.org/ptInfo.php?clinicPatientID=PT-GEN-000080&workflow=HF_PT_VIEW_da87cc0d_2df7_4d5a_9bd6_697325d512e6&fromLink=visitEdit.php-a_cancel">
+                <input type="hidden" id="SubmitBtnTag" name="fromLink" value="visitEdit.php-btn_submit">
+				<p><button class="btn_submit" type="submit">Actualizar la información de esta visita</button></p>
+			</form>
+		</div>
+	</div>
+	</div>
+	<script src="/assets/js/icdHelper.js"></script>
+</body>
+</html>
