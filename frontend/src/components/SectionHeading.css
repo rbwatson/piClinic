@@ -1,0 +1,28 @@
+/*
+ * SectionHeading.css
+ *
+ * Section label used above groups of related fields.
+ * Matches v1 h2 inside .pageBody.
+ *
+ * h2 { font-size: 16pt; font-weight: normal; margin-bottom: 10pt }
+ */
+
+.section-heading {
+  font-size: 16px;
+  font-weight: 400;
+  margin-top: 16px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: baseline;
+  gap: 1em;
+}
+
+.section-heading:first-child {
+  margin-top: 0;
+}
+
+.section-heading-extra {
+  font-size: 80%;
+  font-weight: 400;
+  color: #558ED5;
+}
