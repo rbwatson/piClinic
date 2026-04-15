@@ -259,7 +259,7 @@
 #shell-content {
   flex: 1;
   overflow-y: auto;
-  padding: 16px 16px 16px 20px;
+  padding: 0 16px 16px 20px;
   background-color: #fff;
 }
 
