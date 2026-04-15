@@ -23,65 +23,7 @@ import NameBlock       from '@/components/NameBlock'
 import LabelValue      from '@/components/LabelValue'
 import SectionHeading  from '@/components/SectionHeading'
 import TwoColumnLayout from '@/components/TwoColumnLayout'
-
-// ---------------------------------------------------------------------------
-// Vitals display row — plain text, no form controls
-// ---------------------------------------------------------------------------
-
-function vitalsValue(value: number | null, units: string | null): string | null {
-  if (value == null) return null
-  return units ? `${value}\u00a0${units}` : String(value)
-}
-
-function VitalsDisplayTable({
-  height, heightUnits,
-  weight, weightUnits,
-  temp, tempUnits,
-  bpSystolic, bpDiastolic,
-  pulse,
-  glucose, glucoseUnits,
-}: {
-  height: number | null;      heightUnits: string | null
-  weight: number | null;      weightUnits: string | null
-  temp: number | null;        tempUnits: string | null
-  bpSystolic: number | null;  bpDiastolic: number | null
-  pulse: number | null
-  glucose: number | null;     glucoseUnits: string | null
-}) {
-  const { t } = useTranslation()
-
-  const bp = bpSystolic != null
-    ? `${bpSystolic}/${bpDiastolic ?? '?'}`
-    : null
-
-  const cols = [
-    { label: t('VISIT_HEIGHT_LABEL'),  value: vitalsValue(height, heightUnits) },
-    { label: t('VISIT_WEIGHT_LABEL'),  value: vitalsValue(weight, weightUnits) },
-    { label: t('VISIT_TEMP_LABEL'),    value: vitalsValue(temp, tempUnits) },
-    { label: t('VISIT_BP_LABEL'),      value: bp },
-    { label: t('VISIT_PULSE_LABEL'),   value: pulse != null ? String(pulse) : null },
-    { label: t('VISIT_GLUCOSE_LABEL'), value: vitalsValue(glucose, glucoseUnits) },
-  ]
-
-  return (
-    <table className="data-table">
-      <thead>
-        <tr>
-          {cols.map((c) => <th key={c.label}>{c.label}</th>)}
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          {cols.map((c) => (
-            <td key={c.label} className={c.value == null ? 'dt-inactive' : undefined}>
-              {c.value ?? '\u2014'}
-            </td>
-          ))}
-        </tr>
-      </tbody>
-    </table>
-  )
-}
+import { VitalsDisplaySection } from '@/components/VitalsSection'
 
 // ---------------------------------------------------------------------------
 // Page
@@ -122,19 +64,19 @@ export default function VisitDetailPage() {
       <LabelValue label={t('VISIT_PAYMENT_LABEL')}        value={visit.payment} />
       <LabelValue label={t('VISIT_ASSIGNED_LABEL')}       value={visit.staffName} />
 
-      {hasVitals && (
-        <>
-          <SectionHeading title={t('VISIT_PRECLINIC_HEADING')} />
-          <VitalsDisplayTable
-            height={visit.height}           heightUnits={visit.heightUnits}
-            weight={visit.weight}           weightUnits={visit.weightUnits}
-            temp={visit.temp}               tempUnits={visit.tempUnits}
-            bpSystolic={visit.bpSystolic}   bpDiastolic={visit.bpDiastolic}
-            pulse={visit.pulse}
-            glucose={visit.glucose}         glucoseUnits={visit.glucoseUnits}
-          />
-        </>
-      )}
+      {hasVitals && (<VitalsDisplaySection values={{
+        height:      visit.height,
+        heightUnits: visit.heightUnits,
+        weight:      visit.weight,
+        weightUnits: visit.weightUnits,
+        temp:        visit.temp,
+        tempUnits:   visit.tempUnits,
+        bpSystolic:  visit.bpSystolic,
+        bpDiastolic: visit.bpDiastolic,
+        pulse:       visit.pulse,
+        glucose:     visit.glucose,
+        glucoseUnits: visit.glucoseUnits,
+      }} />)}
     </>
   )
 
