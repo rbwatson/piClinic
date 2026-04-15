@@ -1,57 +1,34 @@
 /**
  * PageActions.tsx
  *
- * Standardised strip of page-level action links and secondary navigation,
- * rendered below the sidebar on every content page. Matches the v1
- * #topicMenuDiv / #optionMenuDiv pattern.
+ * Pipe-separated strip of page-level action links rendered below the shell
+ * nav bar and above page content. Matches v1 #topicMenuDiv / #optionMenuDiv.
  *
  * Usage:
  *   <PageActions>
- *     <PageActions.Link to="/patients">Search for another patient</PageActions.Link>
+ *     <PageActions.Link to="/patients">Search patients</PageActions.Link>
  *     <PageActions.Button onClick={handlePrint}>Print</PageActions.Button>
+ *     <PageActions.Button variant="destructive" onClick={handleDelete}>Delete</PageActions.Button>
  *   </PageActions>
  *
- * Items are separated by a vertical pipe, matching v1 styling.
- * The strip is hidden on print (noprint).
+ * Plain CSS only. No Tailwind layout classes.
  */
 
 import { Link } from 'react-router-dom'
+import './PageActions.css'
 
-interface PageActionsProps {
-  children: React.ReactNode
-}
-
-interface PageActionsLinkProps {
-  to: string
-  children: React.ReactNode
-  className?: string
-}
-
-interface PageActionsButtonProps {
-  onClick: () => void
-  children: React.ReactNode
-  className?: string
-  variant?: 'default' | 'destructive'
-}
-
-function PageActionsRoot({ children }: PageActionsProps) {
+function PageActionsRoot({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex items-center gap-0 border-b border-border bg-background py-1.5 px-1 mb-4 flex-wrap print:hidden">
+    <div className="page-actions">
       {children}
     </div>
   )
 }
 
-function PageActionsLink({ to, children, className }: PageActionsLinkProps) {
+function PageActionsLink({ to, children }: { to: string; children: React.ReactNode }) {
   return (
-    <span className="flex items-center">
-      <Link
-        to={to}
-        className={`px-2 text-sm text-primary hover:underline ${className ?? ''}`}
-      >
-        {children}
-      </Link>
-      <span className="text-border select-none text-xs last:hidden">|</span>
+    <span className="pa-item">
+      <Link to={to}>{children}</Link>
     </span>
   )
 }
@@ -59,23 +36,21 @@ function PageActionsLink({ to, children, className }: PageActionsLinkProps) {
 function PageActionsButton({
   onClick,
   children,
-  className,
   variant = 'default',
-}: PageActionsButtonProps) {
+}: {
+  onClick: () => void
+  children: React.ReactNode
+  variant?: 'default' | 'destructive'
+}) {
   return (
-    <span className="flex items-center">
+    <span className="pa-item">
       <button
         type="button"
         onClick={onClick}
-        className={`px-2 text-sm hover:underline ${
-          variant === 'destructive'
-            ? 'text-destructive'
-            : 'text-primary'
-        } ${className ?? ''}`}
+        className={variant === 'destructive' ? 'pa-destructive' : undefined}
       >
         {children}
       </button>
-      <span className="text-border select-none text-xs last:hidden">|</span>
     </span>
   )
 }

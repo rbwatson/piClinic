@@ -1,0 +1,57 @@
+/*
+ * PageActions.css
+ *
+ * Pipe-separated action link strip rendered below the shell nav and above
+ * page content. Matches v1 #topicMenuDiv / #optionMenuDiv using
+ * ul.topLinkMenuList styling.
+ *
+ * Hidden on print.
+ */
+
+.page-actions {
+  border-bottom: 1px solid #ccc;
+  padding: 6px 0;
+  margin-bottom: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.pa-item {
+  display: inline-flex;
+  align-items: center;
+  font-size: 14px;
+}
+
+/* Pipe separator before every item except the first */
+.pa-item + .pa-item::before {
+  content: " | ";
+  color: #000;
+  white-space: pre;
+}
+
+.pa-item a,
+.pa-item button {
+  color: #558ED5;
+  background: none;
+  border: none;
+  padding: 0 6px;
+  font-size: 14px;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.pa-item a:hover,
+.pa-item button:hover {
+  text-decoration: underline;
+}
+
+.pa-item button.pa-destructive {
+  color: #cc0000;
+}
+
+@media print {
+  .page-actions {
+    display: none;
+  }
+}
