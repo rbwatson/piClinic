@@ -102,6 +102,10 @@
  * app name on top (smaller font, wraps if needed), search right-justified
  * below. This avoids the compressed side-by-side look on small tablets.
  */
+/*
+ * Banner responsive: below 600px the title and search box stack vertically.
+ * app name smaller and wrappable, search right-justified below.
+ */
 @media (max-width: 600px) {
   .shell-bar-banner {
     height: auto;
@@ -123,7 +127,8 @@
      + top/bottom padding (16px) + session (~30) + nav (~30) = ~132px.
      Close enough to the 130px default that no change is needed here,
      but the banner is no longer a fixed 70px — mark it as auto. */
-  #shell-spacer {
+ 
+    #shell-spacer {
     height: 142px;
   }
 }

@@ -166,8 +166,6 @@ describe('AppShell — mobile hamburger', () => {
     renderShell()
     fireEvent.click(screen.getByRole('button', { name: 'Open menu' }))
     await waitFor(() => {
-      // Query by id since aria-label on aside inside a non-hidden overlay
-      // may not resolve as 'complementary' in jsdom without full AT support.
       expect(document.getElementById('shell-drawer')).toBeInTheDocument()
     })
   })

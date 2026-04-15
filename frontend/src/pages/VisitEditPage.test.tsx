@@ -105,7 +105,6 @@ describe('VisitEditPage', () => {
     renderEditPage()
     await waitFor(() => {
       // VISIT_CANCEL appears in both PageActions and the form actions row.
-      // Assert on the PageActions link (first occurrence).
       const cancelLinks = screen.getAllByRole('link', { name: 'VISIT_CANCEL' })
       expect(cancelLinks.length).toBeGreaterThanOrEqual(1)
     })
