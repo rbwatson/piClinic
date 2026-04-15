@@ -64,6 +64,7 @@ export default function VisitDetailPage() {
       <LabelValue label={t('VISIT_PAYMENT_LABEL')}        value={visit.payment} />
       <LabelValue label={t('VISIT_ASSIGNED_LABEL')}       value={visit.staffName} />
 
+      <SectionHeading title={t('VISIT_PRECLINIC_HEADING')} />
       {hasVitals && (<VitalsDisplaySection values={{
         height:      visit.height,
         heightUnits: visit.heightUnits,
