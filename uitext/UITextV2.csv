@@ -2,11 +2,13 @@ UI_V2_KEY,UI_ENGLISH_LANGUAGE,UI_SPANISH_LANGUAGE
 ACTION_BACK,Back,Volver
 ACTION_CANCEL,Cancel,Cancelar
 ACTION_DELETE,Delete,Borrar
+ACTION_DISCHARGE,Discharge,Dar de alta
 ACTION_EDIT,Edit,Actualizar
 ACTION_EXPORT_CSV,Export as CSV,Descargar como CSV
 ACTION_PRINT,Print,Imprimir
 ACTION_SAVE,Save,Guardar
 ACTION_SEARCH,Search,Buscar
+ACTION_VIEW,View,Ver
 ALLERGY_ONE_PER_LINE,One entry per line,Un elemento por línea
 APP_NAME,piClinic,piClinic
 BP_DIA_PLACEHOLDER,Dia,Diástole
@@ -26,8 +28,8 @@ HOME_NEIGHBORHOOD_LABEL,Neighborhood,Localidad
 ICD_CONDITION_NEW,New diagnosis,Nuevo diagnóstico
 ICD_CONDITION_SUBSEQUENT,Subsequent diagnosis,Subsiguiente diagnóstico
 ICD_LOADING,Loading...,Cargando...
+ICD_SEARCH_LINK,Lookup ICD-10 code,Buscar CIE-10 código
 ICD_SEARCH_PLACEHOLDER,ICD-10 code to match,Codigo CIE-10
-ICD_LINK_TEXT,Lookup ICD-10 code,Buscar CIE-10 código
 LANGUAGE_EN,English,Inglés
 LANGUAGE_ES,Spanish,Español
 LANGUAGE_PROMPT,Show this screen in,Mostrar esta pantalla en
@@ -46,11 +48,12 @@ NAV_PATIENTS,Patients,Pacientes
 NAV_REPORTS,Reports,Informes
 NEXT_VAX_DATE_INPUT_LABEL,Next vaccination date,Próxima fecha de vacunación
 NOT_SPECIFIED,Not specified,No especificado
+NO_OPTION,No,No
+PATIENT_ADDRESS_LABEL,Home address,Dirección de la casa
 PATIENT_ADD_EDIT_ID_LABEL,Patient ID,Identidad del paciente
 PATIENT_ADD_NEW,Add a new patient,Agregar un paciente nuevo
-PATIENT_ADDRESS_LABEL,Home address,Dirección de la casa
-PATIENT_ALT_PHONE_LABEL,Alternate phone,Otro número telefónico
 PATIENT_ALLERGIES_HEADING,Known allergies,Alergias conocidas
+PATIENT_ALT_PHONE_LABEL,Alternate phone,Otro número telefónico
 PATIENT_BIRTHDATE_LABEL,Birthdate,Fecha de nacimiento
 PATIENT_BLOODTYPE_LABEL,Blood Type,Tipo de Sangre
 PATIENT_CANCEL,Cancel,Cancelar
@@ -62,9 +65,9 @@ PATIENT_CURRENT_VISIT_HEADING,Patient is currently in the clinic,El paciente est
 PATIENT_DATA_HEAD,Patient data,Datos del paciente
 PATIENT_EDIT,Update this patient's info,Actualizar la información del paciente
 PATIENT_EDIT_TITLE,Update Patient,Editar Paciente
+PATIENT_FAMILYID_PLACEHOLDER,Family ID,ID de la carpeta familiar
 PATIENT_FAMILY_ID_INVALID,Family ID is not formatted correctly.,Carpeta (familia) no es en el formato correcto.
 PATIENT_FAMILY_ID_LABEL,Family ID,Carpeta (familia)
-PATIENT_FAMILYID_PLACEHOLDER,Family ID,ID de la carpeta familiar
 PATIENT_FIELDS_MISSING,A required field was not filled in.,No se encuentran los datos requeridos del paciente.
 PATIENT_FIND_ANOTHER,Search for another patient,Buscar otro paciente
 PATIENT_ID_IN_USE,Could not create a new patient record. The patient ID is already assigned.,No se puede crear un expediente del paciente nuevo. El ID del paciente está usado por otro paciente.
@@ -82,14 +85,14 @@ PATIENT_MARITAL_MARRIED,Married,Casado/a
 PATIENT_MARITAL_OTHER,Other,Otro
 PATIENT_MARITAL_SEPARATED,Separated,Separado/a
 PATIENT_MARITAL_SINGLE,Single,Soltero/a
-PATIENT_MARITAL_WIDOWED,Widowed,Viudo/a
 PATIENT_MARITAL_STATUS_LABEL,Marital status,Estado civil
+PATIENT_MARITAL_WIDOWED,Widowed,Viudo/a
 PATIENT_MEDICATIONS_HEADING,Current medications,Medicamentos actuales
-PATIENT_NAME_LABEL,Patient name,Nombre del paciente
 PATIENT_NAMEFIRST_PLACEHOLDER,First name,Primer nombre
-PATIENT_NAMELAST_PLACEHOLDER,Last name,Apellido
 PATIENT_NAMELAST2_PLACEHOLDER,Second last name,Segundo apellido
+PATIENT_NAMELAST_PLACEHOLDER,Last name,Apellido
 PATIENT_NAMEMI_PLACEHOLDER,MI,Inicial
+PATIENT_NAME_LABEL,Patient name,Nombre del paciente
 PATIENT_NATIONAL_ID_LABEL,National ID,Cédula
 PATIENT_NEW_ADDRESS_LABEL,Home address,Dirección de la casa
 PATIENT_NEW_BLOODTYPE_LABEL,Blood type,Tipo de Sangre
@@ -103,10 +106,10 @@ PATIENT_NEW_HOMEADDRESS2_PLACEHOLDER,Additional address info,Dirección adiciona
 PATIENT_NEW_ORGAN_DONOR_LABEL,Organ donor?,¿Donante de órganos?
 PATIENT_NEW_STATE_PLACEHOLDER,State,Departamento
 PATIENT_NEW_TITLE,New Patient,Nuevo Paciente
+PATIENT_NOT_FOUND,The specified patient was not found.,No se encontró el paciente especificado.
 PATIENT_NO_ALLERGIES,No known allergies,Sin alergias conocidas
 PATIENT_NO_MEDICATIONS,No medications on file,No hay medicamentos en el archivo
 PATIENT_NO_PRIOR_VISITS,No previous admission records,No hay archivos de admisiones anteriores
-PATIENT_NOT_FOUND,The specified patient was not found.,No se encontró el paciente especificado.
 PATIENT_OPEN_VISIT,Admit this patient to the clinic,Abra una visita nueva para este paciente
 PATIENT_ORGAN_DONOR_LABEL,Organ Donor,Donante de órganos
 PATIENT_PERSONAL_LABEL,Personal info,Información personal
@@ -116,32 +119,34 @@ PATIENT_PROFESSION_LABEL,Profession,Profesión
 PATIENT_RESET_FORM,Clear fields and start over,Borrar todo y empezar de nuevo
 PATIENT_RESET_SEARCH,Start a new search,Buscar de nuevo
 PATIENT_RESPONSIBLE_PARTY_LABEL,Responsible Person,Encargado/a
-PATIENT_SEX_F,F,M
-PATIENT_SEX_LABEL,Sex (M/F),Sexo (H/M)
-PATIENT_SEX_M,M,H
-PATIENT_SEX_X,X,X
 PATIENT_SEARCH_FOUND,Found these patients. Select one to view their info.,Se encontraron estos pacientes. Haga clic para ver los detalles.
 PATIENT_SEARCH_HEADING,Find patient,Buscar paciente
 PATIENT_SEARCH_ID_LABEL,"Patient, Visit, or Family ID","Número del paciente, visita, o familia"
-PATIENT_SEARCH_NAME_LABEL,Patient name,Nombre del paciente
 PATIENT_SEARCH_NAMEFIRST_PLACEHOLDER,First name,Primer nombre
-PATIENT_SEARCH_NAMELAST_PLACEHOLDER,First last name,Apellido
 PATIENT_SEARCH_NAMELAST2_PLACEHOLDER,Second last name,Segundo apellido
+PATIENT_SEARCH_NAMELAST_PLACEHOLDER,First last name,Apellido
 PATIENT_SEARCH_NAMEMI_PLACEHOLDER,MI,Inicial
+PATIENT_SEARCH_NAME_LABEL,Patient name,Nombre del paciente
 PATIENT_SEARCH_NOT_FOUND,No matching patients found. Retry your search or add a new patient.,No hay pacientes con este ID o nombre. Buscar de nuevo o agregar un paciente nuevo.
 PATIENT_SEARCH_RESULTS_HEADING,Matching patients found,Pacientes encontrados
 PATIENT_SEARCH_SUBMIT,Show matching patients,Mostrar los pacientes que coincidan
 PATIENT_SEARCH_TITLE,Patient Search,Buscar Paciente
+PATIENT_SEX_F,F,M
+PATIENT_SEX_LABEL,Sex (M/F),Sexo (H/M)
+PATIENT_SEX_M,M,H
+PATIENT_SEX_X,X,X
 PATIENT_SUBMIT_EDIT,Update patient info,Actualizar información del paciente
 PATIENT_SUBMIT_NEW,Add new patient,Agregar paciente nuevo
 PATIENT_VISIT_HISTORY_HEADING,Earlier visits to this clinic,Visitas anteriores a esta clínica
-NO_OPTION,No,No
 SESSION_LOGGED_IN_AS,Logged in as,Inscrito como
 SESSION_LOGOUT,Logout,Cerrar sesión
 SESSION_SETTINGS,User settings,Configuración del usuario
 SESSION_TIMEOUT,You haven't been using the system for a while so you were logged out.,No ha estado usando la consola por un rato y su sesión ha estado cerrado automáticamente.
 STAFF_LABEL,Health professional,Profesional de salud
 STAFF_SELECT_PLACEHOLDER,(Select the health professional),(Seleccione el profesional de salud)
+VISIT_ACTIONS_LABEL,Visit actions,Acciones de la visita
+VISIT_ADDITIONAL_NOTES_PLACEHOLDER,Additional visit notes,Notas adicionales de la visita
+VISIT_ARRIVAL_HEADING,Arrival,Llegada
 VISIT_ARRIVED_LABEL,Admitted to clinic,Llegó a la clínica
 VISIT_ASSESSMENT_LABEL,Assessment,Tratamiento
 VISIT_ASSIGNED_LABEL,Doctor,Doctor(a)
@@ -153,33 +158,35 @@ VISIT_CLOSE_TITLE,Discharge patient,Cerrar la visita
 VISIT_COMPLAINT_ADDITIONAL_LABEL,Additional visit notes,Notas adicionales de la visita
 VISIT_COMPLAINT_PLACEHOLDER,Primary reason for visit,Primer motivo de la visita
 VISIT_COMPLAINT_PRIMARY_LABEL,Primary reason for visit,Primer motivo de la visita
+VISIT_CURRENT_HEADING,Patient is in the clinic now,El paciente está en la clínica ahora
 VISIT_DATE_LABEL,Visit Date,Fecha de la visita
 VISIT_DETAIL_TITLE,Patient Visit Details,Detalles de la visita
 VISIT_DIAGNOSES_HEADING,Diagnoses and activities,Diagnóstico y actividades
 VISIT_DIAGNOSIS_1_LABEL,Diagnosis 1,Diagnóstico 1
 VISIT_DIAGNOSIS_2_LABEL,Diagnosis 2,Diagnóstico 2
 VISIT_DIAGNOSIS_3_LABEL,Diagnosis 3,Diagnóstico 3
-VISIT_DISCHARGE_HEADING,Discharge info,Dar de alta
 VISIT_DISCHARGED_LABEL,Discharged from clinic,Salió de la clínica
+VISIT_DISCHARGE_HEADING,Discharge info,Dar de alta
+VISIT_DOCTOR_LABEL,Doctor,Doctor(a)
 VISIT_EDIT_ACTION,Edit this visit,Actualizar esta visita
 VISIT_EDIT_TITLE,Edit Patient Visit Details,Actualizar detalles de la visita
-VISIT_ADDITIONAL_NOTES_PLACEHOLDER,Additional visit notes,Notas adicionales de la visita
 VISIT_FIRST_VISIT_LABEL,New patient?,Nuevo o Subsiguiente?
 VISIT_FIRST_VISIT_NO,No,Subsiguiente
 VISIT_FIRST_VISIT_YES,Yes,Nuevo
 VISIT_GLUCOSE_LABEL,RBS/FBS,RBS/FBS
 VISIT_HEIGHT_LABEL,Height,Estatura
 VISIT_ID_LABEL,ID,ID
+VISIT_LIST_ACTIONS,Actions,Acciones
 VISIT_LIST_ACTION_DISCHARGE,Discharge,Dar de alta
 VISIT_LIST_ACTION_EDIT,Edit,Actualizar
 VISIT_LIST_ACTION_VIEW,View,Ver
-VISIT_LIST_ACTIONS,Actions,Acciones
 VISIT_OPEN_ACTION,Admit,Abra esta visita
 VISIT_OPEN_TITLE,Admit patient,Abre una visita nueva para el paciente
 VISIT_PAYMENT_LABEL,Payment,Pago
 VISIT_PAYMENT_PLACEHOLDER,Payment amount,Pago
 VISIT_PRECLINIC_HEADING,Pre-Clinic,Pre-Clínica
 VISIT_PULSE_LABEL,Pulse,Pulso
+VISIT_REASON_LABEL,Primary reason for visit,Primer motivo de la visita
 VISIT_REFERRAL_FROM_PLACEHOLDER,Clinic name,Nombre de la clínica
 VISIT_REFERRAL_HEADING,Referral info,Remisión
 VISIT_REFERRAL_TO_PLACEHOLDER,Specialist or clinic name,Especialista o clínica
