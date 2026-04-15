@@ -273,7 +273,6 @@ export default function AppShell() {
         <div
           id="shell-drawer-overlay"
           onClick={() => setMobileOpen(false)}
-          aria-hidden="true"
         >
           <aside
             id="shell-drawer"

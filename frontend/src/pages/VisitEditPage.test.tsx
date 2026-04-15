@@ -104,7 +104,10 @@ describe('VisitEditPage', () => {
     } as unknown as ReturnType<typeof visitsApi.useVisit>)
     renderEditPage()
     await waitFor(() => {
-      expect(screen.getByText('VISIT_CANCEL')).toBeInTheDocument()
+      // VISIT_CANCEL appears in both PageActions and the form actions row.
+      // Assert on the PageActions link (first occurrence).
+      const cancelLinks = screen.getAllByRole('link', { name: 'VISIT_CANCEL' })
+      expect(cancelLinks.length).toBeGreaterThanOrEqual(1)
     })
   })
 

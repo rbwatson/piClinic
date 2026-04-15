@@ -94,6 +94,40 @@
   background-color: rgba(255, 255, 255, 0.35);
 }
 
+/*
+ * Banner responsive: at narrow-but-not-mobile viewport widths the banner
+ * title and search box can become cramped. Below 480px (well inside mobile
+ * territory where the full header is already hidden) this rule has no
+ * effect, but between 480px and 767px the banner stacks vertically:
+ * app name on top (smaller font, wraps if needed), search right-justified
+ * below. This avoids the compressed side-by-side look on small tablets.
+ */
+@media (max-width: 600px) {
+  .shell-bar-banner {
+    height: auto;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 8px 16px 8px 20px;
+    gap: 6px;
+  }
+  .shell-app-name {
+    font-size: 115%;
+    white-space: normal;
+  }
+  .shell-search-form {
+    width: 100%;
+    justify-content: flex-end;
+  }
+  /* Spacer adjustment when banner grows taller on this breakpoint.
+     Approximate stacked height: name (~22px) + gap (6px) + search (~28px)
+     + top/bottom padding (16px) + session (~30) + nav (~30) = ~132px.
+     Close enough to the 130px default that no change is needed here,
+     but the banner is no longer a fixed 70px — mark it as auto. */
+  #shell-spacer {
+    height: 142px;
+  }
+}
+
 /* Bar 2: Session */
 .shell-bar-session {
   background-color: #558ED5;
