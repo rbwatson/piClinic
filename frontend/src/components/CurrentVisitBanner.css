@@ -1,0 +1,21 @@
+/*
+ * CurrentVisitBanner.css
+ *
+ * Gray banner shown on ptInfo when the patient has an open visit.
+ * Matches v1 div.currentVisitList.
+ *
+ * Conditionally rendered — absent when there is no open visit.
+ * Gray background signals "patient is currently in the clinic".
+ */
+
+.current-visit-banner {
+  background-color: #ddd;
+  padding: 4px 8px 8px 0.5em;
+  margin: 12px 0 12px 0;
+}
+
+.current-visit-banner h2 {
+  font-size: 16px;
+  font-weight: 400;
+  margin: 4px 0 8px 0;
+}
