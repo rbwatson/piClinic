@@ -2,10 +2,10 @@
  * VitalsSection.test.tsx
  */
 
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { useForm } from 'react-hook-form'
-import VitalsSection, { type VitalsValues } from '@/components/VitalsSection'
+import VitalsSection, { VitalsDisplaySection, type VitalsValues } from '@/components/VitalsSection'
 
 // ---------------------------------------------------------------------------
 // Display mode
@@ -22,7 +22,7 @@ const FULL_VALUES: VitalsValues = {
 
 describe('VitalsSection — display mode', () => {
   it('renders all column headings', () => {
-    render(<VitalsSection mode="display" values={FULL_VALUES} />)
+    render(<VitalsDisplaySection values={FULL_VALUES} />)
     expect(screen.getByText('VISIT_HEIGHT_LABEL')).toBeInTheDocument()
     expect(screen.getByText('VISIT_WEIGHT_LABEL')).toBeInTheDocument()
     expect(screen.getByText('VISIT_TEMP_LABEL')).toBeInTheDocument()
@@ -32,7 +32,7 @@ describe('VitalsSection — display mode', () => {
   })
 
   it('renders formatted vital values', () => {
-    render(<VitalsSection mode="display" values={FULL_VALUES} />)
+    render(<VitalsDisplaySection values={FULL_VALUES} />)
     expect(screen.getByText(/150/)).toBeInTheDocument()
     expect(screen.getByText(/40/)).toBeInTheDocument()
     expect(screen.getByText(/37/)).toBeInTheDocument()
@@ -41,13 +41,13 @@ describe('VitalsSection — display mode', () => {
   })
 
   it('renders em dash for null glucose', () => {
-    render(<VitalsSection mode="display" values={FULL_VALUES} />)
+    render(<VitalsDisplaySection values={FULL_VALUES} />)
     expect(screen.getByText('\u2014')).toBeInTheDocument()
   })
 
   it('renders em dash for null bp when bpSystolic is null', () => {
     const values = { ...FULL_VALUES, bpSystolic: null, bpDiastolic: null }
-    render(<VitalsSection mode="display" values={values} />)
+    render(<VitalsDisplaySection values={values} />)
     const dashes = screen.getAllByText('\u2014')
     expect(dashes.length).toBeGreaterThanOrEqual(2)
   })
