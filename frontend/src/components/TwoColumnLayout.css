@@ -1,0 +1,35 @@
+/*
+ * TwoColumnLayout.css
+ *
+ * Side-by-side two-column layout for info and edit pages.
+ * Matches v1 side-by-side div.infoBlock using float: left.
+ *
+ * Used on:
+ *   ptInfo    — patient data (left) + visit history (right)
+ *   visitInfo — arrival + vitals (left) + notes + diagnosis (right)
+ *   visitEdit — same as visitInfo
+ *
+ * Stacks to single column on mobile (below 768px).
+ */
+
+.two-col {
+  display: flex;
+  gap: 2rem;
+  align-items: flex-start;
+}
+
+.two-col-left,
+.two-col-right {
+  flex: 1;
+  min-width: 0;
+}
+
+@media (max-width: 767px) {
+  .two-col {
+    flex-direction: column;
+    gap: 0;
+  }
+  .two-col-right {
+    margin-top: 1.5rem;
+  }
+}
