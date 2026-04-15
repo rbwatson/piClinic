@@ -1,0 +1,89 @@
+/*
+ * NameBlock.css
+ *
+ * Patient name heading block used at the top of all visit pages.
+ * Matches v1 div.nameBlock with left and right infoBlock divs.
+ *
+ * Left:  patient name (h1) + sex + DOB + patient ID link
+ * Right: visit date + optional visit ID (omitted on visitOpen)
+ *
+ * Stacks to column on mobile (below 768px).
+ */
+
+.name-block {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+  gap: 1rem;
+}
+
+/* Left block */
+.name-block-left {
+  flex: 1;
+  min-width: 0;
+}
+
+.name-block-heading {
+  font-size: 20px;
+  font-weight: 400;
+  margin: 0 0 2px 0;
+  line-height: 1.2;
+}
+
+.name-block-sex {
+  font-size: 14px;
+  color: #aaa;
+  margin-left: 0.4em;
+}
+
+.name-block-meta {
+  font-size: 14px;
+  color: #aaa;
+  margin: 0;
+}
+
+.name-block-meta a {
+  color: #558ED5;
+  text-decoration: none;
+}
+
+.name-block-meta a:hover {
+  text-decoration: underline;
+}
+
+/* Right block */
+.name-block-right {
+  flex-shrink: 0;
+  text-align: right;
+}
+
+.name-block-visit-label {
+  font-size: 11px;
+  font-weight: bold;
+  color: #555;
+}
+
+.name-block-visit-date {
+  font-size: 14px;
+  color: #111;
+}
+
+.name-block-visit-id {
+  font-size: 12px;
+  font-family: ui-monospace, Consolas, monospace;
+  color: #aaa;
+  margin-top: 2px;
+}
+
+/* Mobile: stack left above right */
+@media (max-width: 767px) {
+  .name-block {
+    flex-direction: column;
+    gap: 4px;
+  }
+  .name-block-right {
+    text-align: left;
+  }
+}
