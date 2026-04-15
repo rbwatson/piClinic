@@ -2,6 +2,7 @@
  * VisitDetailPage.test.tsx
  *
  * Component tests for VisitDetailPage.
+ * Updated for pattern-composition rebuild.
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
@@ -27,7 +28,7 @@ const BASE_VISIT: visitsApi.Visit = {
   dateTimeIn:        '2026-04-13 09:00:00',
   dateTimeOut:       null,
   payment:           null,
-  patientLastName:   'Fernández',
+  patientLastName:   'Fern\u00e1ndez',
   patientFirstName:  'Yamel',
   patientSex:        'F',
   patientBirthDate:  '2001-07-21',
@@ -81,20 +82,27 @@ describe('VisitDetailPage', () => {
     expect(screen.getByText('ERROR_NOT_FOUND')).toBeInTheDocument()
   })
 
-  it('shows patient name and patient ID link', async () => {
+  it('shows patient name in h1', async () => {
     vi.spyOn(visitsApi, 'useVisit').mockReturnValue({
       data: BASE_VISIT, isLoading: false, isError: false,
     } as unknown as ReturnType<typeof visitsApi.useVisit>)
     renderDetailPage()
     await waitFor(() => {
-      // Patient name appears in the h1
       expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Yamel')
-      // Patient ID appears as a link
-      expect(screen.getByText('PT-GEN-000001')).toBeInTheDocument()
     })
   })
 
-  it('shows Open status badge for open visits', async () => {
+  it('shows patient ID as a link', async () => {
+    vi.spyOn(visitsApi, 'useVisit').mockReturnValue({
+      data: BASE_VISIT, isLoading: false, isError: false,
+    } as unknown as ReturnType<typeof visitsApi.useVisit>)
+    renderDetailPage()
+    await waitFor(() => {
+      expect(screen.getByRole('link', { name: 'PT-GEN-000001' })).toBeInTheDocument()
+    })
+  })
+
+  it('shows open status for open visits', async () => {
     vi.spyOn(visitsApi, 'useVisit').mockReturnValue({
       data: BASE_VISIT, isLoading: false, isError: false,
     } as unknown as ReturnType<typeof visitsApi.useVisit>)
@@ -110,8 +118,8 @@ describe('VisitDetailPage', () => {
     } as unknown as ReturnType<typeof visitsApi.useVisit>)
     renderDetailPage()
     await waitFor(() => {
-      expect(screen.getByText('VISIT_EDIT_ACTION')).toBeInTheDocument()
-      expect(screen.getByText('VISIT_CLOSE_ACTION')).toBeInTheDocument()
+      expect(screen.getByRole('link', { name: 'VISIT_EDIT_ACTION' })).toBeInTheDocument()
+      expect(screen.getByRole('link', { name: 'VISIT_CLOSE_ACTION' })).toBeInTheDocument()
     })
   })
 
@@ -122,8 +130,8 @@ describe('VisitDetailPage', () => {
     } as unknown as ReturnType<typeof visitsApi.useVisit>)
     renderDetailPage()
     await waitFor(() => {
-      expect(screen.queryByText('VISIT_EDIT_ACTION')).not.toBeInTheDocument()
-      expect(screen.queryByText('VISIT_CLOSE_ACTION')).not.toBeInTheDocument()
+      expect(screen.queryByRole('link', { name: 'VISIT_EDIT_ACTION' })).not.toBeInTheDocument()
+      expect(screen.queryByRole('link', { name: 'VISIT_CLOSE_ACTION' })).not.toBeInTheDocument()
     })
   })
 
@@ -160,9 +168,7 @@ describe('VisitDetailPage', () => {
     })
   })
 
-  it('shows diagnoses heading even when no diagnoses are set', async () => {
-    // VISIT_DIAGNOSES_HEADING is always shown in the right column
-    // (discharge date and referred-to also live there)
+  it('shows diagnoses heading', async () => {
     vi.spyOn(visitsApi, 'useVisit').mockReturnValue({
       data: BASE_VISIT, isLoading: false, isError: false,
     } as unknown as ReturnType<typeof visitsApi.useVisit>)
