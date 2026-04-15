@@ -1,0 +1,41 @@
+/*
+ * LabelValue.css
+ *
+ * Label-value pair display pattern. Matches v1 div.dataBlock > p > label + span.
+ * Used for read-only and locked fields on info and form pages.
+ *
+ * Three contexts:
+ *   - Display: standalone info page (ptInfo, visitInfo)
+ *   - Locked:  plain text inside a form alongside editable fields
+ *   - Empty:   null/undefined/'' value renders italic gray placeholder
+ *
+ * No Tailwind. No dark mode.
+ */
+
+.label-value {
+  padding: 4px 0;
+  border-bottom: 1px dotted #ccc;
+}
+
+.label-value:last-child {
+  border-bottom: none;
+}
+
+.lv-label {
+  font-weight: bold;
+  font-size: 87.5%;
+  margin-right: 1.5em;
+  display: inline-block;
+  min-width: 10em;
+  vertical-align: top;
+}
+
+.lv-value {
+  font-size: 87.5%;
+}
+
+.lv-empty {
+  font-style: italic;
+  color: #aaa;
+  font-size: 87.5%;
+}
