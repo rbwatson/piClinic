@@ -4,29 +4,22 @@
  * Six-column vitals table used on all visit pages.
  * Matches v1 table.piClinicList with th.sixCol / td.sixCol columns.
  *
- * Two modes:
+ * Two exports:
  *
- *   mode="edit" (default)
- *     Renders editable inputs integrated with react-hook-form.
- *     Required prop: register
+ *   VitalsSection (default)
+ *     Edit mode. Renders form inputs with react-hook-form.
+ *     Used by VisitOpenPage, VisitEditPage, VisitClosePage.
  *
- *     <VitalsSection mode="edit" register={register} />
+ *     <VitalsSection register={register} />
  *
- *   mode="display"
- *     Renders plain text values. No form controls.
- *     Required prop: values
+ *   VitalsDisplaySection (named)
+ *     Display mode. Renders plain text values. No form controls.
+ *     Used by VisitDetailPage.
  *
- *     <VitalsSection mode="display" values={{
- *       height: 150, heightUnits: 'cm',
- *       weight: 40,  weightUnits: 'kg',
- *       temp: 37,    tempUnits: 'C',
- *       bpSystolic: 120, bpDiastolic: 79,
- *       pulse: 67,
- *       glucose: null, glucoseUnits: null,
- *     }} />
+ *     <VitalsDisplaySection values={{ height: 150, heightUnits: 'cm', ... }} />
  *
- * Plain CSS table (.data-table) for layout.
- * Tailwind used only for existing form input styling (pre-existing pattern).
+ * Plain CSS table (.data-table .vitals-table) for display layout.
+ * Tailwind used only for form input styling (pre-existing pattern).
  */
 
 import type { UseFormRegister, FieldValues, Path } from 'react-hook-form'
@@ -84,7 +77,7 @@ const unitSelectClass =
   'focus:outline-none focus:ring-2 focus:ring-ring'
 
 // ---------------------------------------------------------------------------
-// Display mode — plain text six-column table
+// VitalsDisplaySection — plain text, no form controls
 // ---------------------------------------------------------------------------
 
 function formatVital(value: number | null, units: string | null): string {
@@ -92,7 +85,7 @@ function formatVital(value: number | null, units: string | null): string {
   return units ? `${value}\u00a0${units}` : String(value)
 }
 
-function VitalsDisplay({ values }: { values: VitalsValues }) {
+export function VitalsDisplaySection({ values }: { values: VitalsValues }) {
   const { t } = useTranslation()
 
   const bp = values.bpSystolic != null
@@ -129,16 +122,18 @@ function VitalsDisplay({ values }: { values: VitalsValues }) {
 }
 
 // ---------------------------------------------------------------------------
-// Edit mode — form inputs with react-hook-form register
+// VitalsSection (default) — edit mode with react-hook-form
 // ---------------------------------------------------------------------------
 
-function VitalsEdit<T extends VitalsFields>({
+interface VitalsSectionProps<T extends FieldValues> {
+  register:  UseFormRegister<T>
+  disabled?: boolean
+}
+
+export default function VitalsSection<T extends VitalsFields>({
   register,
   disabled = false,
-}: {
-  register: UseFormRegister<T>
-  disabled?: boolean
-}) {
+}: VitalsSectionProps<T>) {
   const { t } = useTranslation()
 
   return (
@@ -226,19 +221,4 @@ function VitalsEdit<T extends VitalsFields>({
 
     </div>
   )
-}
-
-// ---------------------------------------------------------------------------
-// Public API — discriminated union on mode
-// ---------------------------------------------------------------------------
-
-type VitalsSectionProps<T extends VitalsFields> =
-  | { mode?: 'edit';    register: UseFormRegister<T>; disabled?: boolean; values?: never }
-  | { mode:  'display'; values: VitalsValues;          register?: never;  disabled?: never }
-
-export default function VitalsSection<T extends VitalsFields>(props: VitalsSectionProps<T>) {
-  if (props.mode === 'display') {
-    return <VitalsDisplay values={props.values} />
-  }
-  return <VitalsEdit register={props.register} disabled={props.disabled} />
 }
