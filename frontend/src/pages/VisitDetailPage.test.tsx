@@ -135,17 +135,17 @@ describe('VisitDetailPage', () => {
     })
   })
 
-  it('does not show vitals section when all vitals are null', async () => {
+  it('always shows pre-clinic vitals section when all vitals are null', async () => {
     vi.spyOn(visitsApi, 'useVisit').mockReturnValue({
       data: BASE_VISIT, isLoading: false, isError: false,
     } as unknown as ReturnType<typeof visitsApi.useVisit>)
     renderDetailPage()
     await waitFor(() => {
-      expect(screen.queryByText('VISIT_PRECLINIC_HEADING')).not.toBeInTheDocument()
+      expect(screen.queryByText('VISIT_PRECLINIC_HEADING')).toBeInTheDocument()
     })
   })
 
-  it('shows vitals section when at least one vital is present', async () => {
+  it('always shows vitals section when at least one vital is present', async () => {
     vi.spyOn(visitsApi, 'useVisit').mockReturnValue({
       data: { ...BASE_VISIT, pulse: 72 },
       isLoading: false, isError: false,

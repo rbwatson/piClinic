@@ -43,10 +43,6 @@ export default function VisitDetailPage() {
 
   const isOpen = visit.visitStatus === 'Open'
 
-  const hasVitals =
-    visit.height != null || visit.weight != null || visit.temp != null ||
-    visit.bpSystolic != null || visit.pulse != null || visit.glucose != null
-
   const patientName = `${visit.patientLastName}, ${visit.patientFirstName}`
 
   const icdSearchLink = (
@@ -65,7 +61,7 @@ export default function VisitDetailPage() {
       <LabelValue label={t('VISIT_ASSIGNED_LABEL')}       value={visit.staffName} />
 
       <SectionHeading title={t('VISIT_PRECLINIC_HEADING')} />
-      {hasVitals && (<VitalsDisplaySection values={{
+      <VitalsDisplaySection values={{
         height:      visit.height,
         heightUnits: visit.heightUnits,
         weight:      visit.weight,
@@ -77,7 +73,7 @@ export default function VisitDetailPage() {
         pulse:       visit.pulse,
         glucose:     visit.glucose,
         glucoseUnits: visit.glucoseUnits,
-      }} />)}
+      }} />
     </>
   )
 
