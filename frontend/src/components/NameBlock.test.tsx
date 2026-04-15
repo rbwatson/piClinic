@@ -10,10 +10,10 @@ import NameBlock from '@/components/NameBlock'
 const BASE_PROPS = {
   patientName: 'Alpha Benchmark',
   patientSex:  'M',
-  patientDOB:  '2001-07-21',
+  patientDOB:  '2001-07-21' as string | null,
   patientID:   'PT-GEN-000001',
-  visitDate:   '4/12/2026, 12:55 PM',
-  visitID:     '0000000099012026041203',
+  visitDate:   '4/12/2026, 12:55 PM' as string | null,
+  visitID:     '0000000099012026041203' as string | null | undefined,
 }
 
 function renderBlock(props = BASE_PROPS) {
@@ -58,20 +58,17 @@ describe('NameBlock', () => {
   })
 
   it('omits visit ID when not provided', () => {
-    const props = { ...BASE_PROPS, visitID: undefined }
-    renderBlock(props)
+    renderBlock({ ...BASE_PROPS, visitID: undefined })
     expect(screen.queryByText('0000000099012026041203')).not.toBeInTheDocument()
   })
 
   it('omits right block entirely when visitDate is null', () => {
-    const props = { ...BASE_PROPS, visitDate: null, visitID: null }
-    renderBlock(props)
+    renderBlock({ ...BASE_PROPS, visitDate: null, visitID: null })
     expect(screen.queryByText(/VISIT_DATE_LABEL/)).not.toBeInTheDocument()
   })
 
   it('omits DOB when null', () => {
-    const props = { ...BASE_PROPS, patientDOB: null }
-    renderBlock(props)
+    renderBlock({ ...BASE_PROPS, patientDOB: null })
     expect(screen.queryByText(/2001-07-21/)).not.toBeInTheDocument()
   })
 })

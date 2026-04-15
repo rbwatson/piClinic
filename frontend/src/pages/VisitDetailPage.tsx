@@ -9,19 +9,83 @@
  *   NameBlock    — patient name + DOB + ID (left), visit date + visit ID (right)
  *   LabelValue   — status (full width)
  *   TwoColumnLayout
- *     Left:  SectionHeading "Arrival" + LabelValues + SectionHeading "Pre-Clinic" + VitalsSection
- *     Right: SectionHeading "Additional notes" (conditional) + SectionHeading "Discharge" + LabelValues
+ *     Left:  SectionHeading "Arrival" + LabelValues
+ *            SectionHeading "Pre-Clinic" + vitals table (conditional)
+ *     Right: SectionHeading "Additional notes" (conditional) + notes text
+ *            SectionHeading "Discharge" + LabelValues (diagnoses, referral)
  */
 
-import { Link, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useVisit } from '@/api/visits'
-import PageActions       from '@/components/PageActions'
-import NameBlock         from '@/components/NameBlock'
-import LabelValue        from '@/components/LabelValue'
-import SectionHeading    from '@/components/SectionHeading'
-import TwoColumnLayout   from '@/components/TwoColumnLayout'
-import VitalsSection     from '@/components/VitalsSection'
+import PageActions     from '@/components/PageActions'
+import NameBlock       from '@/components/NameBlock'
+import LabelValue      from '@/components/LabelValue'
+import SectionHeading  from '@/components/SectionHeading'
+import TwoColumnLayout from '@/components/TwoColumnLayout'
+
+// ---------------------------------------------------------------------------
+// Vitals display row — plain text, no form controls
+// ---------------------------------------------------------------------------
+
+function vitalsValue(value: number | null, units: string | null): string | null {
+  if (value == null) return null
+  return units ? `${value}\u00a0${units}` : String(value)
+}
+
+function VitalsDisplayTable({
+  height, heightUnits,
+  weight, weightUnits,
+  temp, tempUnits,
+  bpSystolic, bpDiastolic,
+  pulse,
+  glucose, glucoseUnits,
+}: {
+  height: number | null;      heightUnits: string | null
+  weight: number | null;      weightUnits: string | null
+  temp: number | null;        tempUnits: string | null
+  bpSystolic: number | null;  bpDiastolic: number | null
+  pulse: number | null
+  glucose: number | null;     glucoseUnits: string | null
+}) {
+  const { t } = useTranslation()
+
+  const bp = bpSystolic != null
+    ? `${bpSystolic}/${bpDiastolic ?? '?'}`
+    : null
+
+  const cols = [
+    { label: t('VISIT_HEIGHT_LABEL'),  value: vitalsValue(height, heightUnits) },
+    { label: t('VISIT_WEIGHT_LABEL'),  value: vitalsValue(weight, weightUnits) },
+    { label: t('VISIT_TEMP_LABEL'),    value: vitalsValue(temp, tempUnits) },
+    { label: t('VISIT_BP_LABEL'),      value: bp },
+    { label: t('VISIT_PULSE_LABEL'),   value: pulse != null ? String(pulse) : null },
+    { label: t('VISIT_GLUCOSE_LABEL'), value: vitalsValue(glucose, glucoseUnits) },
+  ]
+
+  return (
+    <table className="data-table">
+      <thead>
+        <tr>
+          {cols.map((c) => <th key={c.label}>{c.label}</th>)}
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          {cols.map((c) => (
+            <td key={c.label} className={c.value == null ? 'dt-inactive' : undefined}>
+              {c.value ?? '\u2014'}
+            </td>
+          ))}
+        </tr>
+      </tbody>
+    </table>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Page
+// ---------------------------------------------------------------------------
 
 export default function VisitDetailPage() {
   const { t } = useTranslation()
@@ -43,7 +107,6 @@ export default function VisitDetailPage() {
 
   const patientName = `${visit.patientLastName}, ${visit.patientFirstName}`
 
-  // ICD search link used in the Discharge section heading
   const icdSearchLink = (
     <a href="/helpHome.php?topic=icd" target="helpIndex">{t('ICD_SEARCH_LINK')}</a>
   )
@@ -53,30 +116,22 @@ export default function VisitDetailPage() {
       <SectionHeading title={t('VISIT_ARRIVAL_HEADING')} />
       <LabelValue label={t('VISIT_ARRIVED_LABEL')}
         value={visit.dateTimeIn ? new Date(visit.dateTimeIn).toLocaleString() : null} />
-      <LabelValue label={t('VISIT_TYPE_LABEL')}          value={visit.visitType} />
-      <LabelValue label={t('VISIT_REFERRED_FROM_LABEL')} value={visit.referredFrom} />
+      <LabelValue label={t('VISIT_TYPE_LABEL')}           value={visit.visitType} />
+      <LabelValue label={t('VISIT_REFERRED_FROM_LABEL')}  value={visit.referredFrom} />
       <LabelValue label={t('VISIT_COMPLAINT_PRIMARY_LABEL')} value={visit.primaryComplaint} />
-      <LabelValue label={t('VISIT_PAYMENT_LABEL')}       value={visit.payment} />
-      <LabelValue label={t('VISIT_ASSIGNED_LABEL')}      value={visit.staffName} />
+      <LabelValue label={t('VISIT_PAYMENT_LABEL')}        value={visit.payment} />
+      <LabelValue label={t('VISIT_ASSIGNED_LABEL')}       value={visit.staffName} />
 
       {hasVitals && (
         <>
           <SectionHeading title={t('VISIT_PRECLINIC_HEADING')} />
-          <VitalsSection
-            mode="display"
-            values={{
-              height:      visit.height,
-              heightUnits: visit.heightUnits,
-              weight:      visit.weight,
-              weightUnits: visit.weightUnits,
-              temp:        visit.temp,
-              tempUnits:   visit.tempUnits,
-              bpSystolic:  visit.bpSystolic,
-              bpDiastolic: visit.bpDiastolic,
-              pulse:       visit.pulse,
-              glucose:     visit.glucose,
-              glucoseUnits: visit.glucoseUnits,
-            }}
+          <VitalsDisplayTable
+            height={visit.height}           heightUnits={visit.heightUnits}
+            weight={visit.weight}           weightUnits={visit.weightUnits}
+            temp={visit.temp}               tempUnits={visit.tempUnits}
+            bpSystolic={visit.bpSystolic}   bpDiastolic={visit.bpDiastolic}
+            pulse={visit.pulse}
+            glucose={visit.glucose}         glucoseUnits={visit.glucoseUnits}
           />
         </>
       )}

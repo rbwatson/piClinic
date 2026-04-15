@@ -14,12 +14,12 @@ const COLUMNS = [
   { key: 'actions', heading: 'Actions', align: 'right' as const },
 ]
 
-const ROWS = [
+const ROWS: Record<string, React.ReactNode>[] = [
   { name: 'Alpha Benchmark', arrived: '12:55 PM', doctor: 'Dr. Smith', actions: 'View' },
   { name: 'Beta Patient',    arrived: '1:00 PM',  doctor: null,         actions: 'View' },
 ]
 
-function renderTable(rows = ROWS) {
+function renderTable(rows: Record<string, React.ReactNode>[] = ROWS) {
   return render(
     <MemoryRouter>
       <DataTable columns={COLUMNS} rows={rows} />
@@ -45,7 +45,6 @@ describe('DataTable', () => {
 
   it('renders em dash and dt-inactive class for null cell value', () => {
     renderTable()
-    // Beta Patient has null doctor — should render em dash
     const cells = screen.getAllByText('\u2014')
     expect(cells.length).toBeGreaterThan(0)
     expect(cells[0]).toHaveClass('dt-inactive')
@@ -59,13 +58,12 @@ describe('DataTable', () => {
 
   it('applies dt-right class to right-aligned columns', () => {
     renderTable()
-    // Both th and td for actions column should have dt-right
     const actionHeader = screen.getByText('Actions')
     expect(actionHeader).toHaveClass('dt-right')
   })
 
   it('renders ReactNode cell content', () => {
-    const rows = [{
+    const rows: Record<string, React.ReactNode>[] = [{
       name: <a href="/patients/1">Link Patient</a>,
       arrived: '12:00 PM',
       doctor: 'Dr. Jones',
