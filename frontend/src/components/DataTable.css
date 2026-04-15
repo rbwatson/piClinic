@@ -1,0 +1,65 @@
+/*
+ * DataTable.css
+ *
+ * Data table pattern. Matches v1 table.piClinicList.
+ *
+ * No outer border. Dotted 1px #ccc bottom border on each td.
+ * Left-aligned headers, bold, 87.5% font size.
+ * td font size 90% of base.
+ *
+ * Modifier classes:
+ *   .dt-nowrap   — white-space: nowrap on a td
+ *   .dt-inactive — italic gray on a td (empty/not applicable value)
+ *   .dt-not-today — red text on a td (visit from a previous date)
+ */
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 90%;
+}
+
+.data-table th {
+  text-align: left;
+  vertical-align: bottom;
+  padding: 5px 20px 0 0;
+  font-size: 87.5%;
+  font-weight: bold;
+}
+
+.data-table td {
+  text-align: left;
+  vertical-align: top;
+  padding: 4px 20px 4px 0;
+  border-bottom: 1px dotted #ccc;
+}
+
+.data-table tr:last-child td {
+  border-bottom: none;
+}
+
+.data-table td.dt-nowrap {
+  white-space: nowrap;
+}
+
+.data-table td.dt-inactive {
+  font-style: italic;
+  color: #aaa;
+}
+
+.data-table td.dt-not-today {
+  color: #f00;
+}
+
+/* Right-align a column */
+.data-table th.dt-right,
+.data-table td.dt-right {
+  text-align: right;
+  padding-right: 0;
+}
+
+/* Horizontal scroll container for narrow viewports */
+.data-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
