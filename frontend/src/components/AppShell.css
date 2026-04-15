@@ -116,6 +116,8 @@
 }
 .shell-session-sep {
   color: rgba(255, 255, 255, 0.6);
+  margin: 0 5px 0 5px;
+  font-weight: bold;
 }
 .shell-bar-session a {
   color: #fff;
@@ -144,6 +146,8 @@
 }
 .shell-lang-sep {
   color: rgba(255, 255, 255, 0.6);
+  margin: 0 5px 0 5px;
+  font-weight: bold;
 }
 .shell-lang-current {
   font-weight: 600;
