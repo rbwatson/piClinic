@@ -28,40 +28,88 @@ These form the skeleton that every page sits inside.
 **V1 equivalent:** the full-page stack of banner + session menu + app menu +
 page body.
 
-**What it does:** provides the persistent sidebar (desktop) or top bar
-(mobile) containing the app name, patient quick-search, nav links, language
-toggle, and logout. All authenticated pages render inside it.
+**Design rationale:** v1 uses a horizontal top-bar layout for two reasons
+that apply equally to v2: the global nav item list is small and fixed, and
+the information-dense pages (ptInfo, visitInfo, visitEdit) need the full
+horizontal width for content. A sidebar would permanently consume screen
+width on every page. v2 follows the same horizontal top-bar layout.
 
-**V1 structure:**
-```
-#piClinicBannerDiv        70px blue, "piClinic" italic bold white
-#sessionMenu              ~15px blue, username | settings | logout (left),
-                          language switcher (right)
-#topLinkMenuDiv           white, nav links (left), Comentario (right)
-.pageBody                 white, 20px left padding, page content
+**V1 structure (top to bottom, full browser width):**
+
+```css
+#piClinicBannerDiv    70px, blue (#558ED5) "piClinic" italic bold white, 20px left padding
+#sessionMenu          ~15px, blue, 70% font size, white text
+  left:         username | settings | logout
+  right:        language switcher
+#topLinkMenuDiv       white background, 90% font size, no top border
+  left:         nav links (pipe-separated li items)
+  right:        Comentario link
+  [separator]         1px black bottom border on topLinkMenuDiv
+.pageBody             white, 20px left padding, page content
 ```
 
 **V2 component:** `AppShell.tsx`
 
-**Layout:** flex row. Sidebar is a fixed-width (`208px`) flex child. Content
-area is `flex: 1` beside it. `html`, `body`, and `#root` must be
-`height: 100%` with `#root` as a flex column so the shell fills the viewport.
+**Layout:** a fixed header containing the three horizontal bars stacked
+vertically, followed by a full-width scrollable content area. A
+`padding-top` spacer on the content area equal to the header height
+prevents content from rendering beneath the fixed header.
 
-**Responsive:** below 768px the sidebar is hidden and replaced by a fixed
-top bar with a hamburger that opens a drawer. CSS media queries on
-`.hidden-mobile`, `.mobile-topbar`, `.mobile-spacer` handle the switch.
-These class names are defined in `globals.css`, not in Tailwind.
+**Header bar 1 — Banner:**
+- Height: 70px
+- Background: `#558ED5`
+- Left: "piClinic" in italic bold white, 150% font size, 20px left padding
+  (matches v1 `p.piClinicBannerText`)
+- Right: patient quick-search input + button (v2 addition — see note)
 
-**Sidebar sections (top to bottom):**
-1. App name — italic bold white, 1rem
-2. Patient quick-search — text input + submit button, always visible,
-   submits to `/patients?q=...`
-3. Nav links — role-filtered, active link has darker blue background
-4. Session info — username, language toggle (EN | ES), logout button
+**Header bar 2 — Session:**
+- Height: ~28px (14px text + padding)
+- Background: `#558ED5`
+- Font size: 70% of base (matches v1 `div#sessionMenu`)
+- White text and links
+- Left: "Logged in as: [username] | Settings | Logout"
+- Right: language links ("English | Español" — current language not linked)
 
-**Key constraint:** patient quick-search is a core workflow feature, not a
-convenience. Staff must be able to look up a patient from any page without
-losing their current context.
+**Header bar 3 — Nav:**
+- Background: white
+- Font size: 90% of base (matches v1 `div#topLinkMenuDiv`)
+- Bottom border: 1px solid black (this is the separator between nav and
+  page content, not the border between nav items)
+- Left: nav links in `ul.topLinkMenuList` style — horizontal list, no
+  bullets, pipe separator between items, brand blue links, current page
+  rendered as plain text (not a link)
+- Right: secondary link (e.g. language toggle or help link)
+
+**Content area:**
+- White background
+- 20px left padding (matches v1 `.pageBody`)
+- Scrolls independently of the fixed header
+- Full browser width minus the 20px padding
+
+**Patient quick-search (v2 addition):**
+Placed in the banner bar (right side). Staff must be able to look up a
+patient from any authenticated page without navigating away. This is a
+workflow requirement, not a convenience feature — a patient may walk up
+with a question while the staff member is in the middle of another task.
+Submits to `/patients?q=...`.
+
+V1 placed this search inline on individual pages (clinicDash, ptInfo,
+visitInfo). Placing it in the persistent header in v2 achieves the same
+availability without repeating it on every page.
+
+**Responsive (mobile, below 768px):**
+The three-bar header collapses to a single slim bar containing the app
+name and a hamburger button. The hamburger opens a full-height drawer
+containing the nav links, patient search, session info, and language
+toggle. The content area gains a top spacer equal to the collapsed
+header height.
+
+CSS media queries on `.shell-header-full` (visible above 768px) and
+`.shell-header-mobile` (visible below 768px) control the switch. These
+class names are defined in `AppShell.css`, not in Tailwind.
+
+**Plain CSS only.** No Tailwind utility classes for layout, height,
+position, or responsive behavior in this component.
 
 ---
 
