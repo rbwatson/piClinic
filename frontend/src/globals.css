@@ -12,6 +12,8 @@
  *   Dark text:   #111111  -> hsl(0 0% 7%)
  *
  * No dark mode — v1 had none; v2 follows the same approach.
+ *
+ * Shell layout rules (header, spacer, content, drawer) are in AppShell.css.
  */
 
 @tailwind base;
@@ -60,13 +62,6 @@
   --border:             0 0% 80%;
   --input:              0 0% 80%;
   --ring:               213 60% 58%;
-
-  /* Sidebar */
-  --sidebar:                    213 60% 58%;
-  --sidebar-foreground:          0 0% 100%;
-  --sidebar-border:             213 60% 45%;
-  --sidebar-accent:             213 60% 45%;
-  --sidebar-accent-foreground:   0 0% 100%;
 }
 
 /* Default border color */
@@ -103,21 +98,4 @@ a:hover {
 .text-inactive {
   color: hsl(var(--muted-foreground));
   font-style: italic;
-}
-
-/* ── Responsive sidebar helpers ── */
-/* Below 768px: hide the desktop sidebar, show mobile elements */
-@media (max-width: 767px) {
-  .hidden-mobile {
-    display: none !important;
-  }
-}
-/* Above 768px: hide mobile-only elements */
-@media (min-width: 768px) {
-  .mobile-topbar {
-    display: none !important;
-  }
-  .mobile-spacer {
-    display: none !important;
-  }
 }

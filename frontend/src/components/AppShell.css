@@ -1,0 +1,396 @@
+/*
+ * AppShell.css
+ *
+ * Layout styles for the piClinic v2 page shell.
+ *
+ * All layout, sizing, position, and responsive behavior for the shell is
+ * here. No Tailwind utility classes for any structural property.
+ *
+ * Responsive breakpoint: 768px (single threshold for the entire app).
+ *   >= 768px: three-bar desktop header
+ *   <  768px: slim mobile bar + drawer
+ *
+ * Spacer heights (fixed — no ResizeObserver needed; content is short and
+ * fixed, wrapping is not a real risk at any non-mobile viewport width):
+ *   Desktop:  banner (70) + session (~30) + nav (~30) = 130px
+ *   Mobile:   slim bar = 44px
+ */
+
+/* ── Outer shell wrapper ── */
+#app-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+/* ── Fixed header ── */
+#shell-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 30;
+}
+
+/* ── Desktop header (three bars) — hidden below 768px ── */
+.shell-header-full {
+  display: block;
+}
+@media (max-width: 767px) {
+  .shell-header-full {
+    display: none;
+  }
+}
+
+/* Bar 1: Banner */
+.shell-bar-banner {
+  height: 70px;
+  background-color: #558ED5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px 0 20px;
+}
+
+/* App name — shared between banner, mobile bar, and drawer */
+.shell-app-name {
+  font-style: italic;
+  font-weight: bold;
+  color: #fff;
+  font-size: 150%;
+  white-space: nowrap;
+}
+
+/* Patient quick-search (banner bar, right side) */
+.shell-search-form {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.shell-search-input {
+  width: 200px;
+  padding: 4px 8px;
+  font-size: 12px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  background-color: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  outline: none;
+}
+.shell-search-input::placeholder {
+  color: rgba(255, 255, 255, 0.65);
+}
+.shell-search-btn {
+  padding: 4px 10px;
+  font-size: 12px;
+  border-radius: 4px;
+  border: none;
+  background-color: rgba(255, 255, 255, 0.25);
+  color: #fff;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.shell-search-btn:hover {
+  background-color: rgba(255, 255, 255, 0.35);
+}
+
+/* Bar 2: Session */
+.shell-bar-session {
+  background-color: #558ED5;
+  font-size: 70%;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 16px 6px 20px;
+  min-height: 28px;
+}
+.shell-session-left,
+.shell-session-right {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+.shell-session-username {
+  font-weight: 600;
+}
+.shell-session-sep {
+  color: rgba(255, 255, 255, 0.6);
+}
+.shell-bar-session a {
+  color: #fff;
+  text-decoration: none;
+}
+.shell-bar-session a:hover {
+  text-decoration: underline;
+}
+/* Session bar buttons (logout, language) — styled as inline links */
+.shell-session-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-size: inherit;
+  color: #fff;
+}
+.shell-session-btn:hover {
+  text-decoration: underline;
+}
+
+/* Language links */
+.shell-lang-item {
+  display: inline-flex;
+  align-items: center;
+}
+.shell-lang-sep {
+  color: rgba(255, 255, 255, 0.6);
+}
+.shell-lang-current {
+  font-weight: 600;
+  color: #fff;
+}
+
+/* Bar 3: Nav */
+.shell-bar-nav {
+  background-color: #fff;
+  font-size: 90%;
+  border-bottom: 1px solid #000;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px 0 20px;
+  min-height: 30px;
+}
+.shell-nav-left {
+  display: flex;
+  align-items: center;
+}
+.shell-nav-right {
+  display: flex;
+  align-items: center;
+}
+
+/* Nav link list — horizontal, pipe-separated, no bullets */
+.top-link-menu-list {
+  list-style: none;
+  margin: 0;
+  padding: 4px 0;
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+.top-link-menu-item {
+  display: flex;
+  align-items: center;
+}
+/* Pipe separator between items */
+.top-link-menu-item + .top-link-menu-item::before {
+  content: " | ";
+  color: #000;
+  white-space: pre;
+}
+.top-link-menu-list a {
+  color: #558ED5;
+  text-decoration: none;
+}
+.top-link-menu-list a:hover {
+  text-decoration: underline;
+}
+/* Current page — plain text, not a link */
+.top-link-current {
+  color: #000;
+}
+
+/* ── Header spacer ── */
+#shell-spacer {
+  height: 130px; /* banner (70) + session (~30) + nav (~30) */
+  flex-shrink: 0;
+}
+@media (max-width: 767px) {
+  #shell-spacer {
+    height: 44px; /* mobile slim bar */
+  }
+}
+
+/* ── Main content area ── */
+#shell-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 16px 16px 20px;
+  background-color: #fff;
+}
+
+/* ── Mobile slim bar — hidden above 768px ── */
+.shell-header-mobile {
+  display: none;
+}
+@media (max-width: 767px) {
+  .shell-header-mobile {
+    display: flex;
+    align-items: center;
+    height: 44px;
+    background-color: #558ED5;
+    padding: 0 12px;
+    gap: 12px;
+  }
+}
+.shell-hamburger {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #fff;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+}
+
+/* ── Mobile drawer overlay ── */
+#shell-drawer-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+}
+
+/* ── Mobile drawer panel ── */
+#shell-drawer {
+  position: relative;
+  width: 280px;
+  height: 100%;
+  background-color: #558ED5;
+  box-shadow: 4px 0 16px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+.shell-drawer-inner {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.shell-drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid hsl(213, 60%, 45%);
+  flex-shrink: 0;
+}
+.shell-drawer-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.8);
+  padding: 2px;
+  display: flex;
+  align-items: center;
+}
+.shell-drawer-search {
+  padding: 8px 12px;
+  border-bottom: 1px solid hsl(213, 60%, 45%);
+  flex-shrink: 0;
+}
+/* In the drawer the search input spans full available width */
+.shell-drawer-search .shell-search-form {
+  width: 100%;
+}
+.shell-drawer-search .shell-search-input {
+  flex: 1;
+  width: auto;
+}
+.shell-drawer-nav {
+  flex: 1;
+  padding: 8px 12px;
+  overflow-y: auto;
+}
+/* Drawer nav: stack vertically instead of horizontal row */
+.shell-drawer-nav .top-link-menu-list {
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 4px 0;
+  gap: 2px;
+}
+.shell-drawer-nav .top-link-menu-item {
+  width: 100%;
+}
+/* Remove pipe separators in drawer */
+.shell-drawer-nav .top-link-menu-item + .top-link-menu-item::before {
+  content: none;
+}
+/* Drawer nav links */
+.shell-drawer-nav .top-link-menu-list a,
+.shell-drawer-nav .top-link-current {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 14px;
+}
+.shell-drawer-nav .top-link-menu-list a:hover {
+  background-color: hsl(213, 60%, 45%);
+  text-decoration: none;
+}
+.shell-drawer-nav .top-link-current {
+  background-color: hsl(213, 60%, 45%);
+  font-weight: 600;
+}
+.shell-drawer-session {
+  padding: 12px 16px;
+  border-top: 1px solid hsl(213, 60%, 45%);
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.8);
+  flex-shrink: 0;
+}
+.shell-drawer-username {
+  margin: 0 0 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #fff;
+}
+.shell-drawer-session-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.shell-lang-links {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.shell-lang-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+}
+.shell-lang-btn--active {
+  color: #fff;
+  font-weight: 600;
+}
+.shell-logout-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.8);
+}
+.shell-logout-btn:hover {
+  color: #fff;
+}
+
+/* ── Print: hide the entire shell header ── */
+@media print {
+  #shell-header,
+  #shell-spacer {
+    display: none;
+  }
+  #shell-content {
+    padding: 0;
+  }
+}

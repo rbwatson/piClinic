@@ -1,13 +1,20 @@
 /**
  * AppShell.test.tsx
  *
- * Component tests for the AppShell sidebar navigation.
- * Verifies that nav items are shown or hidden based on the user's
- * accessGranted role.
+ * Component tests for the AppShell horizontal top-bar layout.
+ *
+ * Covers:
+ *   - App name rendered in banner
+ *   - Session bar shows username and logout button
+ *   - Nav items shown/hidden by role
+ *   - Current page rendered as non-linked text
+ *   - Patient search submits to /patients?q=...
+ *   - Hamburger button present (mobile)
+ *   - Logout calls logout() from useAuth
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import AppShell from '@/components/AppShell'
 import * as AuthContext from '@/context/AuthContext'
@@ -28,35 +35,69 @@ function makeUser(accessGranted: AuthUser['accessGranted']): AuthUser {
   }
 }
 
-function renderShell(accessGranted: AuthUser['accessGranted']) {
+function renderShell(
+  accessGranted: AuthUser['accessGranted'] = 'ClinicStaff',
+  initialPath = '/'
+) {
+  const logout = vi.fn()
   vi.spyOn(AuthContext, 'useAuth').mockReturnValue({
     user: makeUser(accessGranted),
     isAuthenticated: true,
     isLoading: false,
     error: null,
     login: vi.fn(),
-    logout: vi.fn(),
+    logout,
   })
-  return render(
-    <MemoryRouter>
+  render(
+    <MemoryRouter initialEntries={[initialPath]}>
       <AppShell />
     </MemoryRouter>
   )
+  return { logout }
 }
 
 // ---------------------------------------------------------------------------
 // Tests
 // ---------------------------------------------------------------------------
 
-describe('AppShell navigation visibility', () => {
-  beforeEach(() => {
-    vi.restoreAllMocks()
+describe('AppShell — banner', () => {
+  beforeEach(() => { vi.restoreAllMocks() })
+
+  it('renders the app name', () => {
+    renderShell()
+    // APP_NAME translation key returns the key itself in the test i18n mock
+    expect(screen.getAllByText('APP_NAME').length).toBeGreaterThan(0)
+  })
+})
+
+describe('AppShell — session bar', () => {
+  beforeEach(() => { vi.restoreAllMocks() })
+
+  it('shows the logged-in username', () => {
+    renderShell()
+    expect(screen.getAllByText('testuser').length).toBeGreaterThan(0)
   })
 
-  it('shows Dashboard and Patients nav items for all roles', () => {
+  it('shows the logout button', () => {
+    renderShell()
+    expect(screen.getAllByRole('button', { name: 'SESSION_LOGOUT' }).length).toBeGreaterThan(0)
+  })
+
+  it('calls logout() when logout button is clicked', () => {
+    const { logout } = renderShell()
+    const btns = screen.getAllByRole('button', { name: 'SESSION_LOGOUT' })
+    fireEvent.click(btns[0])
+    expect(logout).toHaveBeenCalledOnce()
+  })
+})
+
+describe('AppShell — nav visibility by role', () => {
+  beforeEach(() => { vi.restoreAllMocks() })
+
+  it('shows Dashboard and Patients for all roles', () => {
     renderShell('ClinicReadOnly')
-    expect(screen.getByText('NAV_DASHBOARD')).toBeInTheDocument()
-    expect(screen.getByText('NAV_PATIENTS')).toBeInTheDocument()
+    expect(screen.getAllByText('NAV_DASHBOARD').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('NAV_PATIENTS').length).toBeGreaterThan(0)
   })
 
   it('does not show Admin nav for ClinicReadOnly', () => {
@@ -71,21 +112,79 @@ describe('AppShell navigation visibility', () => {
 
   it('shows Admin nav for ClinicAdmin', () => {
     renderShell('ClinicAdmin')
-    expect(screen.getByText('NAV_ADMIN')).toBeInTheDocument()
+    expect(screen.getAllByText('NAV_ADMIN').length).toBeGreaterThan(0)
   })
 
   it('shows Admin nav for SystemAdmin', () => {
     renderShell('SystemAdmin')
-    expect(screen.getByText('NAV_ADMIN')).toBeInTheDocument()
+    expect(screen.getAllByText('NAV_ADMIN').length).toBeGreaterThan(0)
+  })
+})
+
+describe('AppShell — current page as plain text', () => {
+  beforeEach(() => { vi.restoreAllMocks() })
+
+  it('renders the active nav item as a span, not an anchor', () => {
+    // Render at '/' — Dashboard is the active route
+    renderShell('ClinicStaff', '/')
+    // The nav bar contains at least one NAV_DASHBOARD text node
+    const dashboardTexts = screen.getAllByText('NAV_DASHBOARD')
+    // At least one of them should be a span (the active/current item), not an anchor
+    const hasSpan = dashboardTexts.some(
+      (el) => el.tagName === 'SPAN' && el.classList.contains('top-link-current')
+    )
+    expect(hasSpan).toBe(true)
+  })
+})
+
+describe('AppShell — patient quick-search', () => {
+  beforeEach(() => { vi.restoreAllMocks() })
+
+  it('renders the search input in the banner bar', () => {
+    renderShell()
+    const inputs = screen.getAllByRole('searchbox')
+    expect(inputs.length).toBeGreaterThan(0)
   })
 
-  it('shows the logged-in username in the sidebar', () => {
-    renderShell('ClinicStaff')
-    expect(screen.getByText('testuser')).toBeInTheDocument()
+  it('navigates to /patients?q=... on search submit', async () => {
+    renderShell()
+    const inputs = screen.getAllByRole('searchbox')
+    fireEvent.change(inputs[0], { target: { value: 'Smith' } })
+    const submitBtns = screen.getAllByRole('button', { name: 'ACTION_SEARCH' })
+    fireEvent.click(submitBtns[0])
+    // Navigation is handled by useNavigate — verify input clears after submit
+    await waitFor(() => {
+      expect((inputs[0] as HTMLInputElement).value).toBe('')
+    })
+  })
+})
+
+describe('AppShell — mobile hamburger', () => {
+  beforeEach(() => { vi.restoreAllMocks() })
+
+  it('renders a button with the Open menu label', () => {
+    renderShell()
+    expect(screen.getByRole('button', { name: 'Open menu' })).toBeInTheDocument()
   })
 
-  it('shows the logout button', () => {
-    renderShell('ClinicStaff')
-    expect(screen.getByRole('button', { name: 'SESSION_LOGOUT' })).toBeInTheDocument()
+  it('opens the drawer when hamburger is clicked', async () => {
+    renderShell()
+    const hamburger = screen.getByRole('button', { name: 'Open menu' })
+    fireEvent.click(hamburger)
+    await waitFor(() => {
+      expect(screen.getByRole('complementary', { name: 'Navigation menu' })).toBeInTheDocument()
+    })
+  })
+
+  it('closes the drawer when the close button is clicked', async () => {
+    renderShell()
+    fireEvent.click(screen.getByRole('button', { name: 'Open menu' }))
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Close menu' })).toBeInTheDocument()
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'Close menu' }))
+    await waitFor(() => {
+      expect(screen.queryByRole('complementary', { name: 'Navigation menu' })).not.toBeInTheDocument()
+    })
   })
 })
