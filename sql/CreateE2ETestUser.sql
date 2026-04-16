@@ -34,12 +34,12 @@ FLUSH PRIVILEGES;
 -- ---------------------------------------------------------------------------
 INSERT INTO staff (
   username, lastName, firstName,
-  position, medicalStaff, active,
+  position, active,
   accessGranted, preferredLanguage,
   password
 ) VALUES (
   'e2e_testuser', 'E2E', 'TestUser',
-  'ClinicStaff', 0, 1,
+  'ClinicStaff', 1,
   'ClinicAdmin', 'en',
   -- Store a bcrypt hash of your chosen password.
   -- Generate with: php -r "echo password_hash('YOUR_PASSWORD', PASSWORD_DEFAULT);"
