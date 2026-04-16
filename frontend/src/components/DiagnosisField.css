@@ -1,0 +1,34 @@
+/*
+ * DiagnosisField.css
+ *
+ * Single diagnosis slot: condition select + ICD-10 autocomplete.
+ * Matches v1 div.dataBlock with label.close + select + input[list].
+ *
+ * Used three times per visit form (diagnoses 1, 2, 3).
+ */
+
+.diagnosis-field {
+  margin-bottom: 1rem;
+}
+
+.diagnosis-field-label {
+  font-weight: bold;
+  font-size: 87.5%;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.diagnosis-condition-select {
+  width: 202px;
+  padding: 3px 6px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-bottom: 6px;
+  display: block;
+}
+
+.diagnosis-icd-wrap {
+  /* ICD autocomplete fills full column width */
+  width: 100%;
+}
