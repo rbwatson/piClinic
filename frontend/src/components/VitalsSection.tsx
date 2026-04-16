@@ -81,7 +81,7 @@ const unitSelectClass =
 // ---------------------------------------------------------------------------
 
 function formatVital(value: number | null, units: string | null): string {
-  if (value == null) return '\u2014'
+  if (value == null) return '—'
   return units ? `${value}\u00a0${units}` : String(value)
 }
 
@@ -90,14 +90,14 @@ export function VitalsDisplaySection({ values }: { values: VitalsValues }) {
 
   const bp = values.bpSystolic != null
     ? `${values.bpSystolic}/${values.bpDiastolic ?? '?'}`
-    : '\u2014'
+    : '—'
 
   const cols = [
     { label: t('VISIT_HEIGHT_LABEL'),  value: formatVital(values.height,  values.heightUnits) },
     { label: t('VISIT_WEIGHT_LABEL'),  value: formatVital(values.weight,  values.weightUnits) },
     { label: t('VISIT_TEMP_LABEL'),    value: formatVital(values.temp,    values.tempUnits) },
     { label: t('VISIT_BP_LABEL'),      value: bp },
-    { label: t('VISIT_PULSE_LABEL'),   value: values.pulse != null ? String(values.pulse) : '\u2014' },
+    { label: t('VISIT_PULSE_LABEL'),   value: values.pulse != null ? String(values.pulse) : '—' },
     { label: t('VISIT_GLUCOSE_LABEL'), value: formatVital(values.glucose, values.glucoseUnits) },
   ]
 
@@ -111,7 +111,7 @@ export function VitalsDisplaySection({ values }: { values: VitalsValues }) {
       <tbody>
         <tr>
           {cols.map((c) => (
-            <td key={c.label} className={c.value === '\u2014' ? 'dt-inactive' : undefined}>
+            <td key={c.label} className={c.value === '—' ? 'dt-inactive' : undefined}>
               {c.value}
             </td>
           ))}
@@ -143,7 +143,7 @@ export default function VitalsSection<T extends VitalsFields>({
       <div className="vitals-field">
         <label className="vitals-label">{t('VISIT_HEIGHT_LABEL')}</label>
         <div className="vitals-input-row">
-          <input type="number" step="0.1" min="0" placeholder="\u2014"
+          <input type="number" step="0.1" min="0" placeholder="—"
             disabled={disabled} className={`${inputClass} flex-1`}
             {...register('height' as Path<T>)} />
           <select disabled={disabled} className={unitSelectClass}
@@ -157,7 +157,7 @@ export default function VitalsSection<T extends VitalsFields>({
       <div className="vitals-field">
         <label className="vitals-label">{t('VISIT_WEIGHT_LABEL')}</label>
         <div className="vitals-input-row">
-          <input type="number" step="0.1" min="0" placeholder="\u2014"
+          <input type="number" step="0.1" min="0" placeholder="—"
             disabled={disabled} className={`${inputClass} flex-1`}
             {...register('weight' as Path<T>)} />
           <select disabled={disabled} className={unitSelectClass}
@@ -171,7 +171,7 @@ export default function VitalsSection<T extends VitalsFields>({
       <div className="vitals-field">
         <label className="vitals-label">{t('VISIT_TEMP_LABEL')}</label>
         <div className="vitals-input-row">
-          <input type="number" step="0.1" min="0" placeholder="\u2014"
+          <input type="number" step="0.1" min="0" placeholder="—"
             disabled={disabled} className={`${inputClass} flex-1`}
             {...register('temp' as Path<T>)} />
           <select disabled={disabled} className={unitSelectClass}
@@ -200,7 +200,7 @@ export default function VitalsSection<T extends VitalsFields>({
       {/* Pulse */}
       <div className="vitals-field">
         <label className="vitals-label">{t('VISIT_PULSE_LABEL')}</label>
-        <input type="number" min="0" placeholder="\u2014"
+        <input type="number" min="0" placeholder="—"
           disabled={disabled} className={inputClass}
           {...register('pulse' as Path<T>)} />
       </div>
@@ -209,7 +209,7 @@ export default function VitalsSection<T extends VitalsFields>({
       <div className="vitals-field">
         <label className="vitals-label">{t('VISIT_GLUCOSE_LABEL')}</label>
         <div className="vitals-input-row">
-          <input type="number" min="0" placeholder="\u2014"
+          <input type="number" min="0" placeholder="—"
             disabled={disabled} className={`${inputClass} flex-1`}
             {...register('glucose' as Path<T>)} />
           <select disabled={disabled} className={unitSelectClass}
