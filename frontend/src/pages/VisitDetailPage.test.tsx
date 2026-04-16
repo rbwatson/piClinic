@@ -4,7 +4,7 @@
  * Component tests for VisitDetailPage.
  * Updated for pattern-composition rebuild and ICD lookup.
  *
- * Field mapping (corrected):
+ * Field mapping:
  *   diagnosis{n}  — ICD code string (e.g. 'J06.9')
  *   condition{n}  — New/Subsequent classifier ('NEWDIAG' | 'SUBSDIAG')
  *   Description   — fetched from ICD API by code at display time
@@ -56,7 +56,6 @@ const BASE_VISIT: visitsApi.Visit = {
   referredTo: null, referredFrom: null,
 }
 
-// Default ICD hook mock — returns no data (disabled query)
 function mockIcdNoData() {
   vi.spyOn(icdApi, 'useIcdDescription').mockReturnValue({
     data: undefined, isLoading: false, isError: false,
@@ -174,7 +173,6 @@ describe('VisitDetailPage', () => {
   })
 
   it('shows ICD code with description when diagnosis is present', async () => {
-    // diagnosis1 holds the ICD code; description comes from useIcdDescription mock
     vi.spyOn(visitsApi, 'useVisit').mockReturnValue({
       data: { ...BASE_VISIT, diagnosis1: 'J06.9', condition1: 'NEWDIAG' },
       isLoading: false, isError: false,
@@ -186,7 +184,6 @@ describe('VisitDetailPage', () => {
     } as unknown as ReturnType<typeof icdApi.useIcdDescription>)
     renderDetailPage()
     await waitFor(() => {
-      // Code and description are rendered together in a single span
       expect(screen.getByText(/J06\.9/)).toBeInTheDocument()
       expect(screen.getByText(/Acute upper respiratory infection/)).toBeInTheDocument()
     })
@@ -197,7 +194,6 @@ describe('VisitDetailPage', () => {
       data: { ...BASE_VISIT, diagnosis1: 'J06.9', condition1: 'NEWDIAG' },
       isLoading: false, isError: false,
     } as unknown as ReturnType<typeof visitsApi.useVisit>)
-    // ICD hook returns no data (code not in table)
     vi.spyOn(icdApi, 'useIcdDescription').mockReturnValue({
       data: undefined, isLoading: false, isError: false,
     } as unknown as ReturnType<typeof icdApi.useIcdDescription>)

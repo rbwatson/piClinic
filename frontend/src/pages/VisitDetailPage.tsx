@@ -19,11 +19,11 @@ import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useVisit } from '@/api/visits'
 import { useIcdDescription } from '@/api/icd'
-import PageActions     from '@/components/PageActions'
-import NameBlock       from '@/components/NameBlock'
-import LabelValue      from '@/components/LabelValue'
-import SectionHeading  from '@/components/SectionHeading'
-import TwoColumnLayout from '@/components/TwoColumnLayout'
+import PageActions          from '@/components/PageActions'
+import NameBlock            from '@/components/NameBlock'
+import LabelValue           from '@/components/LabelValue'
+import SectionHeading       from '@/components/SectionHeading'
+import TwoColumnLayout      from '@/components/TwoColumnLayout'
 import { VitalsDisplaySection } from '@/components/VitalsSection'
 
 // ---------------------------------------------------------------------------
@@ -31,8 +31,8 @@ import { VitalsDisplaySection } from '@/components/VitalsSection'
 // ---------------------------------------------------------------------------
 
 function IcdDiagnosisRow({ label, code, language }: {
-  label: string
-  code: string | null
+  label:    string
+  code:     string | null
   language: 'en' | 'es'
 }) {
   const { data: icd } = useIcdDescription(code, language)
@@ -60,6 +60,7 @@ export default function VisitDetailPage() {
   const { t, i18n } = useTranslation()
   const { id } = useParams<{ id: string }>()
   const lang = (i18n.language === 'es' ? 'es' : 'en') as 'en' | 'es'
+
   const patientVisitID = id ?? ''
   const { data: visit, isLoading, isError } = useVisit(patientVisitID)
 
@@ -79,24 +80,24 @@ export default function VisitDetailPage() {
       <SectionHeading title={t('VISIT_ARRIVAL_HEADING')} />
       <LabelValue label={t('VISIT_ARRIVED_LABEL')}
         value={visit.dateTimeIn ? new Date(visit.dateTimeIn).toLocaleString() : null} />
-      <LabelValue label={t('VISIT_TYPE_LABEL')}           value={visit.visitType} />
-      <LabelValue label={t('VISIT_REFERRED_FROM_LABEL')}  value={visit.referredFrom} />
+      <LabelValue label={t('VISIT_TYPE_LABEL')}              value={visit.visitType} />
+      <LabelValue label={t('VISIT_REFERRED_FROM_LABEL')}     value={visit.referredFrom} />
       <LabelValue label={t('VISIT_COMPLAINT_PRIMARY_LABEL')} value={visit.primaryComplaint} />
-      <LabelValue label={t('VISIT_PAYMENT_LABEL')}        value={visit.payment} />
-      <LabelValue label={t('VISIT_ASSIGNED_LABEL')}       value={visit.staffName} />
+      <LabelValue label={t('VISIT_PAYMENT_LABEL')}           value={visit.payment} />
+      <LabelValue label={t('VISIT_ASSIGNED_LABEL')}          value={visit.staffName} />
 
       <SectionHeading title={t('VISIT_PRECLINIC_HEADING')} />
       <VitalsDisplaySection values={{
-        height:      visit.height,
-        heightUnits: visit.heightUnits,
-        weight:      visit.weight,
-        weightUnits: visit.weightUnits,
-        temp:        visit.temp,
-        tempUnits:   visit.tempUnits,
-        bpSystolic:  visit.bpSystolic,
-        bpDiastolic: visit.bpDiastolic,
-        pulse:       visit.pulse,
-        glucose:     visit.glucose,
+        height:       visit.height,
+        heightUnits:  visit.heightUnits,
+        weight:       visit.weight,
+        weightUnits:  visit.weightUnits,
+        temp:         visit.temp,
+        tempUnits:    visit.tempUnits,
+        bpSystolic:   visit.bpSystolic,
+        bpDiastolic:  visit.bpDiastolic,
+        pulse:        visit.pulse,
+        glucose:      visit.glucose,
         glucoseUnits: visit.glucoseUnits,
       }} />
     </>
