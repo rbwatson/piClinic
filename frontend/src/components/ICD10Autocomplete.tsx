@@ -184,10 +184,16 @@ export default function ICD10Autocomplete({
                   : 'text-foreground hover:bg-muted',
               ].join(' ')}
             >
-              <span className="font-mono text-xs flex-shrink-0 w-20 pr-2 border-r border-border">
-                {code.icd10code}
+              <span style={{
+                fontFamily: 'ui-monospace, Consolas, monospace',
+                fontSize: '12px',
+                flexShrink: 0,
+                width: '7em',
+                whiteSpace: 'pre',
+              }}>
+                {code.icd10code.padEnd(9)}
               </span>
-              <span className="truncate pl-1">
+              <span className="truncate">
                 {code.shortDescription ?? code.icd10code}
               </span>
             </li>
