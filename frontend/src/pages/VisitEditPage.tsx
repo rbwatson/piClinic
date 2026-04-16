@@ -51,10 +51,13 @@ interface VisitEditFormValues {
   glucose:     string
   glucoseUnits: string
   diagnosis1:  string
+  diagnosisDesc1: string
   condition1:  string
   diagnosis2:  string
+  diagnosisDesc2: string
   condition2:  string
   diagnosis3:  string
+  diagnosisDesc3: string
   condition3:  string
   referredFrom: string
   referredTo:   string
@@ -112,10 +115,13 @@ export default function VisitEditPage() {
       glucose:     visit.glucose     != null ? String(visit.glucose)     : '',
       glucoseUnits: visit.glucoseUnits ?? 'RBS',
       diagnosis1:  visit.diagnosis1  ?? '',
+      diagnosisDesc1: visit.diagnosis1 ?? '',
       condition1:  visit.condition1  ?? '',
       diagnosis2:  visit.diagnosis2  ?? '',
+      diagnosisDesc2: visit.diagnosis2 ?? '',
       condition2:  visit.condition2  ?? '',
       diagnosis3:  visit.diagnosis3  ?? '',
+      diagnosisDesc3: visit.diagnosis3 ?? '',      
       condition3:  visit.condition3  ?? '',
       referredFrom: visit.referredFrom ?? '',
       referredTo:   visit.referredTo   ?? '',
@@ -243,24 +249,24 @@ export default function VisitEditPage() {
           language={lang}
           conditionValue={watch(`condition${n}` as keyof VisitEditFormValues) ?? ''}
           icdValue={(() => {
-            const code = watch(`condition${n}` as keyof VisitEditFormValues) ?? ''
-            const desc = watch(`diagnosis${n}` as keyof VisitEditFormValues) ?? ''
+            const code = watch(`diagnosis${n}` as keyof VisitEditFormValues) ?? ''
+            const desc = watch(`diagnosisDesc${n}` as keyof VisitEditFormValues) ?? ''
             return code ? `${code.padEnd(9)}${desc}`.trimEnd() : desc
           })()}
           onConditionChange={(val) =>
             setValue(`condition${n}` as keyof VisitEditFormValues, val)
           }
           onIcdSelect={(code, desc) => {
-            setValue(`condition${n}` as keyof VisitEditFormValues, code)
-            setValue(`diagnosis${n}` as keyof VisitEditFormValues, desc)
+            setValue(`diagnosis${n}` as keyof VisitEditFormValues, code)
+            setValue(`diagnosisDesc${n}` as keyof VisitEditFormValues, desc)
           }}
         />
       ))}
 
       {/* Hidden fields so react-hook-form tracks diagnosis descriptions */}
       {([1, 2, 3] as const).map((n) => (
-        <input key={n} type="hidden"
-          {...register(`diagnosis${n}` as keyof VisitEditFormValues)} />
+        <input key={`desc${n}`} type="hidden"
+          {...register(`diagnosisDesc${n}` as keyof VisitEditFormValues)} />
       ))}
 
       <SectionHeading title={t('VISIT_REFERRAL_HEADING')} />
