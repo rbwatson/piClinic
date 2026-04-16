@@ -28,6 +28,7 @@ import PageActions      from '@/components/PageActions'
 import NameBlock        from '@/components/NameBlock'
 import SectionHeading   from '@/components/SectionHeading'
 import TwoColumnLayout  from '@/components/TwoColumnLayout'
+import { useIcdDescription } from '@/api/icd'
 
 // ---------------------------------------------------------------------------
 // Form values
@@ -89,6 +90,10 @@ export default function VisitEditPage() {
 
   const { data: visit, isLoading } = useVisit(patientVisitID)
   const { data: staffList = [] }   = useMedicalStaff()
+  const { data: icd1 } = useIcdDescription(visit?.diagnosis1 ?? null, lang)
+  const { data: icd2 } = useIcdDescription(visit?.diagnosis2 ?? null, lang)
+  const { data: icd3 } = useIcdDescription(visit?.diagnosis3 ?? null, lang)
+
 
   const { register, handleSubmit, reset, setValue, watch, setError,
           formState: { errors } } = useForm<VisitEditFormValues>()
@@ -115,18 +120,18 @@ export default function VisitEditPage() {
       glucose:     visit.glucose     != null ? String(visit.glucose)     : '',
       glucoseUnits: visit.glucoseUnits ?? 'RBS',
       diagnosis1:  visit.diagnosis1  ?? '',
-      diagnosisDesc1: '',
+      diagnosisDesc1: icd1?.shortDescription ?? '',
       condition1:  visit.condition1  ?? '',
       diagnosis2:  visit.diagnosis2  ?? '',
-      diagnosisDesc2: '',
+      diagnosisDesc2: icd2?.shortDescription ?? '',
       condition2:  visit.condition2  ?? '',
       diagnosis3:  visit.diagnosis3  ?? '',
-      diagnosisDesc3: '',
+      diagnosisDesc3: icd3?.shortDescription ?? '',
       condition3:  visit.condition3  ?? '',
       referredFrom: visit.referredFrom ?? '',
       referredTo:   visit.referredTo   ?? '',
     })
-  }, [visit, reset])
+  }, [visit, reset, icd1, icd2, icd3])
 
   const mutation = useMutation({
     mutationFn: (data: Parameters<typeof updateVisit>[1]) =>

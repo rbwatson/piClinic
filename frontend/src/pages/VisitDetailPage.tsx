@@ -23,7 +23,31 @@ import NameBlock       from '@/components/NameBlock'
 import LabelValue      from '@/components/LabelValue'
 import SectionHeading  from '@/components/SectionHeading'
 import TwoColumnLayout from '@/components/TwoColumnLayout'
+import { useIcdDescription } from '@/api/icd'
 import { VitalsDisplaySection } from '@/components/VitalsSection'
+import i18n from '@/lib/i18n'
+
+function IcdDiagnosisRow({ label, code, language }: {
+  label: string
+  code: string | null
+  language: 'en' | 'es'
+}) {
+  const { data: icd } = useIcdDescription(code, language)
+  const display = !code
+    ? null
+    : icd
+      ? `${code.padEnd(9)}${icd.shortDescription ?? ''}`.trimEnd()
+      : code
+  return (
+    <LabelValue
+      label={label}
+      value={display
+        ? <span style={{ fontFamily: 'monospace', fontSize: '87.5%' }}>{display}</span>
+        : null
+      }
+    />
+  )
+}
 
 // ---------------------------------------------------------------------------
 // Page
@@ -32,7 +56,7 @@ import { VitalsDisplaySection } from '@/components/VitalsSection'
 export default function VisitDetailPage() {
   const { t } = useTranslation()
   const { id } = useParams<{ id: string }>()
-
+  const lang = (i18n.language === 'es' ? 'es' : 'en') as 'en' | 'es'
   const patientVisitID = id ?? ''
   const { data: visit, isLoading, isError } = useVisit(patientVisitID)
 
@@ -90,19 +114,17 @@ export default function VisitDetailPage() {
       <LabelValue label={t('VISIT_DISCHARGED_LABEL')}
         value={visit.dateTimeOut ? new Date(visit.dateTimeOut).toLocaleString() : null} />
 
-      {[1, 2, 3].map((n) => {
-        const icdCode = visit[`diagnosis${n}` as 'diagnosis1']
-        return (
-          <LabelValue
-            key={n}
-            label={t(`VISIT_DIAGNOSIS_${n}_LABEL`)}
-            value={icdCode
-              ? <span style={{ fontFamily: 'monospace', fontSize: '87.5%' }}>{icdCode}</span>
-              : null
-            }
-          />
-        )
-      })}
+        {[1, 2, 3].map((n) => {
+          const icdCode = visit[`diagnosis${n}` as 'diagnosis1'] ?? null
+          return (
+            <IcdDiagnosisRow
+              key={n}
+              label={t(`VISIT_DIAGNOSIS_${n}_LABEL`)}
+              code={icdCode}
+              language={lang}
+            />
+          )
+        })}
 
       <LabelValue label={t('VISIT_REFERRED_TO_LABEL')} value={visit.referredTo} />
     </>
