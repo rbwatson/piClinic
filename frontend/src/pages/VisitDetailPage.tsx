@@ -10,22 +10,25 @@
  *   LabelValue   — status (full width)
  *   TwoColumnLayout
  *     Left:  SectionHeading "Arrival" + LabelValues
- *            SectionHeading "Pre-Clinic" + vitals table (conditional)
- *     Right: SectionHeading "Additional notes" (conditional) + notes text
- *            SectionHeading "Discharge" + LabelValues (diagnoses, referral)
+ *            SectionHeading "Pre-Clinic" + VitalsDisplaySection
+ *     Right: SectionHeading "Additional notes" (conditional)
+ *            SectionHeading "Discharge" + IcdDiagnosisRow x3 + LabelValues
  */
 
 import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useVisit } from '@/api/visits'
+import { useIcdDescription } from '@/api/icd'
 import PageActions     from '@/components/PageActions'
 import NameBlock       from '@/components/NameBlock'
 import LabelValue      from '@/components/LabelValue'
 import SectionHeading  from '@/components/SectionHeading'
 import TwoColumnLayout from '@/components/TwoColumnLayout'
-import { useIcdDescription } from '@/api/icd'
 import { VitalsDisplaySection } from '@/components/VitalsSection'
-import i18n from '@/lib/i18n'
+
+// ---------------------------------------------------------------------------
+// IcdDiagnosisRow — fetches description for a stored ICD code
+// ---------------------------------------------------------------------------
 
 function IcdDiagnosisRow({ label, code, language }: {
   label: string
@@ -54,7 +57,7 @@ function IcdDiagnosisRow({ label, code, language }: {
 // ---------------------------------------------------------------------------
 
 export default function VisitDetailPage() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const { id } = useParams<{ id: string }>()
   const lang = (i18n.language === 'es' ? 'es' : 'en') as 'en' | 'es'
   const patientVisitID = id ?? ''
@@ -66,11 +69,9 @@ export default function VisitDetailPage() {
   }
 
   const isOpen = visit.visitStatus === 'Open'
-
   const patientName = `${visit.patientLastName}, ${visit.patientFirstName}`
-
   const icdSearchLink = (
-    <a href="/helpHome.php?topic=icd" target="helpIndex">{t('ICD_SEARCH_LINK')}</a>
+    <a href="/helpHome.php?topic=icd" target="helpIndex">{t('ICD_LINK_TEXT')}</a>
   )
 
   const leftColumn = (
@@ -106,7 +107,9 @@ export default function VisitDetailPage() {
       {visit.secondaryComplaint && (
         <>
           <SectionHeading title={t('VISIT_COMPLAINT_ADDITIONAL_LABEL')} />
-          <p className="lv-value" style={{ whiteSpace: 'pre-wrap' }}>{visit.secondaryComplaint}</p>
+          <p className="lv-value" style={{ whiteSpace: 'pre-wrap' }}>
+            {visit.secondaryComplaint}
+          </p>
         </>
       )}
 
@@ -114,17 +117,14 @@ export default function VisitDetailPage() {
       <LabelValue label={t('VISIT_DISCHARGED_LABEL')}
         value={visit.dateTimeOut ? new Date(visit.dateTimeOut).toLocaleString() : null} />
 
-        {[1, 2, 3].map((n) => {
-          const icdCode = visit[`diagnosis${n}` as 'diagnosis1'] ?? null
-          return (
-            <IcdDiagnosisRow
-              key={n}
-              label={t(`VISIT_DIAGNOSIS_${n}_LABEL`)}
-              code={icdCode}
-              language={lang}
-            />
-          )
-        })}
+      {[1, 2, 3].map((n) => (
+        <IcdDiagnosisRow
+          key={n}
+          label={t(`VISIT_DIAGNOSIS_${n}_LABEL`)}
+          code={visit[`diagnosis${n}` as 'diagnosis1'] ?? null}
+          language={lang}
+        />
+      ))}
 
       <LabelValue label={t('VISIT_REFERRED_TO_LABEL')} value={visit.referredTo} />
     </>
@@ -136,8 +136,12 @@ export default function VisitDetailPage() {
         <PageActions.Link to="/patients">{t('PATIENT_FIND_ANOTHER')}</PageActions.Link>
         {isOpen && (
           <>
-            <PageActions.Link to={`/visits/${patientVisitID}/close`}>{t('VISIT_CLOSE_ACTION')}</PageActions.Link>
-            <PageActions.Link to={`/visits/${patientVisitID}/edit`}>{t('VISIT_EDIT_ACTION')}</PageActions.Link>
+            <PageActions.Link to={`/visits/${patientVisitID}/close`}>
+              {t('VISIT_CLOSE_ACTION')}
+            </PageActions.Link>
+            <PageActions.Link to={`/visits/${patientVisitID}/edit`}>
+              {t('VISIT_EDIT_ACTION')}
+            </PageActions.Link>
           </>
         )}
       </PageActions>
