@@ -35,7 +35,6 @@ describe('DiagnosisField', () => {
 
 it('renders condition select with New and Subsequent options', () => {
   renderField()
-  const select = screen.getByRole('combobox', { name: '' })
   // scope by class since both select and ICD input are comboboxes
   const selects = screen.getAllByRole('combobox')
   const conditionSelect = selects.find(el => el.tagName === 'SELECT')
