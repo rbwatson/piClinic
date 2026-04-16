@@ -18,6 +18,10 @@ export const testPatient = {
   lastName:  'E2ETest',
   firstName: 'Runner',
   sex:       'F' as const,
+  // homeState is NOT NULL in the DB — provide an empty string as placeholder
+  homeState: '',
+  homeCity:  '',
+  homeCounty: '',
 }
 
 export const testVisit = {
