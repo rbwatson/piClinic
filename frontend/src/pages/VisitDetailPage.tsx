@@ -91,14 +91,13 @@ export default function VisitDetailPage() {
         value={visit.dateTimeOut ? new Date(visit.dateTimeOut).toLocaleString() : null} />
 
       {[1, 2, 3].map((n) => {
-        const condition = visit[`condition${n}` as 'condition1']
-        const diagnosis = visit[`diagnosis${n}` as 'diagnosis1']
+        const icdCode = visit[`diagnosis${n}` as 'diagnosis1']
         return (
           <LabelValue
             key={n}
             label={t(`VISIT_DIAGNOSIS_${n}_LABEL`)}
-            value={condition
-              ? <><span style={{ fontFamily: 'monospace', fontSize: '87.5%', marginRight: '0.5em' }}>{condition}</span>{diagnosis}</>
+            value={icdCode
+              ? <span style={{ fontFamily: 'monospace', fontSize: '87.5%' }}>{icdCode}</span>
               : null
             }
           />
