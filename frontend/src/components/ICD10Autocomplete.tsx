@@ -103,12 +103,12 @@ export default function ICD10Autocomplete({
   }
 
   function handleSelect(code: IcdCode) {
-    const description = code.shortDescription ?? ''
-    setInputValue(code.icd10code)
+    const desc = code.shortDescription ?? ''
+    setInputValue(`${code.icd10code.padEnd(9)}${desc}`.trimEnd())
     setResults([])
     setIsOpen(false)
     setActiveIndex(-1)
-    onSelect(code.icd10code, description)
+    onSelect(code.icd10code, desc)
   }
 
   function handleKeyDown(e: React.KeyboardEvent) {

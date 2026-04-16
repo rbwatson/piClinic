@@ -242,7 +242,11 @@ export default function VisitEditPage() {
           n={n}
           language={lang}
           conditionValue={watch(`condition${n}` as keyof VisitEditFormValues) ?? ''}
-          icdValue={watch(`condition${n}` as keyof VisitEditFormValues) ?? ''}
+          icdValue={(() => {
+            const code = watch(`condition${n}` as keyof VisitEditFormValues) ?? ''
+            const desc = watch(`diagnosis${n}` as keyof VisitEditFormValues) ?? ''
+            return code ? `${code.padEnd(9)}${desc}`.trimEnd() : desc
+          })()}
           onConditionChange={(val) =>
             setValue(`condition${n}` as keyof VisitEditFormValues, val)
           }
