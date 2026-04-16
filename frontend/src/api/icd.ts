@@ -55,8 +55,10 @@ export function useIcdDescription(code: string | null, language: 'en' | 'es' = '
     queryKey: ['icd', 'description', code, language],
     queryFn:  async () => {
       if (!code) return null
-      const results = await searchIcdCodes({ c: code, language })
-      return results.find(r => r.icd10code === code) ?? null
+      const response = await api.get<IcdCode>(`/icd/${encodeURIComponent(code)}`, {
+        params: { language }
+      })
+      return response.data
     },
     enabled:   !!code,
     staleTime: 5 * 60 * 1000,
