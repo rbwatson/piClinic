@@ -130,6 +130,7 @@ class VisitService
             'staffUsername'            => $data['staffUsername']         ?? null,
             'staffName'                => $data['staffName']             ?? null,
             'staffPosition'            => $data['staffPosition']         ?? null,
+            'primaryComplaint'         => $data['primaryComplaint']      ?? null,
             'firstVisit'               => 'NO',
             'patientLastName'          => $lastName,
             'patientFirstName'         => trim((string) ($patient['firstName']          ?? '')),

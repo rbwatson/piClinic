@@ -98,6 +98,7 @@ class VisitRepository extends BaseRepository
              (`patientVisitID`, `patientID`, `clinicPatientID`, `patientNationalID`,
               `patientFamilyID`, `visitType`, `visitStatus`, `dateTimeIn`,
               `staffUsername`, `staffName`, `staffPosition`,
+              `primaryComplaint`,
               `firstVisit`,
               `patientLastName`, `patientFirstName`, `patientSex`, `patientBirthDate`,
               `patientHomeAddress1`, `patientHomeAddress2`, `patientHomeNeighborhood`,
@@ -107,7 +108,7 @@ class VisitRepository extends BaseRepository
               `patientNextVaccinationDate`, `patientResponsibleParty`,
               `patientMaritalStatus`, `patientProfession`,
               `createdDate`)
-             VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,NOW())'
+             VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,NOW())'
         );
 
         $patientVisitID           = $data['patientVisitID'];
@@ -121,6 +122,7 @@ class VisitRepository extends BaseRepository
         $staffUsername            = $data['staffUsername']            ?? null;
         $staffName                = $data['staffName']                ?? null;
         $staffPosition            = $data['staffPosition']            ?? null;
+        $primaryComplaint         = $data['primaryComplaint']         ?? null;
         $firstVisit               = $data['firstVisit']               ?? 'NO';
         $patientLastName          = $data['patientLastName']          ?? '';
         $patientFirstName         = $data['patientFirstName']         ?? '';
@@ -142,10 +144,11 @@ class VisitRepository extends BaseRepository
         $patientProfession        = $data['patientProfession']        ?? null;
 
         $stmt->bind_param(
-            'sissssssssssssssssssssssssssss',
+            'sissssssssssssssssssssssssssssss',
             $patientVisitID, $patientID, $clinicPatientID, $patientNationalID,
             $patientFamilyID, $visitType, $visitStatus, $dateTimeIn,
             $staffUsername, $staffName, $staffPosition,
+            $primaryComplaint,
             $firstVisit,
             $patientLastName, $patientFirstName, $patientSex, $patientBirthDate,
             $patientHomeAddress1, $patientHomeAddress2, $patientHomeNeighborhood,
