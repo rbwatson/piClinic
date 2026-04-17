@@ -1,18 +1,13 @@
 /**
  * visitDetail.spec.ts
  * E2E display tests for VisitDetailPage.
- *
- * Session is injected via cookie from the API login token
- * rather than logging in through the UI — avoids dependency
- * on the UI login form working correctly in the test environment.
  */
 
 import { test, expect }               from '@playwright/test'
-import { login, logout }              from '../helpers/auth.js'
+import { login, logout, uiLogin }     from '../helpers/auth.js'
 import { createPatient, createVisit } from '../helpers/api.js'
 import { deleteVisit, deletePatient, query } from '../helpers/db.js'
 import { uniquePatientID, testPatient, testVisit } from '../fixtures/testData.js'
-import { env } from '../helpers/env.js'
 
 interface VisitRow {
   patientVisitID:   string
@@ -41,14 +36,7 @@ test.beforeEach(async ({ page }) => {
   })
   patientVisitID = visit.patientVisitID
 
-  // Inject session token as cookie so the React app treats us as logged in.
-  // This avoids depending on the UI login form in the test environment.
-  await page.context().addCookies([{
-    name:   'piclinic_session',
-    value:  sessionToken,
-    domain: new URL(env.baseUrl).hostname,
-    path:   '/',
-  }])
+  await uiLogin(page)
 })
 
 test.afterEach(async () => {
