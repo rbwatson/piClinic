@@ -1,0 +1,22 @@
+# .htaccess
+# React Router client-side routing support.
+#
+# Rewrites all requests that are not real files or directories to index.html
+# so React Router can handle the URL. API requests (/api/) are excluded and
+# pass through to PHP.
+#
+# Requires AllowOverride All in the Apache site config for /var/www/html.
+
+Options -MultiViews
+RewriteEngine On
+
+# Pass API requests through to PHP — do not rewrite
+RewriteRule ^api/ - [L]
+
+# If the request is for a real file or directory, serve it directly
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# All other requests go to index.html for React Router
+RewriteRule ^ index.html [L]
