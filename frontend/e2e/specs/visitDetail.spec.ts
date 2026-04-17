@@ -1,19 +1,16 @@
 /**
  * visitDetail.spec.ts
  * E2E display tests for VisitDetailPage.
- *
- * Verifies that data written directly to the DB (or via the API)
- * is displayed correctly on the read-only detail page.
  */
 
-import { test, expect } from '@playwright/test'
+import { test, expect }              from '@playwright/test'
 import { login, logout }              from '../helpers/auth.js'
 import { createPatient, createVisit } from '../helpers/api.js'
 import { deleteVisit, deletePatient, query } from '../helpers/db.js'
 import { uniquePatientID, testPatient, testVisit } from '../fixtures/testData.js'
 
 interface VisitRow {
-  patientVisitID:  string
+  patientVisitID:   string
   primaryComplaint: string | null
 }
 
@@ -39,10 +36,11 @@ test.beforeEach(async ({ page }) => {
   })
   patientVisitID = visit.patientVisitID
 
+  // Log in via UI using input IDs (stable regardless of i18n language)
   await page.goto('/login')
-  await page.getByLabel('LOGIN_USERNAME').fill(process.env.E2E_TEST_USERNAME!)
-  await page.getByLabel('LOGIN_PASSWORD').fill(process.env.E2E_TEST_PASSWORD!)
-  await page.getByRole('button', { name: 'LOGIN_SUBMIT' }).click()
+  await page.locator('#username').fill(process.env.E2E_TEST_USERNAME!)
+  await page.locator('#password').fill(process.env.E2E_TEST_PASSWORD!)
+  await page.locator('button[type="submit"]').click()
   await page.waitForURL('/')
 })
 
@@ -69,7 +67,8 @@ test('shows visit ID on detail page', async ({ page }) => {
 
 test('shows admitted status for open visit', async ({ page }) => {
   await page.goto(`/visits/${patientVisitID}`)
-  await expect(page.getByText('VISIT_STATUS_OPEN')).toBeVisible()
+  // Match the actual translated text for VISIT_STATUS_OPEN
+  await expect(page.getByText('Admitted')).toBeVisible()
 })
 
 test('data in DB matches what was created via API', async () => {
