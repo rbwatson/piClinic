@@ -19,6 +19,11 @@ let clinicPatientID: string
 let patientVisitID:  string
 
 test.beforeEach(async ({ page }) => {
+  page.on('response', res => {
+    if (res.url().includes('/auth/')) {
+      console.log('AUTH RESPONSE:', res.status(), res.url())
+    }
+  })
   const session = await login()
   sessionToken    = session.token
   clinicPatientID = uniquePatientID()
