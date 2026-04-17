@@ -1,13 +1,18 @@
 /**
  * visitDetail.spec.ts
  * E2E display tests for VisitDetailPage.
+ *
+ * Session is injected via cookie from the API login token
+ * rather than logging in through the UI — avoids dependency
+ * on the UI login form working correctly in the test environment.
  */
 
-import { test, expect }              from '@playwright/test'
+import { test, expect }               from '@playwright/test'
 import { login, logout }              from '../helpers/auth.js'
 import { createPatient, createVisit } from '../helpers/api.js'
 import { deleteVisit, deletePatient, query } from '../helpers/db.js'
 import { uniquePatientID, testPatient, testVisit } from '../fixtures/testData.js'
+import { env } from '../helpers/env.js'
 
 interface VisitRow {
   patientVisitID:   string
@@ -36,12 +41,14 @@ test.beforeEach(async ({ page }) => {
   })
   patientVisitID = visit.patientVisitID
 
-  // Log in via UI using input IDs (stable regardless of i18n language)
-  await page.goto('/login')
-  await page.locator('#username').fill(process.env.E2E_TEST_USERNAME!)
-  await page.locator('#password').fill(process.env.E2E_TEST_PASSWORD!)
-  await page.locator('button[type="submit"]').click()
-  await page.waitForURL('/')
+  // Inject session token as cookie so the React app treats us as logged in.
+  // This avoids depending on the UI login form in the test environment.
+  await page.context().addCookies([{
+    name:   'piclinic_session',
+    value:  sessionToken,
+    domain: new URL(env.baseUrl).hostname,
+    path:   '/',
+  }])
 })
 
 test.afterEach(async () => {
@@ -67,7 +74,6 @@ test('shows visit ID on detail page', async ({ page }) => {
 
 test('shows admitted status for open visit', async ({ page }) => {
   await page.goto(`/visits/${patientVisitID}`)
-  // Match the actual translated text for VISIT_STATUS_OPEN
   await expect(page.getByText('Admitted')).toBeVisible()
 })
 

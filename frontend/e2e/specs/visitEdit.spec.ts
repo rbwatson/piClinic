@@ -1,6 +1,9 @@
 /**
  * visitEdit.spec.ts
  * E2E round-trip tests for VisitEditPage.
+ *
+ * Session is injected via cookie from the API login token
+ * rather than logging in through the UI.
  */
 
 import { test, expect }               from '@playwright/test'
@@ -8,6 +11,7 @@ import { login, logout }              from '../helpers/auth.js'
 import { createPatient, createVisit } from '../helpers/api.js'
 import { deleteVisit, deletePatient, query } from '../helpers/db.js'
 import { uniquePatientID, testPatient, testVisit, testDiagnosis } from '../fixtures/testData.js'
+import { env } from '../helpers/env.js'
 
 interface VisitRow {
   patientVisitID: string
@@ -40,12 +44,13 @@ test.beforeEach(async ({ page }) => {
   })
   patientVisitID = visit.patientVisitID
 
-  // Log in via UI using input IDs (stable regardless of i18n language)
-  await page.goto('/login')
-  await page.locator('#username').fill(process.env.E2E_TEST_USERNAME!)
-  await page.locator('#password').fill(process.env.E2E_TEST_PASSWORD!)
-  await page.locator('button[type="submit"]').click()
-  await page.waitForURL('/')
+  // Inject session token as cookie
+  await page.context().addCookies([{
+    name:   'piclinic_session',
+    value:  sessionToken,
+    domain: new URL(env.baseUrl).hostname,
+    path:   '/',
+  }])
 })
 
 test.afterEach(async () => {
@@ -58,24 +63,19 @@ test('saves diagnosis code and condition correctly', async ({ page }) => {
   await page.goto(`/visits/${patientVisitID}/edit`)
   await page.waitForSelector('.diagnosis-field')
 
-  // Select condition (New diagnosis)
   await page.locator('.diagnosis-field').first()
     .locator('.diagnosis-condition-select').selectOption('NEWDIAG')
 
-  // Type ICD code in autocomplete
   const icdInput = page.locator('.diagnosis-field').first()
     .locator('input[role="combobox"]')
   await icdInput.fill(testDiagnosis.code)
 
-  // Wait for and click the matching result
   await page.waitForSelector('ul[role="listbox"]')
   await page.locator('ul[role="listbox"] li').first().click()
 
-  // Submit
   await page.locator('button[type="submit"]').click()
   await page.waitForURL(`/visits/${patientVisitID}`)
 
-  // --- DB verification ---
   const rows = await query<VisitRow>(
     'SELECT patientVisitID, diagnosis1, condition1 FROM visit WHERE patientVisitID = ?',
     [patientVisitID]
@@ -96,7 +96,6 @@ test('saves vitals correctly', async ({ page }) => {
   await page.locator('button[type="submit"]').click()
   await page.waitForURL(`/visits/${patientVisitID}`)
 
-  // --- DB verification ---
   const rows = await query<VisitRow>(
     'SELECT pulse, bpSystolic, bpDiastolic FROM visit WHERE patientVisitID = ?',
     [patientVisitID]
@@ -123,7 +122,6 @@ test('detail page shows ICD code with description after save', async ({ page }) 
   await page.locator('button[type="submit"]').click()
   await page.waitForURL(`/visits/${patientVisitID}`)
 
-  // Detail page should show the composite code + description string
   await expect(page.getByText(new RegExp(testDiagnosis.code))).toBeVisible()
   await expect(page.getByText(new RegExp(testDiagnosis.description))).toBeVisible()
 })
