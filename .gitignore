@@ -3,6 +3,7 @@
 .DS_*
 *.swp
 *.swo
+.vscode/
 
 # Claude Code worktree metadata
 .claude/
@@ -47,3 +48,11 @@ frontend/coverage/
 
 # Composer lock is committed; vendor is not
 # npm lock is committed; node_modules is not
+
+# Playwright
+.github/workflows/
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
