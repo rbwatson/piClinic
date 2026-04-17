@@ -14,6 +14,7 @@ interface ApiOptions {
 }
 
 async function post<T>(path: string, body: unknown, { token }: ApiOptions): Promise<T> {
+  console.log('POSTING to: ', path, ' with data: ', JSON.stringify(body))
   const res = await fetch(`${env.baseUrl}/api/v2${path}`, {
     method:  'POST',
     headers: {
@@ -51,13 +52,14 @@ export async function createPatient(
 export interface CreatedVisit {
   patientVisitID:  string
   clinicPatientID: string
+  primaryComplaint: string
 }
 
 export async function createVisit(
   opts: ApiOptions & {
     clinicPatientID: string
     visitType:       string
-    primaryComplaint?: string
+    primaryComplaint: string
   }
 ): Promise<CreatedVisit> {
   const { token, ...body } = opts

@@ -40,6 +40,7 @@ test.beforeEach(async ({ page }) => {
     ...testVisit,
   })
   patientVisitID = visit.patientVisitID
+  console.log ('visit created with primary complaint of: ', visit.primaryComplaint)
 
   await uiLogin(page)
 })
@@ -50,31 +51,66 @@ test.afterEach(async () => {
   await logout(sessionToken)
 })
 
-test('shows patient name on detail page', async ({ page }) => {
-  await page.goto(`/visits/${patientVisitID}`)
+const testNameX1= 'click view link in dashboard for patient'
+test (testNameX1, async({ page}) => {
+  console.log('TEST: ', testNameX1)  
+  await page.locator('tr')
+  .filter({ hasText: 'Runner E2ETest' })
+  .getByRole('link', { name: 'View' })
+  .click();
   await expect(page.getByRole('heading', { level: 1 })).toContainText(testPatient.lastName)
 })
 
-test('shows primary complaint on detail page', async ({ page }) => {
-  await page.goto(`/visits/${patientVisitID}`)
-  await expect(page.getByText(testVisit.primaryComplaint)).toBeVisible()
+const testName1= 'shows patient name on detail page'
+test(testName1, async ({ page }) => {
+  console.log('TEST: ', testName1)
+  await page.locator('tr')
+  .filter({ hasText: 'Runner E2ETest' })
+  .getByRole('link', { name: 'View' })
+  .click();
+  await expect(page.getByRole('heading', { level: 1 })).toContainText(testPatient.lastName)
 })
 
-test('shows visit ID on detail page', async ({ page }) => {
-  await page.goto(`/visits/${patientVisitID}`)
+const testName2 = 'shows primary complaint on detail page'
+test(testName2, async ({ page }) => {
+  console.log('TEST: ', testName2)
+  await page.locator('tr')
+  .filter({ hasText: 'Runner E2ETest' })
+  .getByRole('link', { name: 'View' })
+  .click();
+  await expect((page.locator('div.label-value')
+  .filter({hasText: 'Primary reason for visit'}).filter({hasText: testVisit.primaryComplaint}))).toBeVisible()
+})
+
+const testName3 = 'shows visit ID on detail page'
+test(testName3, async ({ page }) => {
+  console.log('TEST: ', testName3)
+  await page.locator('tr')
+  .filter({ hasText: 'Runner E2ETest' })
+  .getByRole('link', { name: 'View' })
+  .click();
   await expect(page.getByText(patientVisitID)).toBeVisible()
 })
 
-test('shows admitted status for open visit', async ({ page }) => {
-  await page.goto(`/visits/${patientVisitID}`)
-  await expect(page.getByText('Admitted')).toBeVisible()
+const testName4 = 'shows admitted status for open visit'
+test(testName4, async ({ page }) => {
+  console.log('TEST: ', testName4)
+  await page.locator('tr')
+  .filter({ hasText: 'Runner E2ETest' })
+  .getByRole('link', { name: 'View' })
+  .click();
+  await expect((page.locator('div.label-value')
+  .filter({hasText: 'Status'}).filter({hasText: 'Admitted'}))).toBeVisible()
 })
 
-test('data in DB matches what was created via API', async () => {
-  const rows = await query<VisitRow>(
-    'SELECT patientVisitID, primaryComplaint FROM visit WHERE patientVisitID = ?',
-    [patientVisitID]
-  )
+const testName5 = 'data in DB matches what was created via API'
+test(testName5, async () => {
+  const sqlStatement = 'SELECT patientVisitID, primaryComplaint FROM visit WHERE patientVisitID = ' + patientVisitID
+  console.log('TEST: ', testName5, 'QUERY: ', sqlStatement)
+  const rows = await query<VisitRow>( sqlStatement )
+  if (rows.length > 0) {
+    console.log( ' QUERY RESULT: ', JSON.stringify(rows) )
+  }
   expect(rows).toHaveLength(1)
   expect(rows[0].primaryComplaint).toBe(testVisit.primaryComplaint)
 })

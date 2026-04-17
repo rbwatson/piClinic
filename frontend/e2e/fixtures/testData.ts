@@ -19,9 +19,9 @@ export const testPatient = {
   firstName: 'Runner',
   sex:       'F' as const,
   // homeState is NOT NULL in the DB — provide an empty string as placeholder
-  homeState: '',
-  homeCity:  '',
-  homeCounty: '',
+  homeState: 'State',
+  homeCity:  'City',
+  homeCounty: 'County',
 }
 
 export const testVisit = {
