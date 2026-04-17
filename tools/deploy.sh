@@ -171,7 +171,8 @@ build_and_copy_frontend() {
 
   log "Copying dist/ to www_v2/html/..."
   mkdir -p "$dest_dir"
-  rsync -a --delete --exclude='.gitkeep' --exclude='api/' --exclude='phpinfo.php' \
+  rsync -a --delete --exclude='.gitkeep' --exclude='api/' \
+    --exclude='phpinfo.php' --exclude='.htaccess' \
     "${dist_dir}/" "${dest_dir}/" \
     || die "Failed to copy dist/ to www_v2/html/"
 

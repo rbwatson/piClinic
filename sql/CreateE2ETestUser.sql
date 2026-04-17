@@ -76,9 +76,9 @@ FLUSH PRIVILEGES;
 
 SET @insert_staff_sql = CONCAT(
   'INSERT INTO staff ',
-  '(username, lastName, firstName, position, active, accessGranted, preferredLanguage, password) ',
+  '(username, lastName, firstName, position, active, accessGranted, preferredLanguage, password, createdDate) ',
   'VALUES (''e2e_testuser'', ''E2E'', ''TestUser'', ''ClinicStaff'', 1, ''ClinicAdmin'', ''en'', ''',
-  @e2e_test_password_hash, ''') ',
+  @e2e_test_password_hash, '', NOW()) ',
   'ON DUPLICATE KEY UPDATE ',
   'password = VALUES(password), ',
   'accessGranted = VALUES(accessGranted), ',
