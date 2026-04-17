@@ -42,28 +42,31 @@ export async function logout(token: string): Promise<void> {
 
 /**
  * Log in through the UI login form and wait for the dashboard to load.
- * Uses the same credentials as the API login.
  *
- * Waits for networkidle after navigation to ensure the React app has
- * fully bootstrapped before interacting with form elements.
+ * Uses pressSequentially() instead of fill() to fire React onChange events
+ * on each keystroke — fill() sets the native value directly and React's
+ * controlled input re-renders back to empty on the next state update.
  */
 export async function uiLogin(page: Page): Promise<void> {
   await page.goto('/login')
-  // Wait for the React app to fully render before interacting
   await page.waitForLoadState('networkidle')
   await page.waitForSelector('#username', { timeout: 10000 })
 
-  // Clear and fill to avoid residual values from previous test runs
-  await page.locator('#username').clear()
-  await page.locator('#username').fill(env.test.username)
-  await page.locator('#password').clear()
-  await page.locator('#password').fill(env.test.password)
+  // Click to focus, then type character by character to trigger React onChange
+  await page.locator('#username').click()
+  await page.locator('#username').pressSequentially(env.test.username)
 
-  // Verify values were entered before submitting
+  await page.locator('#password').click()
+  await page.locator('#password').pressSequentially(env.test.password)
+
+  // Verify values are set in React state before submitting
   const usernameValue = await page.locator('#username').inputValue()
   const passwordValue = await page.locator('#password').inputValue()
   if (!usernameValue || !passwordValue) {
-    throw new Error(`E2E uiLogin: credentials not filled — username="${usernameValue}" password="${passwordValue ? '[set]' : '[empty]'}"`)
+    throw new Error(
+      `E2E uiLogin: credentials not set — ` +
+      `username="${usernameValue}" password="${passwordValue ? '[set]' : '[empty]'}"`
+    )
   }
 
   await page.locator('button[type="submit"]').click()
