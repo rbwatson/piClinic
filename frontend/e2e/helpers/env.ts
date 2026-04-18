@@ -6,8 +6,12 @@
 
 import { config } from 'dotenv'
 import path from 'path'
+import { fileURLToPath } from 'url'
 
-config({ path: path.resolve(import.meta.dirname, '../.env.e2e') })
+const __filename = fileURLToPath(import.meta.url)
+const __dirname  = path.dirname(__filename)
+
+config({ path: path.resolve(__dirname, '../.env.e2e') })
 
 function require(name: string): string {
   const val = process.env[name]
