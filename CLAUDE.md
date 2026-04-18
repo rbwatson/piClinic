@@ -17,7 +17,7 @@ piClinic is a clinic information system designed for resource-constrained enviro
 ## Branch Strategy
 
 | Branch | Purpose |
-|--------|---------|
+|--------|----------|
 | `main` | v1.x production code. Not modified while v1 systems are running. |
 | `main_v2` | Stable v2.0 code. Receives merges from phase branches at phase-end Go/No-Go decisions only. |
 | `phase-3-frontend-core` | Current working branch. |
@@ -93,14 +93,15 @@ git branch --show-current
 
 ## Frontend Build and Deploy
 
-The Pi never runs a build step. Build on the dev machine and deploy the output:
+The Pi never runs a build step. Build on the dev machine and deploy the output.
+For PHP-only changes, use `--skip-build` to avoid a full frontend rebuild:
 
 ```bash
-cd ~/piClinic/frontend
-npm run build                   # compiles to frontend/dist/
-cp -r dist/* ../www_v2/html/   # copy to deployment tree
-cd ~/piClinic
-bash tools/deploy.sh v2        # copy to /var/www/ and restart Apache
+# Full deploy (PHP + frontend)
+bash tools/deploy.sh v2
+
+# PHP-only change (skip frontend rebuild)
+bash tools/deploy.sh v2 --skip-build
 ```
 
 `www_v2/html/.htaccess` rewrites all non-file, non-API requests to `index.html`
@@ -131,6 +132,27 @@ frontend/src/
 ├── test/           # Test setup (setup.ts)
 └── App.tsx         # Root router
 ```
+
+## PHP Backend Notes
+
+### mysqli bind_param type strings
+
+When writing `bind_param()` calls with long type strings, **always verify the
+character count programmatically** before committing. Manual counting is
+unreliable for strings longer than ~10 characters and will cause a runtime
+`Fatal error: The number of elements in the type definition string must match
+the number of bind variables`.
+
+Use Python to verify:
+```python
+variables = ['s', 'i', 's', 's', ...]  # one entry per bound variable
+correct = ''.join(variables)
+print(f'String: "{correct}"  Length: {len(correct)}')
+```
+
+The type string length must equal the number of `?` placeholders in the SQL
+statement. `NOW()` and other SQL expressions do not use `?` and do not appear
+in the type string.
 
 ## Testing Philosophy
 
@@ -166,6 +188,70 @@ and component tests are in place.
 Target: one E2E test per major workflow (login, create patient, open visit,
 close visit). These are regression guards for the full stack.
 
+### E2E test conventions
+
+**Navigation:** Always navigate by clicking UI elements — never use
+`page.goto()` to jump directly to a protected page. The session token lives
+in `sessionStorage` and survives link-click navigation within the same tab,
+but `page.goto()` can race with session restore.
+
+**Targeting dashboard rows:** When the dashboard may show multiple rows
+(including from previous test runs), scope the locator to the specific visit's
+href rather than filtering by patient name:
+
+```ts
+await page.locator('tr')
+  .filter({ has: page.locator(`a[href="/visits/${patientVisitID}"]`) })
+  .getByRole('link', { name: 'View' })
+  .click()
+```
+
+**Element targeting:** Use `data-testid` attributes on value-bearing elements
+for assertions. Do not rely on translated text strings in locators — they will
+break if translations change. Form inputs already have `id` attributes
+(e.g. `#pulse`, `#primaryComplaint`) which are stable selectors.
+
+**Text assertions:** When asserting on rendered text, use the English values
+from `frontend/src/locales/en.json`, not i18n key names. The deployed app
+renders real translated text. Key values to remember:
+- `VISIT_STATUS_OPEN` → `"Admitted"`
+- `VISIT_STATUS_CLOSED` → `"Discharged"`
+
+**Strict mode:** Playwright throws if a locator matches more than one element.
+Chain multiple `.filter()` calls to narrow to exactly one match:
+
+```ts
+// Narrow to the Status field specifically (not 'Admitted to clinic')
+page.locator('div.label-value')
+  .filter({ hasText: 'Status' })
+  .filter({ hasText: 'Admitted' })
+```
+
+**Stale test data:** If a test run is aborted before `afterEach` runs,
+`PT-E2E-` prefixed patients and visits are left in the database and cause
+strict-mode violations on the next run. Clean up manually:
+
+```sql
+DELETE FROM visit   WHERE clinicPatientID LIKE 'PT-E2E-%';
+DELETE FROM patient WHERE clinicPatientID LIKE 'PT-E2E-%';
+```
+
+**DB queries in tests:** Always use parameterized queries — never string
+concatenation:
+
+```ts
+// Correct
+const rows = await query<VisitRow>(
+  'SELECT primaryComplaint FROM visit WHERE patientVisitID = ?',
+  [patientVisitID]
+)
+
+// Wrong — do not do this
+const rows = await query<VisitRow>(
+  'SELECT primaryComplaint FROM visit WHERE patientVisitID = ' + patientVisitID
+)
+```
+
 ### Extract pure functions for testability
 
 Business logic that lives inside a component cannot be unit-tested without
@@ -183,7 +269,9 @@ components and tested in `patientForm.utils.test.ts`.
 - Unit/component tests: co-located with the source file, `.test.ts` or `.test.tsx` suffix
 - Pure utility tests: `src/lib/featureName.utils.test.ts`
 - API module tests: `src/api/moduleName.utils.test.ts`
-- E2E tests: `src/test/e2e/workflowName.spec.ts` (Playwright)
+- E2E tests: `frontend/e2e/specs/workflowName.spec.ts` (Playwright)
+- E2E helpers: `frontend/e2e/helpers/` (auth.ts, api.ts, db.ts, env.ts)
+- E2E fixtures: `frontend/e2e/fixtures/testData.ts`
 - Test setup: `src/test/setup.ts`
 
 ### Mock strategy
@@ -201,11 +289,23 @@ components and tested in `patientForm.utils.test.ts`.
 
 ```bash
 cd ~/piClinic/frontend
-npm test                  # run all unit/component tests once
-npm run test:watch        # watch mode during development
-npm run test:coverage     # coverage report
-npm run test:e2e          # Playwright E2E tests (requires backend running)
+npm test                              # run all unit/component tests once
+npx playwright test                   # E2E tests (run from frontend/)
+npx playwright test --headed          # E2E with visible browser
+npx playwright test e2e/specs/visitDetail.spec.ts  # single spec file
 ```
+
+### E2E environment setup
+
+E2E tests require `frontend/e2e/.env.e2e` (gitignored). Create from the example:
+
+```bash
+cp frontend/e2e/.env.e2e.example frontend/e2e/.env.e2e
+# Edit with real DB credentials and test user password
+```
+
+The E2E test user and DB account are created by `sql/CreateE2ETestUser.sql`.
+All E2E test records use the `PT-E2E-` prefix for easy identification.
 
 ### Coverage targets
 
@@ -271,9 +371,8 @@ cd ~/piClinic/frontend
 npm run dev                           # dev server (port 5173, proxies /api to :80)
 npm run build                         # production build to dist/
 npm test                              # Vitest unit/component tests
-npm run test:watch                    # watch mode
-npm run test:coverage                 # coverage report
-npm run test:e2e                      # Playwright E2E
+npx playwright test                   # Playwright E2E tests
+npx playwright test --headed          # E2E with visible browser
 
 # Generate TypeScript types from OpenAPI spec
 npx openapi-typescript \
@@ -283,9 +382,11 @@ npx openapi-typescript \
 
 ### Deploy
 ```bash
-cd ~/piClinic/frontend && npm run build
-cp -r dist/* ../www_v2/html/
-cd ~/piClinic && bash tools/deploy.sh v2
+# Full deploy (rebuilds frontend)
+bash tools/deploy.sh v2
+
+# PHP-only change
+bash tools/deploy.sh v2 --skip-build
 ```
 
 ## Performance Targets
@@ -309,6 +410,6 @@ cd ~/piClinic && bash tools/deploy.sh v2
 
 ---
 
-**Document Version:** 2.0
+**Document Version:** 2.1
 **Created:** 2026-03-22
-**Last Updated:** 2026-04-13
+**Last Updated:** 2026-04-18
