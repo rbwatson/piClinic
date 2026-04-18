@@ -2,12 +2,14 @@
  * visitDetail.spec.ts
  * E2E display tests for VisitDetailPage.
  *
- * Navigation strategy: click the View link whose href matches the
- * patientVisitID created in beforeEach. This avoids strict-mode
- * violations when multiple E2E test patients appear on the dashboard.
+ * Navigation strategy: find the dashboard row containing the View link
+ * for the specific visit created in beforeEach, then click View within
+ * that row. This confirms the row exists in the table and is strict-mode
+ * safe regardless of how many other E2E records are on the dashboard.
  */
 
 import { test, expect }               from '@playwright/test'
+import type { Page }                  from '@playwright/test'
 import { login, logout, uiLogin }     from '../helpers/auth.js'
 import { createPatient, createVisit } from '../helpers/api.js'
 import { deleteVisit, deletePatient, query } from '../helpers/db.js'
@@ -49,9 +51,16 @@ test.afterEach(async () => {
   await logout(sessionToken)
 })
 
-/** Click the View link for the visit created in beforeEach and wait for the detail page. */
-async function navigateToVisitDetail(page: Parameters<typeof test>[1] extends (args: { page: infer P }) => unknown ? P : never) {
-  await page.locator(`a[href="/visits/${patientVisitID}"]`).click()
+/**
+ * Find the dashboard row for the visit created in beforeEach and click
+ * its View link. Scoping to the row that contains the visit's href ensures
+ * exactly one match even when multiple E2E visits appear on the dashboard.
+ */
+async function navigateToVisitDetail(page: Page): Promise<void> {
+  await page.locator('tr')
+    .filter({ has: page.locator(`a[href="/visits/${patientVisitID}"]`) })
+    .getByRole('link', { name: 'View' })
+    .click()
   await page.waitForURL(`/visits/${patientVisitID}`)
 }
 
