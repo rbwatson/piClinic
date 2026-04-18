@@ -89,7 +89,9 @@ test('shows visit ID on detail page', async ({ page }) => {
 test('shows admitted status for open visit', async ({ page }) => {
   await navigateToVisitDetail(page)
   await expect(
-    page.locator('div.label-value').filter({ hasText: 'Admitted' })
+    page.locator('div.label-value')
+      .filter({ hasText: 'Status' })
+      .filter({ hasText: 'Admitted' })
   ).toBeVisible()
 })
 
