@@ -5,7 +5,7 @@
  * Navigation strategy: find the dashboard row containing the View link
  * for the specific visit created in beforeEach, then click View within
  * that row. This confirms the row exists in the table and is strict-mode
- * safe regardless of how many other E2E records are on the dashboard.
+ * safe regardless of how many other E2E visits appear on the dashboard.
  */
 
 import { test, expect }               from '@playwright/test'
@@ -86,10 +86,10 @@ test('shows visit ID on detail page', async ({ page }) => {
   await expect(page.getByText(patientVisitID)).toBeVisible()
 })
 
-test('shows open status for open visit', async ({ page }) => {
+test('shows admitted status for open visit', async ({ page }) => {
   await navigateToVisitDetail(page)
   await expect(
-    page.locator('div.label-value').filter({ hasText: 'Open' })
+    page.locator('div.label-value').filter({ hasText: 'Admitted' })
   ).toBeVisible()
 })
 
